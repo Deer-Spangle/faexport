@@ -1,0 +1,156 @@
+# app.rb - Simple data export and feeds from FA
+#
+# Copyright (C) 2015 Boothale <boothale@gmail.com>
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#   * Redistributions of source code must retain the above copyright notice,
+#     this list of conditions and the following disclaimer.
+#   * Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#   * Neither the name of FAExport nor the names of its contributors may be
+#     used to endorse or promote products derived from this software without
+#     specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+require 'sinatra'
+require 'sinatra/json'
+require 'builder'
+require 'redis'
+require './lib/scraper'
+require 'active_support/core_ext'
+
+CACHE_TIME = 30 # Seconds
+CONTENT_TYPES = {
+  'json' => 'application/json',
+  'xml' => 'application/xml',
+  'rss' => 'application/rss+xml'
+}
+REDIS_URL = ENV['REDISTOGO_URL']
+
+def cache(key, expire = 0)
+  @@redis ||= (REDIS_URL ? Redis.new(url: REDIS_URL) : Redis.new)
+  @@redis.get(key) || begin
+    value = yield
+    @@redis.set(key, value)
+    @@redis.expire(key, expire) if expire > 0
+    value
+  end
+end
+
+get '/' do
+  @base_url = request.base_url
+  haml :index
+end
+
+get %r{/user/([a-zA-Z0-9\-_~.]+)\.(json|xml)} do |name, type|
+  content_type CONTENT_TYPES[type]
+  cache("data:#{name}.#{type}", CACHE_TIME) do
+    case type
+    when 'json'
+      JSON.pretty_generate open_user(name)
+    when 'xml'
+      open_user(name).to_xml(root: 'user', skip_types: true)
+    end
+  end
+end
+
+get %r{/journals/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |name, type|
+  content_type CONTENT_TYPES[type]
+  cache("journals:#{name}.#{type}", CACHE_TIME) do
+    case type
+    when 'rss'
+      @name = name.capitalize
+      @base = 'journals'
+      @link = "http://www.furaffinity.net/journals/#{name}/"
+      @posts = list_journals(name).map do |id|
+        cache "journal:#{id}.rss" do
+          @post = open_journal(id)
+          @description = "<p>#{@post[:description]}</p>"
+          builder :post
+        end
+      end
+      builder :feed
+    when 'json'
+      JSON.pretty_generate list_journals(name).map {|id| open_journal(id)}
+    when 'xml'
+      list_journals(name).map {|id| open_journal(id)}.to_xml(root: 'journals', skip_types: true)
+    end
+  end
+end
+
+get %r{/(gallery|scraps)/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |base, name, type|
+  content_type CONTENT_TYPES[type]
+  cache("#{base}:#{name}.#{type}", CACHE_TIME) do
+    case type
+    when 'rss'
+      @name = name.capitalize
+      @base = base.capitalize
+      @link = "http://www.furaffinity.net/#{base}/#{name}/"
+      @posts = list_submissions(name, base, 1).map do |id|
+        cache "submission:#{id}.rss" do
+          @post = open_submission(id)
+          @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:image]}"\
+                         "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+          builder :post
+        end
+      end
+      builder :feed
+    when 'json'
+      JSON.pretty_generate list_submissions(name, base, 1).map {|id| open_submission(id)}
+    when 'xml'
+      list_submissions(name, base, 1).map {|id| open_submission(id)}.to_xml(root: 'submissions', skip_types: true)
+    end
+  end
+end
+
+get %r{/shouts/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |name, type|
+  content_type CONTENT_TYPES[type]
+  cache("shouts:#{name}.#{type}", CACHE_TIME) do
+    case type
+    when 'rss'
+      @name = name.capitalize
+      @base = 'shouts'
+      @link = "http://www.furaffinity.net/user/#{name}"
+      @posts = list_shouts(name).map do |shout|
+        @post = {
+          title: "Shout from #{shout[:name]}",
+          link: "http://www.furaffinity.net/user/#{name}/##{shout[:id]}",
+          posted: shout[:posted]
+        }
+        @description = shout[:text]
+        builder :post
+      end
+      builder :feed
+    when 'json'
+      JSON.pretty_generate list_shouts(name)
+    when 'xml'
+      list_shouts(name).to_xml(root: 'shouts', skip_types: true)
+    end
+  end
+end
+
+error FAError do
+  status 404
+  "FA returned an error page when trying to access #{env['sinatra.error'].url}. "\
+  "Did you enter your username correctly?"
+end
+
+error do
+  status 500
+  'FAExport encounter an internal error'
+end

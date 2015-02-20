@@ -1,0 +1,23 @@
+#welcome {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+#name {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.lead {
+    font-size: 21px;
+}
+
+dt {
+    font-size: 18px;
+}
+
+dd {
+    margin: 5px 20px;
+}

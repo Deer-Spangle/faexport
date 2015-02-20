@@ -1,0 +1,33 @@
+!!! 5
+%html{lang: 'en'}
+  %head
+    %title FAExport
+    %meta{charset: 'utf-8'}/
+    %meta{name: 'description', content: 'Quick and simple access to FA data'}
+    %link{href: '/css/index.css', rel: 'stylesheet', type: 'text/css'}
+  %body
+    #welcome
+      %h1 FAExport
+      %p.lead Simple data export and feeds from FA
+      %input#name{type: 'text', placeholder: 'name', autocomplete: 'off'}
+      %dl#links{style: 'display: none'}
+        %dt User
+        %dd
+          - %w(json xml).map do |type|
+            %a.name{href: '#', :'data-format' => "#{@base_url}/user/{name}.#{type}"}
+              = "#{@base_url}/user/"
+              %span> name
+              = ".#{type}"
+            %br
+        - %w(gallery scraps journals shouts).each do |path|
+          %dt= path.capitalize
+          %dd
+            - %w(json xml rss).each do |type|
+              %a.name{href: '#', :'data-format' => "#{@base_url}/#{path}/{name}.#{type}"}
+                = "#{@base_url}/#{path}/"
+                %span> name
+                = ".#{type}"
+              %br
+    %script{type: 'text/javascript', src: 'https://code.jquery.com/jquery-2.1.1.min.js'}
+    %script{type: 'text/javascript', src: '/js/index.js'}
+

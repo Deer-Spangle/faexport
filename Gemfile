@@ -1,0 +1,10 @@
+source 'https://rubygems.org'
+
+gem 'thin', '~> 1.6.3'
+gem 'sinatra', '~> 1.4.5'
+gem 'sinatra-contrib', '~> 1.4.2'
+gem 'redis', '~> 3.1.0'
+gem 'haml', '~> 4.0.5'
+gem 'builder', '~> 3.2.2'
+gem 'nokogiri', '~> 1.6.3.1'
+gem 'activesupport', '~> 4.1.6'
