@@ -38,7 +38,7 @@ SETTINGS_FILE = 'settings.yml'
 if File.exist?('settings.yml')
   SETTINGS = YAML.load_file('settings.yml')
 else
-  SETTINGS = { 'username' => ENV['FD_USERNAME'], 'password' => ENV['FD_PASSWORD'] }
+  SETTINGS = { 'username' => ENV['FA_USERNAME'], 'password' => ENV['FA_PASSWORD'] }
 end
 
 class FAError < StandardError
