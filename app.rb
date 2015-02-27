@@ -32,6 +32,7 @@ require 'sinatra/json'
 require 'builder'
 require 'redis'
 require './lib/scraper'
+require './lib/cache'
 require 'active_support/core_ext'
 
 CACHE_TIME = 30 # Seconds
@@ -40,17 +41,6 @@ CONTENT_TYPES = {
   'xml' => 'application/xml',
   'rss' => 'application/rss+xml'
 }
-REDIS_URL = ENV['REDISTOGO_URL']
-
-def cache(key, expire = 0)
-  @@redis ||= (REDIS_URL ? Redis.new(url: REDIS_URL) : Redis.new)
-  @@redis.get(key) || begin
-    value = yield
-    @@redis.set(key, value)
-    @@redis.expire(key, expire) if expire > 0
-    value
-  end
-end
 
 get '/' do
   @base_url = request.base_url

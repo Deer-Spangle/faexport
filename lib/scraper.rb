@@ -32,6 +32,7 @@ require 'open-uri'
 require 'net/http'
 require 'yaml'
 require 'benchmark'
+require './lib/cache'
 
 USER_AGENT = 'FAExport'
 SETTINGS_FILE = 'settings.yml'
@@ -72,9 +73,9 @@ end
 def fa_open(path)
   fa_login unless @login_cookie
   url = fa_url(path)
-  raw = open(url,
-             'User-Agent' => USER_AGENT,
-             'Cookie' => @login_cookie)
+  raw = cache("url:#{url}", 30) do
+    open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie)
+  end
   html = Nokogiri::HTML(raw)
   raise FAError(url) if html.xpath('//head//title').first.content == 'System Error'
   html
