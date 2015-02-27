@@ -33,6 +33,7 @@ require 'builder'
 require 'redis'
 require './lib/scraper'
 require './lib/cache'
+require 'active_support'
 require 'active_support/core_ext'
 
 CACHE_TIME = 30 # Seconds
