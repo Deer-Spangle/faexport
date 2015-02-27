@@ -42,6 +42,14 @@ CONTENT_TYPES = {
   'xml' => 'application/xml',
   'rss' => 'application/rss+xml'
 }
+SETTINGS_FILE = 'settings.yml'
+if File.exist?('settings.yml')
+  SETTINGS = YAML.load_file('settings.yml')
+else
+  SETTINGS = { 'username' => ENV['FA_USERNAME'], 'password' => ENV['FA_PASSWORD'] }
+end
+
+FA = Furaffinity.new(SETTINGS['username'], SETTINGS['password'])
 
 get '/' do
   @base_url = request.base_url
@@ -53,9 +61,9 @@ get %r{/user/([a-zA-Z0-9\-_~.]+)\.(json|xml)} do |name, type|
   cache("data:#{name}.#{type}", CACHE_TIME) do
     case type
     when 'json'
-      JSON.pretty_generate open_user(name)
+      JSON.pretty_generate FA.user(name)
     when 'xml'
-      open_user(name).to_xml(root: 'user', skip_types: true)
+      FA.user(name).to_xml(root: 'user', skip_types: true)
     end
   end
 end
@@ -68,18 +76,18 @@ get %r{/journals/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |name, type|
       @name = name.capitalize
       @base = 'journals'
       @link = "http://www.furaffinity.net/journals/#{name}/"
-      @posts = list_journals(name).map do |id|
+      @posts = FA.journals(name).map do |id|
         cache "journal:#{id}.rss" do
-          @post = open_journal(id)
+          @post = FA.journal(id)
           @description = "<p>#{@post[:description]}</p>"
           builder :post
         end
       end
       builder :feed
     when 'json'
-      JSON.pretty_generate list_journals(name).map {|id| open_journal(id)}
+      JSON.pretty_generate FA.journals(name).map {|id| FA.journal(id)}
     when 'xml'
-      list_journals(name).map {|id| open_journal(id)}.to_xml(root: 'journals', skip_types: true)
+      FA.journals(name).map {|id| FA.journal(id)}.to_xml(root: 'journals', skip_types: true)
     end
   end
 end
@@ -92,9 +100,9 @@ get %r{/(gallery|scraps)/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |base, name, ty
       @name = name.capitalize
       @base = base.capitalize
       @link = "http://www.furaffinity.net/#{base}/#{name}/"
-      @posts = list_submissions(name, base, 1).map do |id|
+      @posts = FA.submissions(name, base, 1).map do |id|
         cache "submission:#{id}.rss" do
-          @post = open_submission(id)
+          @post = FA.submission(id)
           @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:image]}"\
                          "\"/></a><br/><br/><p>#{@post[:description]}</p>"
           builder :post
@@ -102,9 +110,9 @@ get %r{/(gallery|scraps)/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |base, name, ty
       end
       builder :feed
     when 'json'
-      JSON.pretty_generate list_submissions(name, base, 1).map {|id| open_submission(id)}
+      JSON.pretty_generate FA.submissions(name, base, 1).map {|id| FA.submission(id)}
     when 'xml'
-      list_submissions(name, base, 1).map {|id| open_submission(id)}.to_xml(root: 'submissions', skip_types: true)
+      FA.submissions(name, base, 1).map {|id| FA.submission(id)}.to_xml(root: 'submissions', skip_types: true)
     end
   end
 end
@@ -117,7 +125,7 @@ get %r{/shouts/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |name, type|
       @name = name.capitalize
       @base = 'shouts'
       @link = "http://www.furaffinity.net/user/#{name}"
-      @posts = list_shouts(name).map do |shout|
+      @posts = FA.shouts(name).map do |shout|
         @post = {
           title: "Shout from #{shout[:name]}",
           link: "http://www.furaffinity.net/user/#{name}/##{shout[:id]}",
@@ -128,9 +136,9 @@ get %r{/shouts/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |name, type|
       end
       builder :feed
     when 'json'
-      JSON.pretty_generate list_shouts(name)
+      JSON.pretty_generate FA.shouts(name)
     when 'xml'
-      list_shouts(name).to_xml(root: 'shouts', skip_types: true)
+      FA.shouts(name).to_xml(root: 'shouts', skip_types: true)
     end
   end
 end

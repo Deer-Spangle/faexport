@@ -28,13 +28,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 REDIS_URL = ENV['REDISTOGO_URL']
+REDIS = REDIS_URL ? Redis.new(url: REDIS_URL) : Redis.new
 
 def cache(key, expire = 0)
-  @@redis ||= (REDIS_URL ? Redis.new(url: REDIS_URL) : Redis.new)
-  @@redis.get(key) || begin
+  REDIS.get(key) || begin
     value = yield
-    @@redis.set(key, value)
-    @@redis.expire(key, expire) if expire > 0
+    REDIS.set(key, value)
+    REDIS.expire(key, expire) if expire > 0
     value
   end
 end
