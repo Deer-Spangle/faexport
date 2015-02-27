@@ -1,6 +1,6 @@
 # app.rb - Simple data export and feeds from FA
 #
-# Copyright (C) 2015 Boothale <boothale@gmail.com>
+# Copyright (C) 2015 Erra Boothale <erra@boothale.net>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
