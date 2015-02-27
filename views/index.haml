@@ -14,7 +14,7 @@
         %dt User
         %dd
           - %w(json xml).map do |type|
-            %a.name{href: '#', :'data-format' => "#{@base_url}/user/{name}.#{type}"}
+            %a.name{href: '#', target: '_blank', :'data-format' => "#{@base_url}/user/{name}.#{type}"}
               = "#{@base_url}/user/"
               %span> name
               = ".#{type}"
@@ -23,7 +23,7 @@
           %dt= path.capitalize
           %dd
             - %w(json xml rss).each do |type|
-              %a.name{href: '#', :'data-format' => "#{@base_url}/#{path}/{name}.#{type}"}
+              %a.name{href: '#', target: '_blank', :'data-format' => "#{@base_url}/#{path}/{name}.#{type}"}
                 = "#{@base_url}/#{path}/"
                 %span> name
                 = ".#{type}"
