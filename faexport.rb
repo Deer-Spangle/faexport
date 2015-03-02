@@ -169,8 +169,8 @@ get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps)\.(rss|json|xml)} do |name, fol
   end
 end
 
-# /submission/<id>.json
-# /submission/<id>.xml
+# /submission/{id}.json
+# /submission/{id}.xml
 get %r{/submission/([0-9]+)\.(json|xml)} do |id, type|
   content_type CONTENT_TYPES[type]
   CACHE.add("submission:#{id}.#{type}") do
@@ -183,8 +183,8 @@ get %r{/submission/([0-9]+)\.(json|xml)} do |id, type|
   end
 end
 
-# /journal/<id>.json
-# /journal/<id>.xml
+# /journal/{id}.json
+# /journal/{id}.xml
 get %r{/journal/([0-9]+)\.(json|xml)} do |id, type|
   content_type CONTENT_TYPES[type]
   CACHE.add("journal:#{id}.#{type}") do
