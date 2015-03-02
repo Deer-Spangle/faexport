@@ -1,42 +1,5 @@
-#welcome {
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.lead {
-    font-size: 21px;
-}
-
-.menu {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-    text-align: center;
-    overflow: hidden;
-}
-
-.menu li {
-    float: left;
-    margin-right: 10px;
-}
-
-.menu a {
-    text-decoration: none;
-    color: #000000;
-}
-
-.menu a:hover {
-    color: #4183C4;
-}
-
 h1 {
     margin-bottom: 0;
-}
-
-input {
-    width: 300px;
-    padding: 10px;
-    font-size: 16px;
 }
 
 dt {
@@ -46,3 +9,41 @@ dt {
 dd {
     margin: 5px 20px;
 }
+
+#boxes input {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+}
+
+#welcome {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+#menu {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    text-align: center;
+    overflow: hidden;
+}
+
+#menu li {
+    float: left;
+    margin-right: 10px;
+}
+
+#menu a {
+    text-decoration: none;
+    color: #000000;
+}
+
+#menu a:hover {
+    color: #4183C4;
+}
+
+.lead {
+    font-size: 21px;
+}
+
