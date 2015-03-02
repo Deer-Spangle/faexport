@@ -75,10 +75,10 @@ The id's of all journals posted by a user.
 
 # /user/*{name}*/*{folder}*
 
-Gets the id's first submissions from the specified folder.
+Gets the id's of the first few submissions from the specified folder.
 Options for `{folder}` are `gallery` and `scraps`.
 By default, the first 60 submissions are returned.
-You can pass a parameter `?page=` to load more submissions.
+You can pass a parameter `?page=2` to load more.
 
 *Formats:* `json`, `xml`, `rss`
 
