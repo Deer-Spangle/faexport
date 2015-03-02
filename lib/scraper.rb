@@ -187,14 +187,15 @@ private
 
   def fetch(path)
     url = fa_url(path)
-    raw = open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie)
+    raw = cache("url:#{url}", 30) do
+      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie)
+    end
     html = Nokogiri::HTML(raw)
 
     head = html.xpath('//head//title').first
     if !head || head.content == 'System Error'
+      uncache("url:#{url}")
       raise FAError.new(url) 
-    else
-      cache("url:#{url}", 30) { raw }
     end
 
     html
