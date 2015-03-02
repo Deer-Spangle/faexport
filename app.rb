@@ -56,6 +56,8 @@ get '/' do
   haml :index
 end
 
+# /user/<name>.json
+# /user/<name>.xml
 get %r{/user/([a-zA-Z0-9\-_~.]+)\.(json|xml)} do |name, type|
   content_type CONTENT_TYPES[type]
   cache("data:#{name}.#{type}", CACHE_TIME) do
@@ -68,62 +70,16 @@ get %r{/user/([a-zA-Z0-9\-_~.]+)\.(json|xml)} do |name, type|
   end
 end
 
-get %r{/journals/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |name, type|
-  content_type CONTENT_TYPES[type]
-  cache("journals:#{name}.#{type}", CACHE_TIME) do
-    case type
-    when 'rss'
-      @name = name.capitalize
-      @base = 'journals'
-      @link = "http://www.furaffinity.net/journals/#{name}/"
-      @posts = FA.journals(name).map do |id|
-        cache "journal:#{id}.rss" do
-          @post = FA.journal(id)
-          @description = "<p>#{@post[:description]}</p>"
-          builder :post
-        end
-      end
-      builder :feed
-    when 'json'
-      JSON.pretty_generate FA.journals(name).map {|id| FA.journal(id)}
-    when 'xml'
-      FA.journals(name).map {|id| FA.journal(id)}.to_xml(root: 'journals', skip_types: true)
-    end
-  end
-end
-
-get %r{/(gallery|scraps)/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |base, name, type|
-  content_type CONTENT_TYPES[type]
-  cache("#{base}:#{name}.#{type}", CACHE_TIME) do
-    case type
-    when 'rss'
-      @name = name.capitalize
-      @base = base.capitalize
-      @link = "http://www.furaffinity.net/#{base}/#{name}/"
-      @posts = FA.submissions(name, base, 1).map do |id|
-        cache "submission:#{id}.rss" do
-          @post = FA.submission(id)
-          @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:image]}"\
-                         "\"/></a><br/><br/><p>#{@post[:description]}</p>"
-          builder :post
-        end
-      end
-      builder :feed
-    when 'json'
-      JSON.pretty_generate FA.submissions(name, base, 1).map {|id| FA.submission(id)}
-    when 'xml'
-      FA.submissions(name, base, 1).map {|id| FA.submission(id)}.to_xml(root: 'submissions', skip_types: true)
-    end
-  end
-end
-
-get %r{/shouts/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |name, type|
+#/user/<name>/shouts.rss
+#/user/<name>/shouts.json
+#/user/<name>/shouts.xml
+get %r{/user/([a-zA-Z0-9\-_~.]+)/shouts\.(rss|json|xml)} do |name, type|
   content_type CONTENT_TYPES[type]
   cache("shouts:#{name}.#{type}", CACHE_TIME) do
     case type
     when 'rss'
       @name = name.capitalize
-      @base = 'shouts'
+      @resource = 'shouts'
       @link = "http://www.furaffinity.net/user/#{name}"
       @posts = FA.shouts(name).map do |shout|
         @post = {
@@ -143,6 +99,93 @@ get %r{/shouts/([a-zA-Z0-9\-_~.]+)\.(rss|json|xml)} do |name, type|
   end
 end
 
+
+# /user/<name>/journals.rss
+# /user/<name>/journals.json
+# /user/<name>/journals.xml
+get %r{/user/([a-zA-Z0-9\-_~.]+)/journals\.(rss|json|xml)} do |name, type|
+  content_type CONTENT_TYPES[type]
+  cache("journals:#{name}.#{type}", CACHE_TIME) do
+    case type
+    when 'rss'
+      @name = name.capitalize
+      @resource = 'journals'
+      @link = "http://www.furaffinity.net/journals/#{name}/"
+      @posts = FA.journals(name).map do |id|
+        cache "journal:#{id}.rss" do
+          @post = FA.journal(id)
+          @description = "<p>#{@post[:description]}</p>"
+          builder :post
+        end
+      end
+      builder :feed
+    when 'json'
+      JSON.pretty_generate FA.journals(name)
+    when 'xml'
+      FA.journals(name).to_xml(root: 'journals', skip_types: true)
+    end
+  end
+end
+
+# /user/<name>/gallery.rss
+# /user/<name>/gallery.json
+# /user/<name>/gallery.xml
+# /user/<name>/scraps.rss
+# /user/<name>/scraps.json
+# /user/<name>/scraps.xml
+get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps)\.(rss|json|xml)} do |name, folder, type|
+  content_type CONTENT_TYPES[type]
+  cache("#{folder}:#{name}.#{type}", CACHE_TIME) do
+    case type
+    when 'rss'
+      @name = name.capitalize
+      @resource = folder.capitalize
+      @link = "http://www.furaffinity.net/#{folder}/#{name}/"
+      @posts = FA.submissions(name, folder, 1).map do |id|
+        cache "submission:#{id}.rss" do
+          @post = FA.submission(id)
+          @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:image]}"\
+                         "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+          builder :post
+        end
+      end
+      builder :feed
+    when 'json'
+      JSON.pretty_generate FA.submissions(name, folder, 1)
+    when 'xml'
+      FA.submissions(name, folder, 1).to_xml(root: 'submissions', skip_types: true)
+    end
+  end
+end
+
+# /journal/<id>.json
+# /journal/<id>.xml
+get %r{/journal/([0-9]+)\.(json|xml)} do |id, type|
+  content_type CONTENT_TYPES[type]
+  cache("journal:#{id}.#{type}", CACHE_TIME) do
+    case type
+    when 'json'
+      JSON.pretty_generate FA.journal(id)
+    when 'xml'
+      FA.journal(id).to_xml(root: 'journal', skip_types: true)
+    end
+  end
+end
+
+# /submission/<id>.json
+# /submission/<id>.xml
+get %r{/submission/([0-9]+)\.(json|xml)} do |id, type|
+  content_type CONTENT_TYPES[type]
+  cache("submission:#{id}.#{type}", CACHE_TIME) do
+    case type
+    when 'json'
+      JSON.pretty_generate FA.submission(id)
+    when 'xml'
+      FA.submission(id).to_xml(root: 'submission', skip_types: true)
+    end
+  end
+end
+
 error FAError do
   status 404
   "FA returned an error page when trying to access #{env['sinatra.error'].url}. "\
@@ -153,3 +196,4 @@ error do
   status 500
   'FAExport encounter an internal error'
 end
+

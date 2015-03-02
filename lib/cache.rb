@@ -39,3 +39,6 @@ def cache(key, expire = 0)
   end
 end
 
+def uncache(key)
+  REDIS.del(key)
+end

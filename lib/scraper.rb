@@ -98,7 +98,7 @@ class Furaffinity
       title: html.at_css('td.cat b').content,
       description: submission.css('td.alt1')[2].children.to_s.strip,
       link: fa_url("view/#{id}/"),
-      posted: raw_info.at_css('span').content,
+      posted: pick_date(raw_info.at_css('.popup_date')),
       image: "http:#{html.css('.actions a')[2]['href']}",
       thumbnail: "http:#{html.at_css('img#submissionImg')['src']}",
       category: field(info, 'Category'),
@@ -120,14 +120,14 @@ class Furaffinity
       title: html.at_css('td.cat b').content.strip,
       description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
       link: fa_url("journal/#{id}/"),
-      posted: html.at_css('td.cat span')['title']
+      posted: pick_date(html.at_css('td.cat .popup_date'))
     }
   end
 
-  def submissions(user, area, max_pages = 10)
+  def submissions(user, folder, max_pages = 10)
     submissions = []
     (1..max_pages).each do |page|
-      html = fetch("#{area}/#{user}/#{page}/")
+      html = fetch("#{folder}/#{user}/#{page}/")
       found = html.css('td.alt1 b.t-image').map do |art|
         art['id'].gsub('sid_', '')
       end
@@ -149,7 +149,7 @@ class Furaffinity
       {
         id: shout.attr('id'),
         name: shout.css('.lead.addpad a')[0].content,
-        posted: shout.css('.popup_date')[0].content,
+        posted: pick_date(shout.at_css('.popup_date')),
         text: shout.css('.no_overflow.alt1')[0].children.to_s.strip
       }
     end
@@ -172,6 +172,10 @@ private
     nil
   end
 
+  def pick_date(tag)
+    tag.content.include?('ago') ? tag['title'] : tag.content
+  end
+
   def html_field(info, field)
     (info[/<b>#{field}:<\/b>(.+?)<br>/, 1] || '').gsub(%r{</?[^>]+?>}, '').strip
   end
@@ -182,11 +186,16 @@ private
 
   def fetch(path)
     url = fa_url(path)
-    raw = cache("url:#{url}", 30) do
-      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie)
-    end
+    raw = open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie)
     html = Nokogiri::HTML(raw)
-    raise FAError(url) if html.xpath('//head//title').first.content == 'System Error'
+
+    head = html.xpath('//head//title').first
+    if !head || head.content == 'System Error'
+      raise FAError.new(url) 
+    else
+      cache("url:#{url}", 30) { raw }
+    end
+
     html
   end
 end
