@@ -142,7 +142,7 @@ end
 # /user/{name}/scraps.xml
 get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps)\.(rss|json|xml)} do |name, folder, type|
   content_type CONTENT_TYPES[type]
-  page = params[:page] || 1
+  page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
   cache("#{folder}:#{name}.#{type}?#{page}", CACHE_TIME) do
     case type
     when 'rss'
