@@ -29,18 +29,23 @@
 
 require 'redis'
 
-REDIS_URL = ENV['REDISTOGO_URL']
-REDIS = REDIS_URL ? Redis.new(url: REDIS_URL) : Redis.new
+class RedisCache
+  def initialize(redis_url = nil, expire = 0)
+    @redis = redis_url ? Redis.new(url: redis_url) : Redis.new
+    @expire = expire
+  end
 
-def cache(key, expire = 0)
-  REDIS.get(key) || begin
-    value = yield
-    REDIS.set(key, value)
-    REDIS.expire(key, expire) if expire > 0
-    value
+  def add(key)
+    @redis.get(key) || begin
+      value = yield
+      @redis.set(key, value)
+      @redis.expire(key, @expire)
+      value
+    end
+  end
+
+  def remove(key)
+    @redis.del(key)
   end
 end
 
-def uncache(key)
-  REDIS.del(key)
-end

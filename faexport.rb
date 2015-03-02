@@ -38,6 +38,7 @@ require 'sinatra/json'
 require 'yaml'
 
 CACHE_TIME = 30 # Seconds
+REDIS_URL = ENV['REDISTOGO_URL']
 CONTENT_TYPES = {
   'json' => 'application/json',
   'xml' => 'application/xml',
@@ -50,7 +51,9 @@ else
   SETTINGS = { 'username' => ENV['FA_USERNAME'], 'password' => ENV['FA_PASSWORD'] }
 end
 
-FA = Furaffinity.new(SETTINGS['username'], SETTINGS['password'])
+CACHE = RedisCache.new(REDIS_URL, CACHE_TIME)
+FA = Furaffinity.new(CACHE)
+FA.login(SETTINGS['username'], SETTINGS['password'])
 
 get '/' do
   @base_url = request.base_url
@@ -67,7 +70,7 @@ end
 # /user/{name}.xml
 get %r{/user/([a-zA-Z0-9\-_~.]+)\.(json|xml)} do |name, type|
   content_type CONTENT_TYPES[type]
-  cache("data:#{name}.#{type}", CACHE_TIME) do
+  CACHE.add("data:#{name}.#{type}") do
     case type
     when 'json'
       JSON.pretty_generate FA.user(name)
@@ -82,7 +85,7 @@ end
 #/user/{name}/shouts.xml
 get %r{/user/([a-zA-Z0-9\-_~.]+)/shouts\.(rss|json|xml)} do |name, type|
   content_type CONTENT_TYPES[type]
-  cache("shouts:#{name}.#{type}", CACHE_TIME) do
+  CACHE.add("shouts:#{name}.#{type}") do
     case type
     when 'rss'
       @name = name.capitalize
@@ -112,7 +115,7 @@ end
 # /user/{name}/journals.xml
 get %r{/user/([a-zA-Z0-9\-_~.]+)/journals\.(rss|json|xml)} do |name, type|
   content_type CONTENT_TYPES[type]
-  cache("journals:#{name}.#{type}", CACHE_TIME) do
+  CACHE.add("journals:#{name}.#{type}") do
     case type
     when 'rss'
       @name = name.capitalize
@@ -143,7 +146,7 @@ end
 get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps)\.(rss|json|xml)} do |name, folder, type|
   content_type CONTENT_TYPES[type]
   page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
-  cache("#{folder}:#{name}.#{type}?#{page}", CACHE_TIME) do
+  CACHE.add("#{folder}:#{name}.#{type}?#{page}") do
     case type
     when 'rss'
       @name = name.capitalize
@@ -170,7 +173,7 @@ end
 # /submission/<id>.xml
 get %r{/submission/([0-9]+)\.(json|xml)} do |id, type|
   content_type CONTENT_TYPES[type]
-  cache("submission:#{id}.#{type}", CACHE_TIME) do
+  CACHE.add("submission:#{id}.#{type}") do
     case type
     when 'json'
       JSON.pretty_generate FA.submission(id)
@@ -184,7 +187,7 @@ end
 # /journal/<id>.xml
 get %r{/journal/([0-9]+)\.(json|xml)} do |id, type|
   content_type CONTENT_TYPES[type]
-  cache("journal:#{id}.#{type}", CACHE_TIME) do
+  CACHE.add("journal:#{id}.#{type}") do
     case type
     when 'json'
       JSON.pretty_generate FA.journal(id)

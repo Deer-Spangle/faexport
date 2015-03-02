@@ -27,7 +27,6 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require './lib/cache'
 require 'net/http'
 require 'nokogiri'
 require 'open-uri'
@@ -42,11 +41,14 @@ class FAError < StandardError
   end
 end
 
+class EmptyCache
+  def add(key, expire = 0) yield; end
+  def remove(key) end
+end
+
 class Furaffinity
-  def initialize(username = nil, password = nil)
-    if username && password
-      login(username, password)
-    end
+  def initialize(cache = nil)
+    @cache = cache || EmptyCache.new
   end
 
   def login(username, password)
@@ -178,14 +180,14 @@ private
 
   def fetch(path)
     url = fa_url(path)
-    raw = cache("url:#{url}", 30) do
+    raw = @cache.add("url:#{url}") do
       open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie)
     end
     html = Nokogiri::HTML(raw)
 
     head = html.xpath('//head//title').first
     if !head || head.content == 'System Error'
-      uncache("url:#{url}")
+      @cache.remove("url:#{url}")
       raise FAError.new(url) 
     end
 
