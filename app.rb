@@ -27,15 +27,15 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-require 'sinatra'
-require 'sinatra/json'
-require 'builder'
-require 'redis'
-require 'rdiscount'
-require './lib/scraper'
 require './lib/cache'
+require './lib/scraper'
 require 'active_support'
 require 'active_support/core_ext'
+require 'builder'
+require 'rdiscount'
+require 'sinatra'
+require 'sinatra/json'
+require 'yaml'
 
 CACHE_TIME = 30 # Seconds
 CONTENT_TYPES = {

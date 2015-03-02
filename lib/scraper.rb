@@ -27,12 +27,10 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require './lib/cache'
+require 'net/http'
 require 'nokogiri'
 require 'open-uri'
-require 'net/http'
-require 'yaml'
-require 'benchmark'
-require './lib/cache'
 
 USER_AGENT = 'FAExport'
 
