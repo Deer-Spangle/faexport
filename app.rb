@@ -31,6 +31,7 @@ require 'sinatra'
 require 'sinatra/json'
 require 'builder'
 require 'redis'
+require 'rdiscount'
 require './lib/scraper'
 require './lib/cache'
 require 'active_support'
@@ -53,11 +54,17 @@ FA = Furaffinity.new(SETTINGS['username'], SETTINGS['password'])
 
 get '/' do
   @base_url = request.base_url
-  haml :index
+  haml :index, layout: :page
 end
 
-# /user/<name>.json
-# /user/<name>.xml
+get '/docs' do
+  haml :page do
+    markdown :docs
+  end
+end
+
+# /user/{name}.json
+# /user/{name}.xml
 get %r{/user/([a-zA-Z0-9\-_~.]+)\.(json|xml)} do |name, type|
   content_type CONTENT_TYPES[type]
   cache("data:#{name}.#{type}", CACHE_TIME) do
@@ -70,9 +77,9 @@ get %r{/user/([a-zA-Z0-9\-_~.]+)\.(json|xml)} do |name, type|
   end
 end
 
-#/user/<name>/shouts.rss
-#/user/<name>/shouts.json
-#/user/<name>/shouts.xml
+#/user/{name}/shouts.rss
+#/user/{name}/shouts.json
+#/user/{name}/shouts.xml
 get %r{/user/([a-zA-Z0-9\-_~.]+)/shouts\.(rss|json|xml)} do |name, type|
   content_type CONTENT_TYPES[type]
   cache("shouts:#{name}.#{type}", CACHE_TIME) do
@@ -100,9 +107,9 @@ get %r{/user/([a-zA-Z0-9\-_~.]+)/shouts\.(rss|json|xml)} do |name, type|
 end
 
 
-# /user/<name>/journals.rss
-# /user/<name>/journals.json
-# /user/<name>/journals.xml
+# /user/{name}/journals.rss
+# /user/{name}/journals.json
+# /user/{name}/journals.xml
 get %r{/user/([a-zA-Z0-9\-_~.]+)/journals\.(rss|json|xml)} do |name, type|
   content_type CONTENT_TYPES[type]
   cache("journals:#{name}.#{type}", CACHE_TIME) do
@@ -127,12 +134,12 @@ get %r{/user/([a-zA-Z0-9\-_~.]+)/journals\.(rss|json|xml)} do |name, type|
   end
 end
 
-# /user/<name>/gallery.rss
-# /user/<name>/gallery.json
-# /user/<name>/gallery.xml
-# /user/<name>/scraps.rss
-# /user/<name>/scraps.json
-# /user/<name>/scraps.xml
+# /user/{name}/gallery.rss
+# /user/{name}/gallery.json
+# /user/{name}/gallery.xml
+# /user/{name}/scraps.rss
+# /user/{name}/scraps.json
+# /user/{name}/scraps.xml
 get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps)\.(rss|json|xml)} do |name, folder, type|
   content_type CONTENT_TYPES[type]
   page = params[:page] || 1
@@ -159,20 +166,6 @@ get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps)\.(rss|json|xml)} do |name, fol
   end
 end
 
-# /journal/<id>.json
-# /journal/<id>.xml
-get %r{/journal/([0-9]+)\.(json|xml)} do |id, type|
-  content_type CONTENT_TYPES[type]
-  cache("journal:#{id}.#{type}", CACHE_TIME) do
-    case type
-    when 'json'
-      JSON.pretty_generate FA.journal(id)
-    when 'xml'
-      FA.journal(id).to_xml(root: 'journal', skip_types: true)
-    end
-  end
-end
-
 # /submission/<id>.json
 # /submission/<id>.xml
 get %r{/submission/([0-9]+)\.(json|xml)} do |id, type|
@@ -183,6 +176,20 @@ get %r{/submission/([0-9]+)\.(json|xml)} do |id, type|
       JSON.pretty_generate FA.submission(id)
     when 'xml'
       FA.submission(id).to_xml(root: 'submission', skip_types: true)
+    end
+  end
+end
+
+# /journal/<id>.json
+# /journal/<id>.xml
+get %r{/journal/([0-9]+)\.(json|xml)} do |id, type|
+  content_type CONTENT_TYPES[type]
+  cache("journal:#{id}.#{type}", CACHE_TIME) do
+    case type
+    when 'json'
+      JSON.pretty_generate FA.journal(id)
+    when 'xml'
+      FA.journal(id).to_xml(root: 'journal', skip_types: true)
     end
   end
 end

@@ -1,43 +1,31 @@
-!!! 5
-%html{lang: 'en'}
-  %head
-    %title FAExport
-    %meta{charset: 'utf-8'}/
-    %meta{name: 'description', content: 'Quick and simple access to FA data'}
-    %link{href: '/css/index.css', rel: 'stylesheet', type: 'text/css'}
-  %body
-    #welcome
-      %h1 FAExport
-      %p.lead Simple data export and feeds from FA
-      %input#name{type: 'text', placeholder: 'name', autocomplete: 'off'}
-      %input#id{type: 'text', placeholder: 'id', autocomplete: 'off'}
-      %dl#links{style: 'display: none'}
-        %dt User
-        %dd
-          - %w(json xml).map do |type|
-            %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/user/{name}.#{type}"}
-              = "#{@base_url}/user/"
-              %span.name> name
-              = ".#{type}"
-            %br
-        - %w(shouts gallery scraps journals).each do |resource|
-          %dt= resource.capitalize
-          %dd
-            - %w(json xml rss).each do |type|
-              %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/user/{name}/#{resource}.#{type}"}
-                = "#{@base_url}/user/"
-                %span.name> name
-                = "/#{resource}.#{type}"
-              %br
-        - %w(journal submission).each do |resource|
-          %dt= resource.capitalize
-          %dd
-            - %w(json xml).each do |type|
-              %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/#{resource}/{id}.#{type}"}
-                = "#{@base_url}/#{resource}/"
-                %span.id> id
-                = ".#{type}"
-              %br
-    %script{type: 'text/javascript', src: 'https://code.jquery.com/jquery-2.1.1.min.js'}
-    %script{type: 'text/javascript', src: '/js/index.js'}
+%p.lead Simple data export and feeds from FA
+%input#name{type: 'text', placeholder: 'name', autocomplete: 'off'}
+%input#id{type: 'text', placeholder: 'id', autocomplete: 'off'}
+%dl#links{style: 'display: none'}
+  %dt User
+  %dd
+    - %w(json xml).map do |type|
+      %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/user/{name}.#{type}"}
+        = "#{@base_url}/user/"
+        %span.name> name
+        = ".#{type}"
+      %br
+  - %w(shouts gallery scraps journals).each do |resource|
+    %dt= resource.capitalize
+    %dd
+      - %w(json xml rss).each do |type|
+        %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/user/{name}/#{resource}.#{type}"}
+          = "#{@base_url}/user/"
+          %span.name> name
+          = "/#{resource}.#{type}"
+        %br
+  - %w(submission journal).each do |resource|
+    %dt= resource.capitalize
+    %dd
+      - %w(json xml).each do |type|
+        %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/#{resource}/{id}.#{type}"}
+          = "#{@base_url}/#{resource}/"
+          %span.id> id
+          = ".#{type}"
+        %br
 

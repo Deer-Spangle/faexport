@@ -2,7 +2,9 @@ $(function() {
     function update() {
         var name = $('#name').val();
         var id = $('#id').val();
-        if (name) {
+        if (name || id) {
+            if (!name) { name = "{name}"; }
+            if (!id) { id = "{id}"; }
             $('#links').show();
             $('.resource').each(function() {
                 var link = $(this).attr('data-format').replace('{name}', name)

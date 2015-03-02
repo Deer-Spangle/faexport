@@ -25,6 +25,7 @@ GEM
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
+    rdiscount (2.1.8)
     redis (3.1.0)
     sinatra (1.4.5)
       rack (~> 1.4)
@@ -54,6 +55,7 @@ DEPENDENCIES
   builder (~> 3.2.2)
   haml (~> 4.0.5)
   nokogiri (~> 1.6.3.1)
+  rdiscount (~> 2.1.8)
   redis (~> 3.1.0)
   sinatra (~> 1.4.5)
   sinatra-contrib (~> 1.4.2)

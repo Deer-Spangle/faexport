@@ -114,6 +114,10 @@ class Furaffinity
     }
   end
 
+  def submission_comments(id)
+    html = fetch("view/#{id}/")
+  end
+
   def journal(id)
     html = fetch("journal/#{id}/")
     {
@@ -122,6 +126,9 @@ class Furaffinity
       link: fa_url("journal/#{id}/"),
       posted: pick_date(html.at_css('td.cat .popup_date'))
     }
+  end
+
+  def journal_comments(id)
   end
 
   def submissions(user, folder, page)
