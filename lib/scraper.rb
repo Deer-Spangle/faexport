@@ -124,17 +124,11 @@ class Furaffinity
     }
   end
 
-  def submissions(user, folder, max_pages = 10)
-    submissions = []
-    (1..max_pages).each do |page|
-      html = fetch("#{folder}/#{user}/#{page}/")
-      found = html.css('td.alt1 b.t-image').map do |art|
-        art['id'].gsub('sid_', '')
-      end
-      break if found.empty?
-      submissions.push(*found)
+  def submissions(user, folder, page)
+    html = fetch("#{folder}/#{user}/#{page}/")
+    html.css('td.alt1 b.t-image').map do |art|
+      art['id'].gsub('sid_', '')
     end
-    submissions
   end
 
   def journals(user)

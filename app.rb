@@ -135,13 +135,14 @@ end
 # /user/<name>/scraps.xml
 get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps)\.(rss|json|xml)} do |name, folder, type|
   content_type CONTENT_TYPES[type]
-  cache("#{folder}:#{name}.#{type}", CACHE_TIME) do
+  page = params[:page] || 1
+  cache("#{folder}:#{name}.#{type}?#{page}", CACHE_TIME) do
     case type
     when 'rss'
       @name = name.capitalize
       @resource = folder.capitalize
       @link = "http://www.furaffinity.net/#{folder}/#{name}/"
-      @posts = FA.submissions(name, folder, 1).map do |id|
+      @posts = FA.submissions(name, folder, page).map do |id|
         cache "submission:#{id}.rss" do
           @post = FA.submission(id)
           @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:image]}"\
@@ -151,9 +152,9 @@ get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps)\.(rss|json|xml)} do |name, fol
       end
       builder :feed
     when 'json'
-      JSON.pretty_generate FA.submissions(name, folder, 1)
+      JSON.pretty_generate FA.submissions(name, folder, page)
     when 'xml'
-      FA.submissions(name, folder, 1).to_xml(root: 'submissions', skip_types: true)
+      FA.submissions(name, folder, page).to_xml(root: 'submissions', skip_types: true)
     end
   end
 end
