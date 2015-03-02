@@ -199,8 +199,7 @@ end
 
 error FAError do
   status 404
-  "FA returned an error page when trying to access #{env['sinatra.error'].url}. "\
-  "Did you enter your username correctly?"
+  "FA returned an error page when trying to access #{env['sinatra.error'].url}."
 end
 
 error do
