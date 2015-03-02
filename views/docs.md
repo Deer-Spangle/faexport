@@ -3,7 +3,7 @@ For example, to get json data about Fender's profile, you could request `/user/f
 RSS feeds are only available on 'list' type data and contain actual info rather than just ids.
 For this reason they take much longer to load and should only be checked periodically.
 Everything is cached for 30 seconds so spamming requests won't do anything.
-Please report any bugs or inconsistencies to [erra@boothale.net](mailto:erra@boothale.net).
+Please report any bugs to [erra@boothale.net](mailto:erra@boothale.net).
 
 ## /user/*{name}*
 
