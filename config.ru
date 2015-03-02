@@ -1,2 +1,2 @@
-require './app'
+require './faexport'
 run Sinatra::Application
