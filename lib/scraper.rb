@@ -97,7 +97,7 @@ class Furaffinity
       description: submission.css('td.alt1')[2].children.to_s.strip,
       link: fa_url("view/#{id}/"),
       posted: pick_date(raw_info.at_css('.popup_date')),
-      image: "http:#{html.css('.actions a')[2]['href']}",
+      full: "http:#{html.css('.actions a')[2]['href']}",
       thumbnail: "http:#{html.at_css('img#submissionImg')['src']}",
       category: field(info, 'Category'),
       theme: field(info, 'Theme'),
