@@ -73,7 +73,7 @@ The id's of all journals posted by a user.
 ]
 ~~~
 
-# /user/*{name}*/*{folder}*
+## /user/*{name}*/*{folder}*
 
 Gets the id's of the first few submissions from the specified folder.
 Options for `{folder}` are `gallery` and `scraps`.
