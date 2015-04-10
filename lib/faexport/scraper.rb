@@ -41,11 +41,26 @@ class FAError < StandardError
   end
 end
 
-class FALoginError < StandardError
-  attr_accessor :url
-  def initialize(url)
-    super('Error logging into FA')
-    @url = url
+class FAStatusError < FAError
+  def initialize(url, status)
+    super(url)
+    @status = status
+  end
+
+  def to_s
+    "FA returned a status of '#{@status}' while trying to access #{@url}."
+  end
+end
+
+class FASystemError < FAError
+  def to_s
+    "FA returned a system error page when trying to access #{@url}."
+  end
+end
+
+class FALoginError < FAError
+  def to_s
+    "Unable to log into FA to access #{@url}."
   end
 end
 
@@ -196,22 +211,26 @@ private
 
   def fetch(path)
     url = fa_url(path)
-    raw = @cache.add("url:#{url}") do
-      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie)
+    raw = open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie) do |response|
+      if response.status[0] != '200'
+        raise FAStatusError.new(url, response.status.join(' ')) 
+      else
+        response.read
+      end
     end
+
     html = Nokogiri::HTML(raw)
 
     head = html.xpath('//head//title').first
     if !head || head.content == 'System Error'
-      @cache.remove("url:#{url}")
-      raise FAError.new(url) 
+      raise FASystemError.new(url) 
     end
 
     if html.to_s.include?('has elected to make their content available to registered users only.')
-      @cache.remove("url:#{url}")
       raise FALoginError.new(url)
     end
 
+    @cache.add("url:#{url}") { raw }
     html
   end
 

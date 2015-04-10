@@ -249,14 +249,19 @@ module FAExport
       end
     end
 
-    error FAError do
+    error FAStatusError do
+      status 502
+      env['sinatra.error'].message
+    end
+
+    error FASystemError do
       status 404
-      "FA returned an error page when trying to access #{env['sinatra.error'].url}."
+      env['sinatra.error'].message
     end
 
     error FALoginError do
       status 403
-      "Unable to log into FA to access #{env['sinatra.error'].url}."
+      env['sinatra.error'].message
     end
 
     error do
