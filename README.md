@@ -2,7 +2,7 @@ FAExport
 ========
 
 Simple data export and feeds from FA.
-Check out the [documentation](http://faexport.boothale.net/docs/) for a full list of functionality.
+Check out the [documentation](http://faexport.boothale.net/docs) for a full list of functionality.
 The file `lib/faexport/scraper.rb` contains all the code required to access data from FA.
 
 Development Setup
