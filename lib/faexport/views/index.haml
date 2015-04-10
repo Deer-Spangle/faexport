@@ -36,7 +36,7 @@
     %dd
       - %w(json xml).each do |type|
         %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/#{resource}/{id}/comments.#{type}"}
-          = "#{@base_url}/#{resource}"
+          = "#{@base_url}/#{resource}/"
           %span.id> id
           = "/comments.#{type}"
         %br
