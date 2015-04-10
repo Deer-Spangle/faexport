@@ -140,7 +140,7 @@ class Furaffinity
   def journal(id)
     html = fetch("journal/#{id}/")
     {
-      title: html.at_css('td.cat b').content.strip,
+      title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
       description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
       link: fa_url("journal/#{id}/"),
       posted: pick_date(html.at_css('td.cat .popup_date'))
