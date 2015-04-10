@@ -220,6 +220,34 @@ module FAExport
       end
     end
 
+    # /submission/{id}/comments.json
+    # /submission/{id}/comments.xml
+    get %r{/submission/([0-9]+)/comments\.(json|xml)} do |id, type|
+      set_content_type(type)
+      cache("submissions_comments:#{id}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.submission_comments(id)
+        when 'xml'
+          @fa.submission_comments(id).to_xml(root: 'comments', skip_types: true)
+        end
+      end
+    end
+
+    # /journal/{id}/comments.json
+    # /journal/{id}/comments.xml
+    get %r{/journal/([0-9]+)/comments\.(json|xml)} do |id, type|
+      set_content_type(type)
+      cache("journal_comments:#{id}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.journal_comments(id)
+        when 'xml'
+          @fa.journal_comments(id).to_xml(root: 'comments', skip_types: true)
+        end
+      end
+    end
+
     error FAError do
       status 404
       "FA returned an error page when trying to access #{env['sinatra.error'].url}."

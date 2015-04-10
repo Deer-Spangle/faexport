@@ -149,6 +149,14 @@ class Furaffinity
     end
   end
 
+  def submission_comments(id)
+    comments("view/#{id}/")
+  end
+
+  def journal_comments(id)
+    comments("journal/#{id}/")
+  end
+
 private
   def fa_url(path)
     "http://www.furaffinity.net/#{path}"
@@ -192,5 +200,22 @@ private
     end
 
     html
+  end
+
+  def comments(path)
+    html = fetch(path)
+    comments = html.css('table.container-comment')
+    comments.map do |comment|
+      if comment.attr('id')
+        {
+          id: comment.attr('id').gsub('cid:', ''),
+          name: comment.at_css('.replyto-name').content.strip,
+          posted: pick_date(comment.at_css('.popup_date')),
+          text: comment.at_css('.replyto-message').children.to_s.strip
+        }
+      else
+        nil
+      end
+    end.compact
   end
 end

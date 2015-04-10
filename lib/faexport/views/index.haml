@@ -29,4 +29,15 @@
           %span.id> id
           = ".#{type}"
         %br
+  - %w(submission journal).each do |resource|
+    %dt
+      = resource.capitalize
+      Comments
+    %dd
+      - %w(json xml).each do |type|
+        %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/#{resource}/{id}/comments.#{type}"}
+          = "#{@base_url}/#{resource}"
+          %span.id> id
+          = "/comments.#{type}"
+        %br
 
