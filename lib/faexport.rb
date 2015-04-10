@@ -54,6 +54,7 @@ module FAExport
       FAExport.config[:redis_url] ||= ENV['REDISTOGO_URL']
       FAExport.config[:username] ||= ENV['FA_USERNAME']
       FAExport.config[:password] ||= ENV['FA_PASSWORD']
+      FAExport.config[:rss_limit] ||= 10
       FAExport.config[:content_types] ||= {
         'json' => 'application/json',
         'xml' => 'application/xml',
@@ -144,7 +145,7 @@ module FAExport
           @name = name.capitalize
           @resource = 'journals'
           @link = "http://www.furaffinity.net/journals/#{name}/"
-          @posts = @fa.journals(name).map do |id|
+          @posts = @fa.journals(name).take(FAExport.config[:rss_limit]).map do |id|
             cache "journal:#{id}.rss" do
               @post = @fa.journal(id)
               @description = "<p>#{@post[:description]}</p>"
@@ -175,7 +176,7 @@ module FAExport
           @name = name.capitalize
           @resource = folder.capitalize
           @link = "http://www.furaffinity.net/#{folder}/#{name}/"
-          @posts = @fa.submissions(name, folder, page).map do |id|
+          @posts = @fa.submissions(name, folder, 1).take(FAExport.config[:rss_limit]).map do |id|
             cache "submission:#{id}.rss" do
               @post = @fa.submission(id)
               @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:image]}"\
