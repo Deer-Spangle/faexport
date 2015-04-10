@@ -141,3 +141,62 @@ Retrieves information about the journal with the specified id.
 }
 ~~~
 
+## /submission/*{id}*/comments
+
+Retrivies a list of comments made on the submission with the specified id.
+
+*Formats:* `json`, `xml`
+
+~~~json
+[
+  {
+    "id": "260397",
+    "name": "AnotherArtist",
+    "posted": "March 2nd, 2015 02:30 AM",
+    "text": "Wow, I love the way you do light and shadow."
+  },
+  {
+    "id": "252377",
+    "name": "AnnoyingSalamander",
+    "posted": "March 1st, 2015 03:16 PM",
+    "text": "This drawing sucks."
+  },
+  {
+    "id": "236568",
+    "name": "afreshcat001",
+    "posted": "February 28th, 2015 06:33 AM",
+    "text": "You stole my OC, REPORTED!"
+  },
+  <snip>
+]
+~~~
+
+## /journal/*{id}*/comments
+
+Retrivies a list of comments made on the journal with the specified id.
+
+*Formats:* `json`, `xml`
+
+~~~json
+[
+  {
+    "id": "260397",
+    "name": "DogFrogLog",
+    "posted": "March 2nd, 2015 02:30 AM",
+    "text": "Glad to hear your doing better."
+  },
+  {
+    "id": "252377",
+    "name": "JusticeBeaver",
+    "posted": "March 1st, 2015 03:16 PM",
+    "text": "Any idea when you'll be working on my piece again?"
+  },
+  {
+    "id": "236568",
+    "name": "wereplatypus2008",
+    "posted": "February 28th, 2015 06:33 AM",
+    "text": "Everyone check out my art!"
+  },
+  <snip>
+]
+~~~
