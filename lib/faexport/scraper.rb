@@ -41,6 +41,14 @@ class FAError < StandardError
   end
 end
 
+class FALoginError < StandardError
+  attr_accessor :url
+  def initialize(url)
+    super('Error logging into FA')
+    @url = url
+  end
+end
+
 class EmptyCache
   def add(key, expire = 0) yield; end
   def remove(key) end
@@ -197,6 +205,11 @@ private
     if !head || head.content == 'System Error'
       @cache.remove("url:#{url}")
       raise FAError.new(url) 
+    end
+
+    if html.to_s.include?('has elected to make their content available to registered users only.')
+      @cache.remove("url:#{url}")
+      raise FALoginError.new(url)
     end
 
     html

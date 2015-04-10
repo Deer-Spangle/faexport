@@ -254,6 +254,11 @@ module FAExport
       "FA returned an error page when trying to access #{env['sinatra.error'].url}."
     end
 
+    error FALoginError do
+      status 403
+      "Unable to log into FA to access #{env['sinatra.error'].url}."
+    end
+
     error do
       status 500
       'FAExport encounter an internal error'
