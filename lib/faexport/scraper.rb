@@ -243,7 +243,7 @@ private
           id: comment.attr('id').gsub('cid:', ''),
           name: comment.at_css('.replyto-name').content.strip,
           posted: pick_date(comment.at_css('.popup_date')),
-          text: comment.at_css('.replyto-message').children.to_s.strip
+          text: comment.at_css('.replyto-message').children.to_s.strip.gsub(/ <br><br>$/, '')
         }
       else
         nil
