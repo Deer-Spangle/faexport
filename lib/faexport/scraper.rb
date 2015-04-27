@@ -95,6 +95,7 @@ class Furaffinity
     info = html.css('.ldot')[0].children.to_s
     stats = html.css('.ldot')[1].children.to_s
     {
+      id: html.at_css('#is-watching').parent.parent.at_css('.cat > a')['href'][/uid=([0-9]+)/, 1],
       name: name,
       full_name: html_field(info, 'Full Name'),
       artist_type: html_field(info, 'Artist Type'),

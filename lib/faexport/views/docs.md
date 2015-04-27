@@ -13,6 +13,7 @@ General information about a user's account.
 
 ~~~json
 {
+  "id": "8",
   "name": "fender",
   "full_name": "Fender!",
   "artist_type": "Watcher",
