@@ -1,7 +1,7 @@
 All routes should have a format appended.  Possible formats are `json`, `xml` and `rss`.
 For example, to get json data about Fender's profile, you could request `/user/fender.json`.
 RSS feeds are only available on 'list' type data and contain actual info rather than just ids.
-For this reason they are limited to the first 10 items and can take a bit to load.
+For this reason they are limited to the first 10 items and can take a bit longer to load.
 Everything is cached for 30 seconds so spamming requests won't do anything.
 Please report any bugs to [erra@boothale.net](mailto:erra@boothale.net).
 
