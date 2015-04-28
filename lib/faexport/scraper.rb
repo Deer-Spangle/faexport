@@ -95,7 +95,7 @@ class Furaffinity
     info = html.css('.ldot')[0].children.to_s
     stats = html.css('.ldot')[1].children.to_s
     {
-      id: html.at_css('#is-watching').parent.parent.at_css('.cat > a')['href'][/uid=([0-9]+)/, 1],
+      id: find_id(html),
       name: name,
       full_name: html_field(info, 'Full Name'),
       artist_type: html_field(info, 'Artist Type'),
@@ -109,6 +109,14 @@ class Furaffinity
       journals: html_field(stats, 'Journals'),
       favorites: html_field(stats, 'Favorites')
     }
+  end
+
+  def budlist(name, page, is_watchers)
+    mode = is_watchers ? 'watched_by' : 'watches'
+    html = fetch("user/#{name}")
+    id = find_id(html)
+    html = fetch("budslist/?name=#{name}&uid=#{id}&mode=#{mode}&page=#{page}")
+    html.css('.artist_name').map{|elem| elem.content}
   end
 
   def submission(id)
@@ -200,6 +208,10 @@ private
 
   def pick_date(tag)
     tag.content.include?('ago') ? tag['title'] : tag.content
+  end
+
+  def find_id(html)
+    html.at_css('#is-watching').parent.parent.at_css('.cat > a')['href'][/uid=([0-9]+)/, 1]
   end
 
   def html_field(info, field)

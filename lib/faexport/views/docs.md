@@ -29,6 +29,40 @@ General information about a user's account.
 }
 ~~~
 
+## /user/*{name}*/watching
+
+Accounts that the user is watching.
+By default, the first 200 users are returned.
+You can pass a parameter `?page=2` to load more.
+
+*Formats:* `json`, `xml`
+
+~~~json
+[
+  "fender",
+  "bender",
+  "dragoneer",
+  <snip>
+]
+~~~
+
+## /user/*{name}*/watchers
+
+Accounts that are watching the specified user.
+By default, the first 200 users are returned.
+You can pass a parameter `?page=2` to load more.
+
+*Formats:* `json`, `xml`
+
+~~~json
+[
+  "fennic288",
+  "catsgotyourbag",
+  "stalkingturtle",
+  <snip>
+]
+~~~
+
 ## /user/*{name}*/shouts
 
 All shouts that are visible on a user's page.

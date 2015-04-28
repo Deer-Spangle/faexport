@@ -12,6 +12,15 @@
         %span.name> name
         = ".#{type}"
       %br
+  - %w(watching watchers).each do |resource|
+    %dt= resource.capitalize
+    %dd
+      - %w(json xml).each do |type|
+        %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/user/{name}/#{resource}.#{type}"}
+          = "#{@base_url}/user/"
+          %span.name> name
+          = "/#{resource}.#{type}"
+        %br
   - %w(shouts gallery scraps journals).each do |resource|
     %dt= resource.capitalize
     %dd

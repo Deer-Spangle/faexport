@@ -133,6 +133,23 @@ module FAExport
       end
     end
 
+    #/user/{name}/watching.json
+    #/user/{name}/watching.xml
+    #/user/{name}/watchers.json
+    #/user/{name}/watchers.xml
+    get %r{/user/([a-zA-Z0-9\-_~.]+)/(watching|watchers)\.(json|xml)} do |name, mode, type|
+      set_content_type(type)
+      page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
+      is_watchers = mode == 'watchers'
+      cache("watching:#{name}.#{type}.#{mode}.#{page}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.budlist(name, page, is_watchers)
+        when 'xml'
+          method(name, page, is_watchers).to_xml(root: 'users', skip_types: true)
+        end
+      end
+    end
 
     # /user/{name}/journals.rss
     # /user/{name}/journals.json
@@ -170,7 +187,7 @@ module FAExport
     get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps)\.(rss|json|xml)} do |name, folder, type|
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
-      cache("#{folder}:#{name}.#{type}?#{page}") do
+      cache("#{folder}:#{name}.#{type}.#{page}") do
         case type
         when 'rss'
           @name = name.capitalize
