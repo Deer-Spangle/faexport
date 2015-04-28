@@ -21,7 +21,7 @@
           %span.name> name
           = "/#{resource}.#{type}"
         %br
-  - %w(shouts gallery scraps journals).each do |resource|
+  - %w(shouts journals gallery scraps favorites).each do |resource|
     %dt= resource.capitalize
     %dd
       - %w(json xml rss).each do |type|

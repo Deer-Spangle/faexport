@@ -1,7 +1,7 @@
 All routes should have a format appended.  Possible formats are `json`, `xml` and `rss`.
 For example, to get json data about Fender's profile, you could request `/user/fender.json`.
 RSS feeds are only available on 'list' type data and contain actual info rather than just ids.
-For this reason they take much longer to load and should only be checked periodically.
+For this reason they are limited to the first 10 items and can take a bit to load.
 Everything is cached for 30 seconds so spamming requests won't do anything.
 Please report any bugs to [erra@boothale.net](mailto:erra@boothale.net).
 
@@ -111,7 +111,7 @@ The id's of all journals posted by a user.
 ## /user/*{name}*/*{folder}*
 
 Gets the id's of the first few submissions from the specified folder.
-Options for `{folder}` are `gallery` and `scraps`.
+Options for `{folder}` are `gallery`, `scraps` and `favorites`.
 By default, the first 60 submissions are returned.
 You can pass a parameter `?page=2` to load more.
 
