@@ -146,7 +146,7 @@ module FAExport
         when 'json'
           JSON.pretty_generate @fa.budlist(name, page, is_watchers)
         when 'xml'
-          method(name, page, is_watchers).to_xml(root: 'users', skip_types: true)
+          @fa.budlist(name, page, is_watchers).to_xml(root: 'users', skip_types: true)
         end
       end
     end
