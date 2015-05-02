@@ -17,7 +17,8 @@ General information about a user's account.
   "name": "fender",
   "full_name": "Fender!",
   "artist_type": "Watcher",
-  "registered_since": "December 5th, 2005 12:49",
+  "registered_since": "December 4th, 2005 10:49",
+  "registered_at": "2005-12-04T10:49:00Z",
   "current_mood": "accomplished",
   "artist_profile": "<snip>",
   "pageviews": "532635",
@@ -75,18 +76,21 @@ All shouts that are visible on a user's page.
     "id": "shout-260397",
     "name": "SomeArtist",
     "posted": "March 2nd, 2015 02:30 AM",
+    "posted_at": "2015-03-02T02:30:00Z",
     "text": "Thanks for the watch!"
   },
   {
     "id": "shout-252377",
     "name": "AssConnoisseur",
     "posted": "March 1st, 2015 03:16 PM",
+    "posted_at": "2015-03-01T15:16:00Z",
     "text": "You have a very fine rear end"
   },
   {
     "id": "shout-236568",
     "name": "HyperSquirrel",
     "posted": "February 28th, 2015 06:33 AM",
+    "posted_at": "2015-02-28T06:33:00Z",
     "text": "OMG yr cute, wanna RP"
   },
   <snip>
@@ -138,6 +142,7 @@ Retrieves information about the submission with the specified id.
   "description": "<snip>",
   "link": "http://www.furaffinity.net/view/4483888/",
   "posted": "September 16th, 2010 08:21 PM",
+  "posted_at": "2010-09-16T20:21:00Z",
   "full": "http://d.facdn.net/art/fender/1284661300/1284661300.fender_fender.png",
   "thumbnail": "http://t.facdn.net/4483888@400-1284661300.jpg",
   "category": "Artwork (Digital)",
@@ -172,7 +177,8 @@ Retrieves information about the journal with the specified id.
   "title": "Banner Update",
   "description": "Just a quick update... <snip>",
   "link": "http://www.furaffinity.net/journal/6534234/",
-  "posted": "February 26th, 2015 07:53 PM"
+  "posted": "February 26th, 2015 07:53 PM",
+  "posted_at": "2015-02-26T19:53:00Z"
 }
 ~~~
 
@@ -188,18 +194,21 @@ Retrivies a list of comments made on the submission with the specified id.
     "id": "260397",
     "name": "AnotherArtist",
     "posted": "March 2nd, 2015 02:30 AM",
+    "posted_at": "2015-03-02T02:30:00Z",
     "text": "Wow, I love the way you do light and shadow."
   },
   {
     "id": "252377",
     "name": "AnnoyingSalamander",
     "posted": "March 1st, 2015 03:16 PM",
+    "posted_at": "2015-03-01T15:16:00Z",
     "text": "This drawing sucks."
   },
   {
     "id": "236568",
     "name": "afreshcat001",
     "posted": "February 28th, 2015 06:33 AM",
+    "posted_at": "2015-02-28T06:33:00Z",
     "text": "You stole my OC, REPORTED!"
   },
   <snip>
@@ -218,18 +227,21 @@ Retrivies a list of comments made on the journal with the specified id.
     "id": "260397",
     "name": "DogFrogLog",
     "posted": "March 2nd, 2015 02:30 AM",
+    "posted_at": "2015-03-02T02:30:00Z",
     "text": "Glad to hear your doing better."
   },
   {
     "id": "252377",
     "name": "JusticeBeaver",
     "posted": "March 1st, 2015 03:16 PM",
+    "posted_at": "2015-03-01T15:16:00Z",
     "text": "Any idea when you'll be working on my piece again?"
   },
   {
     "id": "236568",
     "name": "wereplatypus2008",
     "posted": "February 28th, 2015 06:33 AM",
+    "posted_at": "2015-02-28T06:33:00Z",
     "text": "Everyone check out my art!"
   },
   <snip>
