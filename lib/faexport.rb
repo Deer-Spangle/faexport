@@ -199,7 +199,7 @@ module FAExport
           @posts = @fa.submissions(name, folder, 1).take(FAExport.config[:rss_limit]).map do |id|
             cache "submission:#{id}.rss" do
               @post = @fa.submission(id)
-              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:image]}"\
+              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
                              "\"/></a><br/><br/><p>#{@post[:description]}</p>"
               builder :post
             end
