@@ -94,12 +94,15 @@ class Furaffinity
     html = fetch("user/#{name}/")
     info = html.css('.ldot')[0].children.to_s
     stats = html.css('.ldot')[1].children.to_s
+    date = html_field(info, 'Registered since')
+
     {
       id: find_id(html),
       name: name,
       full_name: html_field(info, 'Full Name'),
       artist_type: html_field(info, 'Artist Type'),
-      registered_since: html_field(info, 'Registered since'),
+      registered_since: date,
+      registered_at: to_iso8601(date),
       current_mood: html_field(info, 'Current mood'),
       artist_profile: html_long_field(info, 'Artist Profile'),
       pageviews: html_field(stats, 'Pageviews'),
@@ -125,12 +128,14 @@ class Furaffinity
     raw_info = submission.at_css('td.alt1')
     info = raw_info.content.lines.map{|i| i.gsub(/^\p{Space}*/, '').rstrip}
     keywords = raw_info.css('div#keywords a')
+    date = pick_date(raw_info.at_css('.popup_date'))
 
     {
       title: html.at_css('td.cat b').content,
       description: submission.css('td.alt1')[2].children.to_s.strip,
       link: fa_url("view/#{id}/"),
-      posted: pick_date(raw_info.at_css('.popup_date')),
+      posted: date,
+      posted_at: to_iso8601(date),
       full: "http:#{html.css('.actions a')[2]['href']}",
       thumbnail: "http:#{html.at_css('img#submissionImg')['src']}",
       category: field(info, 'Category'),
@@ -148,11 +153,14 @@ class Furaffinity
 
   def journal(id)
     html = fetch("journal/#{id}/")
+    date = pick_date(html.at_css('td.cat .popup_date'))
+
     {
       title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
       description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
       link: fa_url("journal/#{id}/"),
-      posted: pick_date(html.at_css('td.cat .popup_date'))
+      posted: date,
+      posted_at: to_iso8601(date)
     }
   end
 
@@ -172,10 +180,12 @@ class Furaffinity
   def shouts(user)
     html = fetch("user/#{user}/")
     html.xpath('//table[starts-with(@id, "shout")]').map do |shout|
+      date = pick_date(shout.at_css('.popup_date'))
       {
         id: shout.attr('id'),
         name: shout.css('.lead.addpad a')[0].content,
-        posted: pick_date(shout.at_css('.popup_date')),
+        posted: date,
+        posted_at: to_iso8601(date),
         text: shout.css('.no_overflow.alt1')[0].children.to_s.strip
       }
     end
@@ -208,6 +218,10 @@ private
 
   def pick_date(tag)
     tag.content.include?('ago') ? tag['title'] : tag.content
+  end
+
+  def to_iso8601(date)
+    Time.parse(date + ' UTC').iso8601
   end
 
   def find_id(html)
@@ -252,10 +266,12 @@ private
     comments = html.css('table.container-comment')
     comments.map do |comment|
       if comment.attr('id')
+        date = pick_date(comment.at_css('.popup_date'))
         {
           id: comment.attr('id').gsub('cid:', ''),
           name: comment.at_css('.replyto-name').content.strip,
-          posted: pick_date(comment.at_css('.popup_date')),
+          posted: date,
+          posted_at: to_iso8601(date),
           text: comment.at_css('.replyto-message').children.to_s.strip.gsub(/ <br><br>$/, '')
         }
       else
