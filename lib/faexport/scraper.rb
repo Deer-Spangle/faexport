@@ -167,7 +167,12 @@ class Furaffinity
   def submissions(user, folder, page)
     html = fetch("#{folder}/#{user}/#{page}/")
     html.css('td.alt1 > center > b').map do |art|
-      art['id'].gsub('sid_', '')
+      {
+        id: art['id'].gsub('sid_', ''),
+        title: art.at_css('span').content,
+        thumbnail: "http:#{art.at_css('img')['src']}",
+        link: fa_url(art.at_css('a')['href'][1..-1])
+      }
     end
   end
 

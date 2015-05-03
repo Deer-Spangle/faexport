@@ -190,15 +190,16 @@ module FAExport
     get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps|favorites)\.(rss|json|xml)} do |name, folder, type|
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
-      cache("#{folder}:#{name}.#{type}.#{page}") do
+      full = !!params[:full]
+      cache("#{folder}:#{name}.#{type}.#{page}.#{full}") do
         case type
         when 'rss'
           @name = name.capitalize
           @resource = folder.capitalize
           @link = "http://www.furaffinity.net/#{folder}/#{name}/"
-          @posts = @fa.submissions(name, folder, 1).take(FAExport.config[:rss_limit]).map do |id|
+          @posts = @fa.submissions(name, folder, 1).take(FAExport.config[:rss_limit]).map do |sub|
             cache "submission:#{id}.rss" do
-              @post = @fa.submission(id)
+              @post = @fa.submission(sub[:id])
               @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
                              "\"/></a><br/><br/><p>#{@post[:description]}</p>"
               builder :post
@@ -206,9 +207,13 @@ module FAExport
           end
           builder :feed
         when 'json'
-          JSON.pretty_generate @fa.submissions(name, folder, page)
+          subs =  @fa.submissions(name, folder, page)
+          subs = subs.map{|sub| sub[:id]} unless full
+          JSON.pretty_generate subs
         when 'xml'
-          @fa.submissions(name, folder, page).to_xml(root: 'submissions', skip_types: true)
+          subs =  @fa.submissions(name, folder, page)
+          subs = subs.map{|sub| sub[:id]} unless full
+          subs.to_xml(root: 'submissions', skip_types: true)
         end
       end
     end
