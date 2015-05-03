@@ -156,6 +156,7 @@ If you want more information, pass '?full=1' to retrieve more fields.
   }
   <snip>
 ]
+~~~
 
 ## /submission/*{id}*
 
