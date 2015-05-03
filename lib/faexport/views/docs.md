@@ -114,12 +114,14 @@ The id's of all journals posted by a user.
 
 ## /user/*{name}*/*{folder}*
 
-Gets the id's of the first few submissions from the specified folder.
+Gets the the first few submissions from the specified folder.
 Options for `{folder}` are `gallery`, `scraps` and `favorites`.
 By default, the first 60 submissions are returned.
 You can pass a parameter `?page=2` to load more.
 
 *Formats:* `json`, `xml`, `rss`
+
+By default, this only returns the id of each submission.
 
 ~~~json
 [
@@ -129,6 +131,31 @@ You can pass a parameter `?page=2` to load more.
   <snip>
 }
 ~~~
+
+If you want more information, pass '?full=1' to retrieve more fields.
+
+~~~json
+[
+  {
+    "id": "3277777",
+    "title": "Epic Five Year Post of Maximum Relaxation (and Carnage)",
+    "thumbnail": "http://t.facdn.net/3277777@200-1263612598.jpg",
+    "link": "http://www.furaffinity.net/view/3277777/"
+  },
+  {
+    "id": "1896964",
+    "title": "Epic Four Year Post of City Crunching Havoc",
+    "thumbnail": "http://t.facdn.net/1896964@200-1232143532.jpg",
+    "link": "http://www.furaffinity.net/view/1896964/"
+  },
+  {
+    "id": "1010790",
+    "title": "Epic Three Year Post of Tie Wearing Destruction",
+    "thumbnail": "http://t.facdn.net/1010790@200-1200494770.jpg",
+    "link": "http://www.furaffinity.net/view/1010790/"
+  }
+  <snip>
+]
 
 ## /submission/*{id}*
 
