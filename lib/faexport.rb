@@ -198,7 +198,7 @@ module FAExport
           @resource = folder.capitalize
           @link = "http://www.furaffinity.net/#{folder}/#{name}/"
           @posts = @fa.submissions(name, folder, 1).take(FAExport.config[:rss_limit]).map do |sub|
-            cache "submission:#{id}.rss" do
+            cache "submission:#{sub[:id]}.rss" do
               @post = @fa.submission(sub[:id])
               @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
                              "\"/></a><br/><br/><p>#{@post[:description]}</p>"
