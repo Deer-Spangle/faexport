@@ -99,6 +99,7 @@ class Furaffinity
     {
       id: find_id(html),
       name: name,
+      avatar: "http:#{html.at_css('td.addpad img')['src']}",
       full_name: html_field(info, 'Full Name'),
       artist_type: html_field(info, 'Artist Type'),
       registered_since: date,
@@ -188,7 +189,8 @@ class Furaffinity
       date = pick_date(shout.at_css('.popup_date'))
       {
         id: shout.attr('id'),
-        name: shout.css('.lead.addpad a')[0].content,
+        name: shout.at_css('td.lead.addpad a').content,
+        avatar: "http:#{shout.at_css('td.alt1.addpad img')['src']}",
         posted: date,
         posted_at: to_iso8601(date),
         text: shout.css('.no_overflow.alt1')[0].children.to_s.strip

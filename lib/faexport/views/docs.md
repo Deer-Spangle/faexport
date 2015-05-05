@@ -15,6 +15,7 @@ General information about a user's account.
 {
   "id": "8",
   "name": "fender",
+  "avatar": "http://a.facdn.net/1424255659/fender.gif",
   "full_name": "Fender!",
   "artist_type": "Watcher",
   "registered_since": "December 4th, 2005 10:49",
@@ -75,6 +76,7 @@ All shouts that are visible on a user's page.
   {
     "id": "shout-260397",
     "name": "SomeArtist",
+    "avatar": "http://a.facdn.net/1424258659/someartist.gif",
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
     "text": "Thanks for the watch!"
@@ -82,6 +84,7 @@ All shouts that are visible on a user's page.
   {
     "id": "shout-252377",
     "name": "AssConnoisseur",
+    "avatar": "http://a.facdn.net/1449252689/assconnoisseur.gif",
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
     "text": "You have a very fine rear end"
@@ -89,6 +92,7 @@ All shouts that are visible on a user's page.
   {
     "id": "shout-236568",
     "name": "HyperSquirrel",
+    "avatar": "http://a.facdn.net/6442272989/hypersquirrel.gif",
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",
     "text": "OMG yr cute, wanna RP"
