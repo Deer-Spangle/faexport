@@ -260,8 +260,13 @@ private
       raise FASystemError.new(url) 
     end
 
-    if html.to_s.include?('has elected to make their content available to registered users only.')
+    page = html.to_s
+    if page.include?('has elected to make their content available to registered users only.')
       raise FALoginError.new(url)
+    end
+
+    if page.include?('This user has voluntarily disabled access to their userpage.')
+      raise FASystemError.new(url)
     end
 
     @cache.add("url:#{url}") { raw }
