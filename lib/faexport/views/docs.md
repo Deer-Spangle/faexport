@@ -136,7 +136,7 @@ By default, this only returns the id of each submission.
 }
 ~~~
 
-If you want more information, pass '?full=1' to retrieve more fields.
+If you want more information, pass `?full=1` to retrieve more fields.
 
 ~~~json
 [
