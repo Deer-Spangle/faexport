@@ -76,6 +76,7 @@ All shouts that are visible on a user's page.
   {
     "id": "shout-260397",
     "name": "SomeArtist",
+    "profle": "http://www.furaffinity.net/user/someartist/",
     "avatar": "http://a.facdn.net/1424258659/someartist.gif",
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
@@ -84,6 +85,7 @@ All shouts that are visible on a user's page.
   {
     "id": "shout-252377",
     "name": "AssConnoisseur",
+    "profle": "http://www.furaffinity.net/user/assconnoisseur/",
     "avatar": "http://a.facdn.net/1449252689/assconnoisseur.gif",
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
@@ -92,6 +94,7 @@ All shouts that are visible on a user's page.
   {
     "id": "shout-236568",
     "name": "HyperSquirrel",
+    "profle": "http://www.furaffinity.net/user/hypersquirrel/",
     "avatar": "http://a.facdn.net/6442272989/hypersquirrel.gif",
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",
@@ -225,6 +228,7 @@ Retrivies a list of comments made on the submission with the specified id.
   {
     "id": "260397",
     "name": "AnotherArtist",
+    "profle": "http://www.furaffinity.net/user/anotherartist/",
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
     "text": "Wow, I love the way you do light and shadow."
@@ -232,6 +236,7 @@ Retrivies a list of comments made on the submission with the specified id.
   {
     "id": "252377",
     "name": "AnnoyingSalamander",
+    "profle": "http://www.furaffinity.net/user/annoyingsalamander/",
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
     "text": "This drawing sucks."
@@ -239,6 +244,7 @@ Retrivies a list of comments made on the submission with the specified id.
   {
     "id": "236568",
     "name": "afreshcat001",
+    "profle": "http://www.furaffinity.net/user/afreshcat001/",
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",
     "text": "You stole my OC, REPORTED!"
@@ -258,6 +264,7 @@ Retrivies a list of comments made on the journal with the specified id.
   {
     "id": "260397",
     "name": "DogFrogLog",
+    "profle": "http://www.furaffinity.net/user/dogfroglog/",
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
     "text": "Glad to hear your doing better."
@@ -265,6 +272,7 @@ Retrivies a list of comments made on the journal with the specified id.
   {
     "id": "252377",
     "name": "JusticeBeaver",
+    "profle": "http://www.furaffinity.net/user/justicebeaver/",
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
     "text": "Any idea when you'll be working on my piece again?"
@@ -272,6 +280,7 @@ Retrivies a list of comments made on the journal with the specified id.
   {
     "id": "236568",
     "name": "wereplatypus2008",
+    "profle": "http://www.furaffinity.net/user/wereplatypus2008/",
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",
     "text": "Everyone check out my art!"

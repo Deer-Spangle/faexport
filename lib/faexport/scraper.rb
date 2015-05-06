@@ -186,10 +186,12 @@ class Furaffinity
   def shouts(user)
     html = fetch("user/#{user}/")
     html.xpath('//table[starts-with(@id, "shout")]').map do |shout|
+      name = shout.at_css('td.lead.addpad a')
       date = pick_date(shout.at_css('.popup_date'))
       {
         id: shout.attr('id'),
-        name: shout.at_css('td.lead.addpad a').content,
+        name: name.content,
+        profile: fa_url(name['href'][1..-1]),
         avatar: "http:#{shout.at_css('td.alt1.addpad img')['src']}",
         posted: date,
         posted_at: to_iso8601(date),
@@ -282,6 +284,7 @@ private
         {
           id: comment.attr('id').gsub('cid:', ''),
           name: comment.at_css('.replyto-name').content.strip,
+          profile: fa_url(comment.at_css('ul ul li a')['href'][1..-1]),
           posted: date,
           posted_at: to_iso8601(date),
           text: comment.at_css('.replyto-message').children.to_s.strip.gsub(/ <br><br>$/, '')
