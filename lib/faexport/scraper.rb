@@ -285,6 +285,7 @@ private
           id: comment.attr('id').gsub('cid:', ''),
           name: comment.at_css('.replyto-name').content.strip,
           profile: fa_url(comment.at_css('ul ul li a')['href'][1..-1]),
+          avatar: "http:#{comment.at_css('.icon img')['src']}",
           posted: date,
           posted_at: to_iso8601(date),
           text: comment.at_css('.replyto-message').children.to_s.strip.gsub(/ <br><br>$/, '')
