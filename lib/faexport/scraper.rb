@@ -91,14 +91,17 @@ class Furaffinity
   end
 
   def user(name)
-    html = fetch("user/#{name}/")
+    profile = "user/#{name}/"
+    html = fetch(profile)
     info = html.css('.ldot')[0].children.to_s
     stats = html.css('.ldot')[1].children.to_s
     date = html_field(info, 'Registered since')
 
     {
       id: find_id(html),
-      name: name,
+      name: html.at_css('.addpad.lead b').content[1..-1],
+      profile: fa_url(profile),
+      account_type: html.at_css('.addpad.lead').content[/\((.+?)\)/,1].strip,
       avatar: "http:#{html.at_css('td.addpad img')['src']}",
       full_name: html_field(info, 'Full Name'),
       artist_type: html_field(info, 'Artist Type'),

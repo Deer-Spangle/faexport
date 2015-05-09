@@ -14,7 +14,9 @@ General information about a user's account.
 ~~~json
 {
   "id": "8",
-  "name": "fender",
+  "name": "Fender",
+  "profile": "http://www.furaffinity.net/user/fender/",
+  "account_type": "Administrator",
   "avatar": "http://a.facdn.net/1424255659/fender.gif",
   "full_name": "Fender!",
   "artist_type": "Watcher",
