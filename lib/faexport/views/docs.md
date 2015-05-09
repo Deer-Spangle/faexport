@@ -106,15 +106,49 @@ All shouts that are visible on a user's page.
 
 ## /user/*{name}*/journals
 
-The id's of all journals posted by a user.
+Return all journals posted by a user.
 
 *Formats:* `json`, `xml`
 
+By default, this only returns the id of each journal.
+
 ~~~json
 [
-  "6534234",
-  "6395579",
-  "6311970",
+  "6700663",
+  "6689390",
+  "6636092",
+  <snip>
+]
+~~~
+
+If you want more information, pass `?full=1` to retrieve more fields.
+
+~~~json
+[
+  {
+    "id": "6700663",
+    "title": "FA United 2015 Site Live",
+    "description": "<snip>",
+    "link": "http://www.furaffinity.net/journal/6700663/",
+    "posted": "April 30th, 2015 05:27 PM",
+    "posted_at": "2015-04-30T17:27:00Z"
+  },
+  {
+    "id": "6689390",
+    "title": "4/26/2015 - Site & Beta Update (update 4)",
+    "description": "<snip>",
+    "link": "http://www.furaffinity.net/journal/6689390/",
+    "posted": "April 26th, 2015 06:04 PM",
+    "posted_at": "2015-04-26T18:04:00Z"
+  },
+  {
+    "id": "6636092",
+    "title": "FA UI Early Beta Preview",
+    "description": "<snip>",
+    "link": "http://www.furaffinity.net/journal/6636092/",
+    "posted": "April 5th, 2015 07:12 PM",
+    "posted_at": "2015-04-05T19:12:00Z"
+  },
   <snip>
 ]
 ~~~

@@ -156,24 +156,29 @@ module FAExport
     # /user/{name}/journals.xml
     get %r{/user/([a-zA-Z0-9\-_~.]+)/journals\.(rss|json|xml)} do |name, type|
       set_content_type(type)
-      cache("journals:#{name}.#{type}") do
+      full = !!params[:full]
+      cache("journals:#{name}.#{type}.#{full}") do
         case type
         when 'rss'
           @name = name.capitalize
           @resource = 'journals'
           @link = "http://www.furaffinity.net/journals/#{name}/"
-          @posts = @fa.journals(name).take(FAExport.config[:rss_limit]).map do |id|
-            cache "journal:#{id}.rss" do
-              @post = @fa.journal(id)
+          @posts = @fa.journals(name).take(FAExport.config[:rss_limit]).map do |journal|
+            cache "journal:#{journal[:id]}.rss" do
+              @post = @fa.journal(journal[:id])
               @description = "<p>#{@post[:description]}</p>"
               builder :post
             end
           end
           builder :feed
         when 'json'
-          JSON.pretty_generate @fa.journals(name)
+          journals = @fa.journals(name)
+          journals = journals.map{|j| j[:id]} unless full
+          JSON.pretty_generate journals
         when 'xml'
-          @fa.journals(name).to_xml(root: 'journals', skip_types: true)
+          journals = @fa.journals(name)
+          journals = journals.map{|j| j[:id]} unless full
+          journals.to_xml(root: 'journals', skip_types: true)
         end
       end
     end

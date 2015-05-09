@@ -180,7 +180,20 @@ class Furaffinity
   def journals(user)
     html = fetch("journals/#{user}/")
     journals = html.css('table.maintable table.maintable tr')[2].at_css('td td')
-    journals.css('table.maintable').map{|j| j['id'].gsub('jid:', '')}
+    journals.css('table.maintable').map do |j|
+      title = j.at_css('.cat a')
+      contents = j.at_css('.alt1 table')
+      info = contents.at_css('.ldot table')
+      date = pick_date(info.at_css('.popup_date'))
+      {
+        id: j['id'].gsub('jid:', ''),
+        title: title.content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
+        description: contents.at_css('div.no_overflow').children.to_s.strip,
+        link: fa_url(title['href'][1..-1]),
+        posted: date,
+        posted_at: to_iso8601(date)
+      }
+    end
   end
 
   def shouts(user)
