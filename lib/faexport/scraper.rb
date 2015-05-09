@@ -134,6 +134,8 @@ class Furaffinity
     {
       title: html.at_css('td.cat b').content,
       description: submission.css('td.alt1')[2].children.to_s.strip,
+      name: html.at_css('td.cat a').content,
+      profile: fa_url(html.at_css('td.cat a')['href'][1..-1]),
       link: fa_url("view/#{id}/"),
       posted: date,
       posted_at: to_iso8601(date),
@@ -159,6 +161,8 @@ class Furaffinity
     {
       title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
       description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
+      name: html.at_css('td.cat a').content,
+      profile: fa_url(html.at_css('td.cat a')['href'][1..-1]),
       link: fa_url("journal/#{id}/"),
       posted: date,
       posted_at: to_iso8601(date)

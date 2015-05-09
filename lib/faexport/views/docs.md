@@ -209,6 +209,8 @@ Retrieves information about the submission with the specified id.
 {
   "title": "Fender (Character Sheet)",
   "description": "<snip>",
+  "name": "Fender",
+  "profile": "http://www.furaffinity.net/user/fender/",
   "link": "http://www.furaffinity.net/view/4483888/",
   "posted": "September 16th, 2010 08:21 PM",
   "posted_at": "2010-09-16T20:21:00Z",
@@ -245,6 +247,8 @@ Retrieves information about the journal with the specified id.
 {
   "title": "Banner Update",
   "description": "Just a quick update... <snip>",
+  "name": "Fender",
+  "profile": "http://www.furaffinity.net/user/fender/",
   "link": "http://www.furaffinity.net/journal/6534234/",
   "posted": "February 26th, 2015 07:53 PM",
   "posted_at": "2015-02-26T19:53:00Z"
