@@ -48,6 +48,9 @@ module FAExport
     set :public_folder, File.join(File.dirname(__FILE__), 'faexport', 'public')
     set :views, File.join(File.dirname(__FILE__), 'faexport', 'views')
 
+    USER_REGEX = /([a-zA-Z0-9\-_~.]+)/
+    ID_REGEX = /([0-9]+)/
+
     def initialize(app, config = {})
       FAExport.config = config.with_indifferent_access
       FAExport.config[:cache_time] ||= 30 # seconds
@@ -92,7 +95,7 @@ module FAExport
 
     # /user/{name}.json
     # /user/{name}.xml
-    get %r{/user/([a-zA-Z0-9\-_~.]+)\.(json|xml)} do |name, type|
+    get %r{/user/#{USER_REGEX}\.(json|xml)} do |name, type|
       set_content_type(type)
       cache("data:#{name}.#{type}") do
         case type
@@ -107,7 +110,7 @@ module FAExport
     #/user/{name}/shouts.rss
     #/user/{name}/shouts.json
     #/user/{name}/shouts.xml
-    get %r{/user/([a-zA-Z0-9\-_~.]+)/shouts\.(rss|json|xml)} do |name, type|
+    get %r{/user/#{USER_REGEX}/shouts\.(rss|json|xml)} do |name, type|
       set_content_type(type)
       cache("shouts:#{name}.#{type}") do
         case type
@@ -137,7 +140,7 @@ module FAExport
     #/user/{name}/watching.xml
     #/user/{name}/watchers.json
     #/user/{name}/watchers.xml
-    get %r{/user/([a-zA-Z0-9\-_~.]+)/(watching|watchers)\.(json|xml)} do |name, mode, type|
+    get %r{/user/#{USER_REGEX}/(watching|watchers)\.(json|xml)} do |name, mode, type|
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
       is_watchers = mode == 'watchers'
@@ -154,7 +157,7 @@ module FAExport
     # /user/{name}/journals.rss
     # /user/{name}/journals.json
     # /user/{name}/journals.xml
-    get %r{/user/([a-zA-Z0-9\-_~.]+)/journals\.(rss|json|xml)} do |name, type|
+    get %r{/user/#{USER_REGEX}/journals\.(rss|json|xml)} do |name, type|
       set_content_type(type)
       full = !!params[:full]
       cache("journals:#{name}.#{type}.#{full}") do
@@ -192,7 +195,7 @@ module FAExport
     # /user/{name}/favorites.rss
     # /user/{name}/favorites.json
     # /user/{name}/favorites.xml
-    get %r{/user/([a-zA-Z0-9\-_~.]+)/(gallery|scraps|favorites)\.(rss|json|xml)} do |name, folder, type|
+    get %r{/user/#{USER_REGEX}/(gallery|scraps|favorites)\.(rss|json|xml)} do |name, folder, type|
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
       full = !!params[:full]
@@ -225,7 +228,7 @@ module FAExport
 
     # /submission/{id}.json
     # /submission/{id}.xml
-    get %r{/submission/([0-9]+)\.(json|xml)} do |id, type|
+    get %r{/submission/#{ID_REGEX}\.(json|xml)} do |id, type|
       set_content_type(type)
       cache("submission:#{id}.#{type}") do
         case type
@@ -239,7 +242,7 @@ module FAExport
 
     # /journal/{id}.json
     # /journal/{id}.xml
-    get %r{/journal/([0-9]+)\.(json|xml)} do |id, type|
+    get %r{/journal/#{ID_REGEX}\.(json|xml)} do |id, type|
       set_content_type(type)
       cache("journal:#{id}.#{type}") do
         case type
@@ -253,7 +256,7 @@ module FAExport
 
     # /submission/{id}/comments.json
     # /submission/{id}/comments.xml
-    get %r{/submission/([0-9]+)/comments\.(json|xml)} do |id, type|
+    get %r{/submission/#{ID_REGEX}/comments\.(json|xml)} do |id, type|
       set_content_type(type)
       cache("submissions_comments:#{id}.#{type}") do
         case type
@@ -267,7 +270,7 @@ module FAExport
 
     # /journal/{id}/comments.json
     # /journal/{id}/comments.xml
-    get %r{/journal/([0-9]+)/comments\.(json|xml)} do |id, type|
+    get %r{/journal/#{ID_REGEX}/comments\.(json|xml)} do |id, type|
       set_content_type(type)
       cache("journal_comments:#{id}.#{type}") do
         case type
