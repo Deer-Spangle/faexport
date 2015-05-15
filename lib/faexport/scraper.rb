@@ -91,7 +91,7 @@ class Furaffinity
   end
 
   def user(name)
-    profile = "user/#{name}/"
+    profile = "user/#{escape(name)}/"
     html = fetch(profile)
     info = html.css('.ldot')[0].children.to_s
     stats = html.css('.ldot')[1].children.to_s
@@ -120,7 +120,7 @@ class Furaffinity
 
   def budlist(name, page, is_watchers)
     mode = is_watchers ? 'watched_by' : 'watches'
-    html = fetch("user/#{name}")
+    html = fetch("user/#{escape(name)}")
     id = find_id(html)
     html = fetch("budslist/?name=#{name}&uid=#{id}&mode=#{mode}&page=#{page}")
     html.css('.artist_name').map{|elem| elem.content}
@@ -173,7 +173,7 @@ class Furaffinity
   end
 
   def submissions(user, folder, page)
-    html = fetch("#{folder}/#{user}/#{page}/")
+    html = fetch("#{folder}/#{escape(user)}/#{page}/")
     html.css('td.alt1 > center > b').map do |art|
       {
         id: art['id'].gsub('sid_', ''),
@@ -185,7 +185,7 @@ class Furaffinity
   end
 
   def journals(user)
-    html = fetch("journals/#{user}/")
+    html = fetch("journals/#{escape(user)}/")
     journals = html.css('table.maintable table.maintable tr')[2].at_css('td td')
     journals.css('table.maintable').map do |j|
       title = j.at_css('.cat a')
@@ -204,7 +204,7 @@ class Furaffinity
   end
 
   def shouts(user)
-    html = fetch("user/#{user}/")
+    html = fetch("user/#{escape(user)}/")
     html.xpath('//table[starts-with(@id, "shout")]').map do |shout|
       name = shout.at_css('td.lead.addpad a')
       date = pick_date(shout.at_css('.popup_date'))
@@ -265,8 +265,12 @@ private
     (info[/<b>#{field}:<\/b><br>(.+)/m, 1] || '').strip
   end
 
+  def escape(name)
+    CGI::escape(name)
+  end
+
   def fetch(path)
-    url = fa_url(CGI::escape(path))
+    url = fa_url(path)
     raw = open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie) do |response|
       if response.status[0] != '200'
         raise FAStatusError.new(url, response.status.join(' ')) 
