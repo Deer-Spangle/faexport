@@ -334,3 +334,48 @@ Retrivies a list of comments made on the journal with the specified id.
   <snip>
 ]
 ~~~
+
+## /search.json?q=*{query}*
+
+Gets the the first few results from the specified query.
+By default, the first 60 results are returned.
+You can pass a parameter `&page=2` to load more.
+
+*Formats:* `json`, `xml`
+
+By default, this only returns the id of each submission.
+
+~~~json
+[
+  "12239491",
+  "11157906",
+  "10796676",
+  <snip>
+}
+~~~
+
+If you want more information, pass `&full=1` to retrieve more fields.
+
+~~~json
+[
+  {
+    "id": "3277777",
+    "title": "Epic Five Year Post of Maximum Relaxation (and Carnage)",
+    "thumbnail": "http://t.facdn.net/3277777@200-1263612598.jpg",
+    "link": "http://www.furaffinity.net/view/3277777/"
+  },
+  {
+    "id": "1896964",
+    "title": "Epic Four Year Post of City Crunching Havoc",
+    "thumbnail": "http://t.facdn.net/1896964@200-1232143532.jpg",
+    "link": "http://www.furaffinity.net/view/1896964/"
+  },
+  {
+    "id": "1010790",
+    "title": "Epic Three Year Post of Tie Wearing Destruction",
+    "thumbnail": "http://t.facdn.net/1010790@200-1200494770.jpg",
+    "link": "http://www.furaffinity.net/view/1010790/"
+  }
+  <snip>
+]
+~~~

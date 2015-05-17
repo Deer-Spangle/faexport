@@ -282,6 +282,28 @@ module FAExport
       end
     end
 
+    # /search.json?q={query}
+    # /search.xml?q={query}
+    # TODO: Implement RSS
+    get %r{/search\.(json|xml)} do |type|
+      set_content_type(type)
+      query = params[:q] =~ /^([^\/]+)$/ ? params[:q] : ''
+      page = params[:page] =~ /^[0-9]+$/ ? Integer(params[:page]) : 1
+      full = !!params[:full]
+      cache("search_results:#{query}.#{type}.#{page}.#{full}") do
+        case type
+        when 'json'
+          results = @fa.search_results(query, page)
+          results = results.map{|result| result[:id]} unless full
+          JSON.pretty_generate results
+        when 'xml'
+          results = @fa.search_results(query, page)
+          results = results.map{|result| result[:id]} unless full
+          results.to_xml(root: 'results', skip_types: true)
+        end
+      end
+    end
+
     error FAStatusError do
       status 502
       env['sinatra.error'].message

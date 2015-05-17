@@ -228,6 +228,69 @@ class Furaffinity
     comments("journal/#{id}/")
   end
 
+  def search_results(query, page)
+    if query.empty?
+      return []
+    end
+
+    # TODO: Make these part of the GET request, keep as defaults
+    perpage = 60              # 24, 36, 48, 60
+    order_by = 'date'         # relevancy, date, popularity
+    order_direction = 'desc'  # asc, desc
+    range = 'all'             # day, 3days, week, month, all
+    mode = 'extended'         # all, any, extended
+    rating_general = '&rating-general=on'
+    rating_mature = '&rating-mature=on'
+    rating_adult = '&rating-adult=on'
+    type_art = '&type-art=on'
+    type_flash = '&type-flash=on'
+    type_photo = '&type-photo=on'
+    type_music = '&type-music=on'
+    type_story = '&type-story=on'
+    type_poetry = '&type-poetry=on'
+
+    if page <= 1
+      page = 1
+      submit_mode = "&do_search=Search"
+    else
+      page = page - 1
+      submit_mode = "&next_page=>>> #{perpage} more >>>"
+    end
+
+    uri = URI.parse('http://www.furaffinity.net')
+    request = Net::HTTP::Post.new('/search/')
+    request.add_field('Content-Type', 'application/x-www-form-urlencoded')
+    request.add_field('Origin', 'http://www.furaffinity.net')
+    request.add_field('Referer', 'http://www.furaffinity.net/search/')
+    request.add_field('Accept', '*/*')
+    request.add_field('User-Agent', USER_AGENT)
+    request.add_field('Cookie', @login_cookie)
+    request.body = "q=#{query}&page=#{page}&perpage=#{perpage}"\
+                   "&order-by=#{order_by}&order-direction=#{order_direction}"\
+                   "&range=#{range}&mode=#{mode}#{submit_mode}"\
+                   "#{rating_general}#{rating_mature}#{rating_adult}"\
+                   "#{type_art}#{type_flash}#{type_photo}#{type_music}"\
+                   "#{type_story}#{type_poetry}"
+
+    response = Net::HTTP.start(uri.host, uri.port) do |http|
+      http.request(request)
+    end
+
+    if not response.is_a?(Net::HTTPSuccess)
+      raise FAStatusError.new(fa_url('/search/'), response.message)
+    end
+
+    html = Nokogiri::HTML(response.body)
+    html.css('.search > b').map do |art|
+      {
+        id: art['id'].gsub('sid_', ''),
+        title: art.at_css('span').content,
+        thumbnail: "http:#{art.at_css('img')['src']}",
+        link: fa_url(art.at_css('a')['href'][1..-1])
+      }
+    end
+  end
+
 private
   def fa_url(path)
     "http://www.furaffinity.net/#{path}"
