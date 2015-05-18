@@ -67,7 +67,14 @@ module FAExport
       @cache = RedisCache.new(FAExport.config[:redis_url],
                               FAExport.config[:cache_time])
       @fa = Furaffinity.new(@cache)
-      @fa.login(FAExport.config[:username], FAExport.config[:password])
+
+      cookie = @cache.redis.get('login_cookie')
+      if cookie
+        @fa.login_cookie = cookie
+      else
+        @fa.login(FAExport.config[:username], FAExport.config[:password])
+        @cache.redis.set('login_cookie', @fa.login_cookie)
+      end
 
       super(app)
     end

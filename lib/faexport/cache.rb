@@ -30,6 +30,8 @@
 require 'redis'
 
 class RedisCache
+  attr_accessor :redis
+
   def initialize(redis_url = nil, expire = 0)
     @redis = redis_url ? Redis.new(url: redis_url) : Redis.new
     @expire = expire

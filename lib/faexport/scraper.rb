@@ -70,6 +70,8 @@ class EmptyCache
 end
 
 class Furaffinity
+  attr_accessor :login_cookie
+
   def initialize(cache = nil)
     @cache = cache || EmptyCache.new
   end
