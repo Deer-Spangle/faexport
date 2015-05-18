@@ -20,7 +20,7 @@ run `bundle install` then `bundle exec rackup config.ru` to get a development se
 For example, on a Debian based system you would run:
 
 ~~~text
-sudo apt-get install redis ruby ruby-dev
+sudo apt-get install redis-server ruby ruby-dev
 sudo gem install bundler
 bundle install
 bundle exec rackup config.ru
