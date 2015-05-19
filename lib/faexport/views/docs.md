@@ -33,26 +33,9 @@ General information about a user's account.
 }
 ~~~
 
-## /user/*{name}*/watching
+## /user/*{name}*/watching <br/> /user/*{name}*/watchers
 
-Accounts that the user is watching.
-By default, the first 200 users are returned.
-You can pass a parameter `?page=2` to load more.
-
-*Formats:* `json`, `xml`
-
-~~~json
-[
-  "fender",
-  "bender",
-  "dragoneer",
-  <snip>
-]
-~~~
-
-## /user/*{name}*/watchers
-
-Accounts that are watching the specified user.
+Accounts that are watching or watched by the specified user.
 By default, the first 200 users are returned.
 You can pass a parameter `?page=2` to load more.
 
@@ -316,9 +299,9 @@ Hidden comments are displayed in the following format:
 
 ~~~
 
-## /search.json?q=*{query}*
+## /search
 
-Gets the the first few results from the specified query.
+You must provide a query parameter of `?q=<query>`.
 By default, the first 60 results are returned.
 You can pass a parameter `&page=2` to load more.
 
