@@ -274,13 +274,15 @@ class Furaffinity
                    "#{type_art}#{type_flash}#{type_photo}#{type_music}"\
                    "#{type_story}#{type_poetry}"
 
-    response = Net::HTTP.start(uri.host, uri.port) {|http| http.request(request)}
-
-    unless response.is_a?(Net::HTTPSuccess)
-      raise FAStatusError.new(fa_url('/search/'), response.message)
+    raw = @cache.add("url:serach:#{request.body}") do
+      response = Net::HTTP.start(uri.host, uri.port) {|http| http.request(request)}
+      unless response.is_a?(Net::HTTPSuccess)
+        raise FAStatusError.new(fa_url('/search/'), response.message)
+      end
+      response.body
     end
 
-    html = Nokogiri::HTML(response.body)
+    html = Nokogiri::HTML(raw)
     html.css('.search > b').map do |art|
       {
         id: art['id'].gsub('sid_', ''),
@@ -334,10 +336,11 @@ private
 
   def fetch(path)
     url = fa_url(path)
-    raw = open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie) do |response|
-      if response.status[0] != '200'
-        raise FAStatusError.new(url, response.status.join(' ')) 
-      else
+    raw = @cache.add("url:#{url}") do
+      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie) do |response|
+        if response.status[0] != '200'
+          raise FAStatusError.new(url, response.status.join(' '))
+        end
         response.read
       end
     end
@@ -358,7 +361,6 @@ private
       raise FASystemError.new(url)
     end
 
-    @cache.add("url:#{url}") { raw }
     html
   end
 
