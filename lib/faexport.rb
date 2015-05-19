@@ -265,12 +265,13 @@ module FAExport
     # /submission/{id}/comments.xml
     get %r{/submission/#{ID_REGEX}/comments\.(json|xml)} do |id, type|
       set_content_type(type)
-      cache("submissions_comments:#{id}.#{type}") do
+      include_hidden = !!params[:include_hidden]
+      cache("submissions_comments:#{id}.#{type}.#{include_hidden}") do
         case type
         when 'json'
-          JSON.pretty_generate @fa.submission_comments(id)
+          JSON.pretty_generate @fa.submission_comments(id, include_hidden)
         when 'xml'
-          @fa.submission_comments(id).to_xml(root: 'comments', skip_types: true)
+          @fa.submission_comments(id, include_hidden).to_xml(root: 'comments', skip_types: true)
         end
       end
     end
@@ -279,12 +280,13 @@ module FAExport
     # /journal/{id}/comments.xml
     get %r{/journal/#{ID_REGEX}/comments\.(json|xml)} do |id, type|
       set_content_type(type)
-      cache("journal_comments:#{id}.#{type}") do
+      include_hidden = !!params[:include_hidden]
+      cache("journal_comments:#{id}.#{type}.#{include_hidden}") do
         case type
         when 'json'
-          JSON.pretty_generate @fa.journal_comments(id)
+          JSON.pretty_generate @fa.journal_comments(id, include_hidden)
         when 'xml'
-          @fa.journal_comments(id).to_xml(root: 'comments', skip_types: true)
+          @fa.journal_comments(id, include_hidden).to_xml(root: 'comments', skip_types: true)
         end
       end
     end

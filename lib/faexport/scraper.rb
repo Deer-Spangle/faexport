@@ -222,12 +222,12 @@ class Furaffinity
     end
   end
 
-  def submission_comments(id)
-    comments("view/#{id}/")
+  def submission_comments(id, include_hidden)
+    comments("view/#{id}/", include_hidden)
   end
 
-  def journal_comments(id)
-    comments("journal/#{id}/")
+  def journal_comments(id, include_hidden)
+    comments("journal/#{id}/", include_hidden)
   end
 
   def search_results(query, page)
@@ -364,7 +364,7 @@ private
     html
   end
 
-  def comments(path)
+  def comments(path, include_hidden)
     html = fetch(path)
     comments = html.css('table.container-comment')
     reply_stack = []
@@ -391,6 +391,12 @@ private
           posted: date,
           posted_at: to_iso8601(date),
           text: comment.at_css('.replyto-message').children.to_s.strip.gsub(/ <br><br>$/, ''),
+          reply_to: reply_to,
+          reply_level: reply_level
+        }
+      elsif include_hidden
+        {
+          text: comment.at_css('strong').content,
           reply_to: reply_to,
           reply_level: reply_level
         }

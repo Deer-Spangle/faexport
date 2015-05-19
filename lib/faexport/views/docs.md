@@ -257,9 +257,9 @@ Retrieves information about the journal with the specified id.
 }
 ~~~
 
-## /submission/*{id}*/comments
+## /submission/*{id}*/comments <br/> /journal/*{id}*/comments
 
-Retrivies a list of comments made on the submission with the specified id.
+Retrivies a list of comments made on the submission or journal with the specified id.
 
 *Formats:* `json`, `xml`
 
@@ -302,49 +302,18 @@ Retrivies a list of comments made on the submission with the specified id.
 ]
 ~~~
 
-## /journal/*{id}*/comments
-
-Retrivies a list of comments made on the journal with the specified id.
-
-*Formats:* `json`, `xml`
+Any replies to a hidden comment will contain `"reply_to": "hidden"`.
+By default, hidden comments are not included.
+If you would like hidden comments to show up, pass `?include_hidden=1`.
+Hidden comments are displayed in the following format:
 
 ~~~json
-[
-  {
-    "id": "260397",
-    "name": "DogFrogLog",
-    "profle": "http://www.furaffinity.net/user/dogfroglog/",
-    "avatar": "http://a.facdn.net/1424258659/dogfroglog.gif",
-    "posted": "March 2nd, 2015 02:30 AM",
-    "posted_at": "2015-03-02T02:30:00Z",
-    "text": "Glad to hear your doing better."
-    "reply_to": "",
-    "reply_level": 0
-  },
-  {
-    "id": "252377",
-    "name": "JusticeBeaver",
-    "profle": "http://www.furaffinity.net/user/justicebeaver/",
-    "avatar": "http://a.facdn.net/1424258659/justicebeaver.gif",
-    "posted": "March 1st, 2015 03:16 PM",
-    "posted_at": "2015-03-01T15:16:00Z",
-    "text": "Any idea when you'll be working on my piece again?"
-    "reply_to": "",
-    "reply_level": 0
-  },
-  {
-    "id": "236568",
-    "name": "wereplatypus2008",
-    "profle": "http://www.furaffinity.net/user/wereplatypus2008/",
-    "avatar": "http://a.facdn.net/1424258659/wereplatypus2008.gif",
-    "posted": "February 28th, 2015 06:33 AM",
-    "posted_at": "2015-02-28T06:33:00Z",
-    "text": "Everyone check out my art!"
-    "reply_to": "",
-    "reply_level": 0
-  },
-  <snip>
-]
+{
+  "text": "Comment hidden by its author",
+  "reply_to": "96267",
+  "reply_level": 9
+}
+
 ~~~
 
 ## /search.json?q=*{query}*
