@@ -274,11 +274,9 @@ class Furaffinity
                    "#{type_art}#{type_flash}#{type_photo}#{type_music}"\
                    "#{type_story}#{type_poetry}"
 
-    response = Net::HTTP.start(uri.host, uri.port) do |http|
-      http.request(request)
-    end
+    response = Net::HTTP.start(uri.host, uri.port) {|http| http.request(request)}
 
-    if not response.is_a?(Net::HTTPSuccess)
+    unless response.is_a?(Net::HTTPSuccess)
       raise FAStatusError.new(fa_url('/search/'), response.message)
     end
 
@@ -370,7 +368,6 @@ private
     reply_stack = []
     comments.map do |comment|
       has_id = !!comment.attr('id')
-
       id = has_id ? comment.attr('id').gsub('cid:', '') : 'hidden'
       width = comment.attr('width')[0..-2].to_i
 
