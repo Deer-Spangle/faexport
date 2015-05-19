@@ -367,17 +367,32 @@ private
   def comments(path)
     html = fetch(path)
     comments = html.css('table.container-comment')
+    reply_stack = []
     comments.map do |comment|
-      if comment.attr('id')
+      has_id = !!comment.attr('id')
+
+      id = has_id ? comment.attr('id').gsub('cid:', '') : 'hidden'
+      width = comment.attr('width')[0..-2].to_i
+
+      while reply_stack.any? && reply_stack.last[:width] <= width
+        reply_stack.pop
+      end
+      reply_to = reply_stack.any? ? reply_stack.last[:id] : ''
+      reply_level = reply_stack.size
+      reply_stack.push({id: id, width: width})
+
+      if has_id
         date = pick_date(comment.at_css('.popup_date'))
         {
-          id: comment.attr('id').gsub('cid:', ''),
+          id: id,
           name: comment.at_css('.replyto-name').content.strip,
           profile: fa_url(comment.at_css('ul ul li a')['href'][1..-1]),
           avatar: "http:#{comment.at_css('.icon img')['src']}",
           posted: date,
           posted_at: to_iso8601(date),
-          text: comment.at_css('.replyto-message').children.to_s.strip.gsub(/ <br><br>$/, '')
+          text: comment.at_css('.replyto-message').children.to_s.strip.gsub(/ <br><br>$/, ''),
+          reply_to: reply_to,
+          reply_level: reply_level
         }
       else
         nil

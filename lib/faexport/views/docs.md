@@ -273,6 +273,8 @@ Retrivies a list of comments made on the submission with the specified id.
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
     "text": "Wow, I love the way you do light and shadow."
+    "reply_to": "",
+    "reply_level": 0
   },
   {
     "id": "252377",
@@ -282,6 +284,8 @@ Retrivies a list of comments made on the submission with the specified id.
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
     "text": "This drawing sucks."
+    "reply_to": "260397",
+    "reply_level": 1
   },
   {
     "id": "236568",
@@ -291,6 +295,8 @@ Retrivies a list of comments made on the submission with the specified id.
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",
     "text": "You stole my OC, REPORTED!"
+    "reply_to": "",
+    "reply_level": 0
   },
   <snip>
 ]
@@ -312,6 +318,8 @@ Retrivies a list of comments made on the journal with the specified id.
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
     "text": "Glad to hear your doing better."
+    "reply_to": "",
+    "reply_level": 0
   },
   {
     "id": "252377",
@@ -321,6 +329,8 @@ Retrivies a list of comments made on the journal with the specified id.
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
     "text": "Any idea when you'll be working on my piece again?"
+    "reply_to": "",
+    "reply_level": 0
   },
   {
     "id": "236568",
@@ -330,6 +340,8 @@ Retrivies a list of comments made on the journal with the specified id.
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",
     "text": "Everyone check out my art!"
+    "reply_to": "",
+    "reply_level": 0
   },
   <snip>
 ]
