@@ -48,7 +48,7 @@ module FAExport
     set :public_folder, File.join(File.dirname(__FILE__), 'faexport', 'public')
     set :views, File.join(File.dirname(__FILE__), 'faexport', 'views')
 
-    USER_REGEX = /((?:[a-zA-Z0-9\-_~.]|%5B|%5D)+)/
+    USER_REGEX = /((?:[a-zA-Z0-9\-_~.]|%5B|%5D|%60)+)/
     ID_REGEX = /([0-9]+)/
 
     def initialize(app, config = {})
