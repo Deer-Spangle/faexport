@@ -144,7 +144,7 @@ class Furaffinity
       link: fa_url("view/#{id}/"),
       posted: date,
       posted_at: to_iso8601(date),
-      full: "http:#{html.css('.actions a')[2]['href']}",
+      full: "http:#{html.css('.actions b a')[1]['href']}",
       thumbnail: "http:#{html.at_css('img#submissionImg')['src']}",
       category: field(info, 'Category'),
       theme: field(info, 'Theme'),
