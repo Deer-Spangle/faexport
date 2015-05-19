@@ -124,7 +124,7 @@ class Furaffinity
     mode = is_watchers ? 'watched_by' : 'watches'
     html = fetch("user/#{escape(name)}")
     id = find_id(html)
-    html = fetch("budslist/?name=#{name}&uid=#{id}&mode=#{mode}&page=#{page}")
+    html = fetch("budslist/?name=#{escape(name)}&uid=#{id}&mode=#{mode}&page=#{page}")
     html.css('.artist_name').map{|elem| elem.content}
   end
 
