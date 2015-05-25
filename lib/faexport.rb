@@ -85,7 +85,7 @@ module FAExport
       end
 
       def set_content_type(type)
-        content_type FAExport.config[:content_types][type]
+        content_type FAExport.config[:content_types][type], 'charset' => 'utf-8'
       end
     end
 
