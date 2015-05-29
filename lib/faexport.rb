@@ -345,6 +345,11 @@ module FAExport
       env['sinatra.error'].message
     end
 
+    error CacheError do
+      status 500
+      env['sinatra.error'].message
+    end
+
     error do
       status 500
       'FAExport encounter an internal error'

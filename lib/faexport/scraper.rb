@@ -57,7 +57,6 @@ SEARCH_MULTIPLE = [
   'type'
 ]
 
-
 class FAError < StandardError
   attr_accessor :url
   def initialize(url)

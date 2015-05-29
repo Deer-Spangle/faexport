@@ -29,6 +29,9 @@
 
 require 'redis'
 
+class CacheError < StandardError
+end
+
 class RedisCache
   attr_accessor :redis
 
@@ -43,6 +46,12 @@ class RedisCache
       @redis.set(key, value)
       @redis.expire(key, @expire)
       value
+    end
+  rescue Redis::BaseError => e
+    if e.message.include? 'OOM'
+      raise CacheError.new('The page returned from FA was too large to fit in the cache')
+    else
+      raise CacheError.new("Error accessing Redis Cache: #{e.message}")
     end
   end
 
