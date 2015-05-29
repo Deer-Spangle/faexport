@@ -29,7 +29,35 @@ General information about a user's account.
   "comments_received": "35800",
   "comments_given": "910",
   "journals": "113",
-  "favorites": "6388"
+  "favorites": "6388",
+  "featured_submission": {
+    "id": "4483888",
+    "title": "Fender (Character Sheet)",
+    "thumbnail": "http://t.facdn.net/4483888@200-1284661300.jpg",
+    "link": "http://www.furaffinity.net/view/4483888/"
+  },
+  profile_id": {
+    "id": "1345722",
+    "title": "",
+    "thumbnail": "http://t.facdn.net/1345722@300-1212292592.jpg",
+    "link": "http://www.furaffinity.net/view/1345722/"
+  },
+  "artist_information": {
+    "Species": "Ferrox (Mustlidae Vulpis Vulpis)",
+    "Shell of choice": "Pistachio",
+    "Operating system": "FeNDOS",
+    "Personal quote": "'My error code just gained a level! It's now at 504!'",
+    "Favorite animal": "James Belushi",
+    "Favorite website": "<a href=\"http://www.furaffinity.net\" title=\"http://www.furaffinity.net\" class=\"auto_link\">http://www.furaffinity.net</a>",
+    "Favorite food": "You!"
+  },
+  "contact_information": [
+    {
+      "title": "AIM",
+      "name": "FenderFA",
+      "link": ""
+    }
+  ]
 }
 ~~~
 
