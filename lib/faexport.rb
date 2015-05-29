@@ -32,7 +32,6 @@ $:<< File.dirname(__FILE__)
 require 'active_support'
 require 'active_support/core_ext'
 require 'builder'
-require 'faexport/cache'
 require 'faexport/scraper'
 require 'rdiscount'
 require 'sinatra/base'
@@ -325,29 +324,10 @@ module FAExport
       end
     end
 
-    error FASearchError do
-      status 400
-      env['sinatra.error'].message
-    end
-
-    error FAStatusError do
-      status 502
-      env['sinatra.error'].message
-    end
-
-    error FASystemError do
-      status 404
-      env['sinatra.error'].message
-    end
-
-    error FALoginError do
-      status 403
-      env['sinatra.error'].message
-    end
-
-    error CacheError do
-      status 500
-      env['sinatra.error'].message
+    error FAError do
+      err = env['sinatra.error']
+      status err.status
+      JSON.pretty_generate error: err.message, url: err.url
     end
 
     error do

@@ -30,6 +30,7 @@
 require 'net/http'
 require 'nokogiri'
 require 'open-uri'
+require 'redis'
 
 USER_AGENT = 'FAExport'
 SEARCH_OPTIONS = {
@@ -58,16 +59,17 @@ SEARCH_MULTIPLE = [
 ]
 
 class FAError < StandardError
-  attr_accessor :url
-  def initialize(url)
+  attr_accessor :url, :status
+  def initialize(status, url)
     super('Error accessing FA')
     @url = url
+    @status = status
   end
 end
 
 class FASearchError < FAError
   def initialize(key, value)
-    super('http://www.furaffinity.net/search/')
+    super(400, 'http://www.furaffinity.net/search/')
     @key = key
     @value = value
   end
@@ -82,7 +84,7 @@ end
 
 class FAStatusError < FAError
   def initialize(url, status)
-    super(url)
+    super(502, url)
     @status = status
   end
 
@@ -92,27 +94,64 @@ class FAStatusError < FAError
 end
 
 class FASystemError < FAError
+  def initialize(url)
+    super(404, url)
+  end
+
   def to_s
     "FA returned a system error page when trying to access #{@url}."
   end
 end
 
 class FALoginError < FAError
+  def initialize(url)
+    super(503, url)
+  end
+
   def to_s
     "Unable to log into FA to access #{@url}."
   end
 end
 
-class EmptyCache
-  def add(key, expire = 0) yield; end
-  def remove(key) end
+class CacheError < FAError
+  def initialize
+    super(500, '')
+  end
+end
+
+class RedisCache
+  attr_accessor :redis
+
+  def initialize(redis_url = nil, expire = 0)
+    @redis = redis_url ? Redis.new(url: redis_url) : Redis.new
+    @expire = expire
+  end
+
+  def add(key)
+    @redis.get(key) || begin
+      value = yield
+      @redis.set(key, value)
+      @redis.expire(key, @expire)
+      value
+    end
+  rescue Redis::BaseError => e
+    if e.message.include? 'OOM'
+      raise CacheError.new('The page returned from FA was too large to fit in the cache')
+    else
+      raise CacheError.new("Error accessing Redis Cache: #{e.message}")
+    end
+  end
+
+  def remove(key)
+    @redis.del(key)
+  end
 end
 
 class Furaffinity
   attr_accessor :login_cookie
 
-  def initialize(cache = nil)
-    @cache = cache || EmptyCache.new
+  def initialize(cache)
+    @cache = cache
   end
 
   def login(username, password)
