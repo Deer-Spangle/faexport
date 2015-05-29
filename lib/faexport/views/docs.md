@@ -149,6 +149,7 @@ Returns all the information listed on a users Commission Info page.
   },
   <snip>
 ]
+~~~
 
 ## /user/*{name}*/journals
 
