@@ -161,6 +161,20 @@ module FAExport
       end
     end
 
+    #/user/{name}/commissions.json
+    #/user/{name}/commissions.xml
+    get %r{/user/#{USER_REGEX}/commissions\.(json|xml)} do |name, type|
+      set_content_type(type)
+      cache("commissions:#{name}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.commissions(name)
+        when 'xml'
+          @fa.commissions(name).to_xml(root: 'commissions', skip_types: true)
+        end
+      end
+    end
+
     # /user/{name}/journals.rss
     # /user/{name}/journals.json
     # /user/{name}/journals.xml

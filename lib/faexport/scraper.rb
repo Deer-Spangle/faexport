@@ -225,6 +225,18 @@ class Furaffinity
     end
   end
 
+  def commissions(user)
+    html = fetch("commissions/#{escape(user)}")
+    html.css('table.types-table tr').map do |com|
+      {
+        title: com.at_css('.info dt').content.strip,
+        price: com.at_css('.info dd span').next.content.strip,
+        description: com.at_css('.desc').children.to_s.strip,
+        submission: build_submission(com.at_css('b'))
+      }
+    end
+  end
+
   def submission_comments(id, include_hidden)
     comments("view/#{id}/", include_hidden)
   end
@@ -390,9 +402,10 @@ private
 
   def build_submission(elem)
     if elem
+      id = elem['id']
       title_elem = elem.at_css('span')
       {
-        id: elem['id'].gsub('sid_', ''),
+        id: id ? id.gsub('sid_', '') : '',
         title: title_elem ? title_elem.content : '',
         thumbnail: "http:#{elem.at_css('img')['src']}",
         link: fa_url(elem.at_css('a')['href'][1..-1])
