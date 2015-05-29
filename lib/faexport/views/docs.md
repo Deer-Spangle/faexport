@@ -117,6 +117,39 @@ All shouts that are visible on a user's page.
 ]
 ~~~
 
+## /user/*{name}*/commissions
+
+Returns all the information listed on a users Commission Info page.
+
+*Formats:* `json`, `xml`
+
+~~~json
+[
+  {
+    "title": "DO or DON'T",
+    "price": "EUR 0.00",
+    "description": "<snip>",
+    "submission": {
+      "id": "",
+      "title": "",
+      "thumbnail": "http://t.facdn.net/404_thumbnail.gif",
+      "link": "http://www.furaffinity.net/"
+    }
+  },
+  {
+    "title": "Digital painting",
+    "price": "EUR 180.00",
+    "description": "<snip>",
+    "submission": {
+      "id": "12921627",
+      "title": "",
+      "thumbnail": "http://t.facdn.net/12921627@200-1394373667.jpg",
+      "link": "http://www.furaffinity.net/view/12921627"
+    }
+  },
+  <snip>
+]
+
 ## /user/*{name}*/journals
 
 Return all journals posted by a user.
