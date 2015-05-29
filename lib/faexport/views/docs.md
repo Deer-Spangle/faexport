@@ -362,9 +362,18 @@ Hidden comments are displayed in the following format:
 
 ## /search
 
-You must provide a query parameter of `?q=<query>`.
-By default, the first 60 results are returned.
-You can pass a parameter `&page=2` to load more.
+Perfoms a site wide search of Furaffinity.
+The following parameters can be provided:
+
+* **q**: Words to search for.
+* **page**: Page of results to display.  Defaults to: `1`.
+* **perpage**: How many results to display per page.  Can be one of: `24`, `36`, `48` or `60`.  Defaults to: `60`.
+* **order_by**: How the results should be ordered.  Can be one of: `relevancy`, `date` or `popularity`.  Defaults to: `date`.
+* **order_direction**: if results should be ordered in ascending or descending order.  Can be one of: `asc` or `desc`.  Defaults to: `desc`.
+* **range**: How far in the past should results be loaded from.  Can be one of: `day`, `3days`, `week`, `month` or `all`.  Defaults to: `all`.
+* **mode**: How the words from this search should be interpreted.  Can be one of: `all`, `any` or `extended`.  Defaults to: `extended`.
+* **rating**: what rating levels are included.  Can be any of: `general`, `mature` and `adult` separated by commas.  Defaults to including everything.
+* **type**: Content type of results.  Can be any of: `art`, `flash`, `photo`, `music`, `story` and `poetry` separated by commas.  Defaults to included everything.
 
 *Formats:* `json`, `xml`
 
