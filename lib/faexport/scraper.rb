@@ -98,6 +98,11 @@ class Furaffinity
     info = html.css('.ldot')[0].children.to_s
     stats = html.css('.ldot')[1].children.to_s
     date = html_field(info, 'Registered since')
+    tables = {}
+    html.css('table.maintable').each do |table|
+      title = table.at_css('td.cat b')
+      tables[title.content.strip] = table.at_css('td.alt1') if title
+    end
 
     {
       id: find_id(html),
@@ -116,7 +121,11 @@ class Furaffinity
       comments_received: html_field(stats, 'Comments Received'),
       comments_given: html_field(stats, 'Comments Given'),
       journals: html_field(stats, 'Journals'),
-      favorites: html_field(stats, 'Favorites')
+      favorites: html_field(stats, 'Favorites'),
+      featured_submission: build_submission(html.at_css('#featured-submission b')),
+      profile_id: build_submission(html.at_css('#profilepic-submission b')),
+      artist_information: select_artist_info(tables['Artist Information']),
+      contact_information: select_contact_info(tables['Contact Information'])
     }
   end
 
@@ -177,14 +186,7 @@ class Furaffinity
 
   def submissions(user, folder, page)
     html = fetch("#{folder}/#{escape(user)}/#{page}/")
-    html.css('td.alt1 > center > b').map do |art|
-      {
-        id: art['id'].gsub('sid_', ''),
-        title: art.at_css('span').content,
-        thumbnail: "http:#{art.at_css('img')['src']}",
-        link: fa_url(art.at_css('a')['href'][1..-1])
-      }
-    end
+    html.css('td.alt1 > center > b').map {|art| build_submission(art)}
   end
 
   def journals(user)
@@ -331,6 +333,27 @@ private
     (info[/<b>#{field}:<\/b><br>(.+)/m, 1] || '').strip
   end
 
+  def select_artist_info(elem)
+    return nil unless elem
+    info = {}
+    elem.children.to_s.scan(/<span>\s*(.*?)\s*<\/span>\s*:\s*(.*?)\s*<br\/?>/).each do |match|
+      info[match[0]] = match[1]
+    end
+    info
+  end
+
+  def select_contact_info(elem)
+    return nil unless elem
+    elem.css('tr').map do |tr|
+      link_elem = tr.at_css('a')
+      {
+        title: tr.at_css('strong').content.gsub(/:\s*$/, ''),
+        name: (link_elem || tr.at_css('td')).content.strip,
+        link: link_elem ? link_elem['href'] : ''
+      }
+    end
+  end
+
   def escape(name)
     CGI::escape(name)
   end
@@ -363,6 +386,20 @@ private
     end
 
     html
+  end
+
+  def build_submission(elem)
+    if elem
+      title_elem = elem.at_css('span')
+      {
+        id: elem['id'].gsub('sid_', ''),
+        title: title_elem ? title_elem.content : '',
+        thumbnail: "http:#{elem.at_css('img')['src']}",
+        link: fa_url(elem.at_css('a')['href'][1..-1])
+      }
+    else
+      nil
+    end
   end
 
   def comments(path, include_hidden)
