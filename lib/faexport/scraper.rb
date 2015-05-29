@@ -32,12 +32,52 @@ require 'nokogiri'
 require 'open-uri'
 
 USER_AGENT = 'FAExport'
+SEARCH_OPTIONS = {
+  'perpage' => %w(24 36 48 60),
+  'order_by' => %w(relevancy date popularity),
+  'order_direction' => %w(asc desc),
+  'range' => %w(day 3days week month all),
+  'mode' => %w(all any extended),
+  'rating' => %w(general mature adult),
+  'type' => %w(art flash photo music story poetry)
+}
+SEARCH_DEFAULTS = {
+  'q' => '',
+  'page' => 1,
+  'perpage' => 60,
+  'order_by' => 'date',
+  'order_direction' => 'desc',
+  'range' => 'all',
+  'mode' => 'extended',
+  'rating' => SEARCH_OPTIONS['rating'].join(','),
+  'type' => SEARCH_OPTIONS['type'].join(',')
+}
+SEARCH_MULTIPLE = [
+  'rating',
+  'type'
+]
+
 
 class FAError < StandardError
   attr_accessor :url
   def initialize(url)
     super('Error accessing FA')
     @url = url
+  end
+end
+
+class FASearchError < FAError
+  def initialize(key, value)
+    super('http://www.furaffinity.net/search/')
+    @key = key
+    @value = value
+  end
+
+  def to_s
+    field = @key.to_s
+    multiple = SEARCH_MULTIPLE.include?(@key) ? 'zero or more' : 'one'
+    options = SEARCH_OPTIONS[@key].join(', ')
+    "The search field #{field} must contain #{multiple} of: #{options}.  You provided: #{@value}"
   end
 end
 
@@ -249,34 +289,37 @@ class Furaffinity
     comments("journal/#{id}/", include_hidden)
   end
 
-  def search_results(query, page)
-    if query.empty?
+  def search(options = {})
+    if options['q'].blank?
       return []
     end
 
-    # TODO: Make these part of the GET request, keep as defaults
-    perpage = 60              # 24, 36, 48, 60
-    order_by = 'date'         # relevancy, date, popularity
-    order_direction = 'desc'  # asc, desc
-    range = 'all'             # day, 3days, week, month, all
-    mode = 'extended'         # all, any, extended
-    rating_general = '&rating-general=on'
-    rating_mature = '&rating-mature=on'
-    rating_adult = '&rating-adult=on'
-    type_art = '&type-art=on'
-    type_flash = '&type-flash=on'
-    type_photo = '&type-photo=on'
-    type_music = '&type-music=on'
-    type_story = '&type-story=on'
-    type_poetry = '&type-poetry=on'
+    options = SEARCH_DEFAULTS.merge(options)
 
-    if page <= 1
-      page = 1
+    page = options['page']
+    if page !~ /[0-9]+/ || page.to_i <= 1
+      options['page'] = 1
       submit_mode = "&do_search=Search"
     else
-      page = page - 1
-      submit_mode = "&next_page=>>> #{perpage} more >>>"
+      options['page'] = options['page'].to_i - 1
+      submit_mode = "&next_page=>>> #{options['perpage']} more >>>"
     end
+
+    params = options.map do |key, value|
+      name = key.gsub('_','-')
+      if SEARCH_MULTIPLE.include? key
+        values = options[key].gsub(' ', '').split(',')
+        raise FASearchError.new(key, options[key]) unless values.all?{|v| SEARCH_OPTIONS[key].include? v}
+        values.map{|v| "#{name}-#{v}=on"}
+      elsif SEARCH_OPTIONS.keys.include? key
+        raise FASearchError.new(key, options[key]) unless SEARCH_OPTIONS[key].include? options[key].to_s
+        "#{name}=#{value}"
+      elsif SEARCH_DEFAULTS.keys.include? key
+        "#{name}=#{value}"
+      else
+        []
+      end
+    end.flatten
 
     uri = URI.parse('http://www.furaffinity.net')
     request = Net::HTTP::Post.new('/search/')
@@ -286,12 +329,7 @@ class Furaffinity
     request.add_field('Accept', '*/*')
     request.add_field('User-Agent', USER_AGENT)
     request.add_field('Cookie', @login_cookie)
-    request.body = "q=#{query}&page=#{page}&perpage=#{perpage}"\
-                   "&order-by=#{order_by}&order-direction=#{order_direction}"\
-                   "&range=#{range}&mode=#{mode}#{submit_mode}"\
-                   "#{rating_general}#{rating_mature}#{rating_adult}"\
-                   "#{type_art}#{type_flash}#{type_photo}#{type_music}"\
-                   "#{type_story}#{type_poetry}"
+    request.body = params.join('&') + submit_mode
 
     raw = @cache.add("url:serach:#{request.body}") do
       response = Net::HTTP.start(uri.host, uri.port) {|http| http.request(request)}
@@ -302,14 +340,7 @@ class Furaffinity
     end
 
     html = Nokogiri::HTML(raw)
-    html.css('.search > b').map do |art|
-      {
-        id: art['id'].gsub('sid_', ''),
-        title: art.at_css('span').content,
-        thumbnail: "http:#{art.at_css('img')['src']}",
-        link: fa_url(art.at_css('a')['href'][1..-1])
-      }
-    end
+    html.css('.search > b').map{|art| build_submission(art)}
   end
 
 private

@@ -310,21 +310,24 @@ module FAExport
     # TODO: Implement RSS
     get %r{/search\.(json|xml)} do |type|
       set_content_type(type)
-      query = params[:q] =~ /^([^\/]+)$/ ? params[:q] : ''
-      page = params[:page] =~ /^[0-9]+$/ ? Integer(params[:page]) : 1
       full = !!params[:full]
-      cache("search_results:#{query}.#{type}.#{page}.#{full}") do
+      cache("search_results:#{params.to_s}.#{type}") do
         case type
         when 'json'
-          results = @fa.search_results(query, page)
+          results = @fa.search(params)
           results = results.map{|result| result[:id]} unless full
           JSON.pretty_generate results
         when 'xml'
-          results = @fa.search_results(query, page)
+          results = @fa.search(params)
           results = results.map{|result| result[:id]} unless full
           results.to_xml(root: 'results', skip_types: true)
         end
       end
+    end
+
+    error FASearchError do
+      status 400
+      env['sinatra.error'].message
     end
 
     error FAStatusError do
