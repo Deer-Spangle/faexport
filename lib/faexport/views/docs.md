@@ -1,11 +1,59 @@
+This API can be considered fully stable and will not have backwards incompatible changes made.
+In the case that the markup on FA changes in a way that prevents this API from functioning,
+a best effort will be made to update and maintain it (aka uptime not guaranteed).
+All requests and data returned from FA are cached for 30 seconds so spamming requests won't do anything.
+Be aware that this service runs on limited hardware and is not intended for heavy usage.
+Please send any questions, comments or ramblings to [erra@boothale.net](mailto:erra@boothale.net).
+
+## Status Codes
+
+In the case of an error, the response will be returned as json with an `error` field
+giving details of what happened and a `url` field that includes any FA url that the
+error originated from.
+
+~~~json
+{
+  "error": "Something bad happened",
+  "url": "http://www.furaffinity.net/"
+}
+~~~
+
+### 200 OK
+
+Standard response if everything went well.
+
+### 400 Bad Request
+
+You probably sent an incorrect parameter.
+Check the error returned for more information.
+
+### 404 Not Found
+
+This error is typically returned when you try to access a page that doesn't exist
+or a user who has disabled their profile page.
+
+### 500 Internal Server Error
+
+Generic error returned when FAExport encounters some sort of internal error.
+This can be anything from the cache going offline to changes in markup breaking the scraper.
+
+### 502 Bad Gateway
+
+A request to FA came back with some sort of error code.
+
+### 503 Service Unavailable
+
+This typically means that the scraper was unable to properly log into FA and/or access the page you want.
+Try again later.
+
+## Routes
+
 All routes should have a format appended.  Possible formats are `json`, `xml` and `rss`.
 For example, to get json data about Fender's profile, you could request `/user/fender.json`.
 RSS feeds are only available on 'list' type data and contain actual info rather than just ids.
 For this reason they are limited to the first 10 items and can take a bit longer to load.
-Everything is cached for 30 seconds so spamming requests won't do anything.
-Please report any bugs to [erra@boothale.net](mailto:erra@boothale.net).
 
-## /user/*{name}*
+### /user/*{name}*
 
 General information about a user's account.
 
@@ -61,7 +109,7 @@ General information about a user's account.
 }
 ~~~
 
-## /user/*{name}*/watching <br/> /user/*{name}*/watchers
+### /user/*{name}*/watching <br/> /user/*{name}*/watchers
 
 Accounts that are watching or watched by the specified user.
 By default, the first 200 users are returned.
@@ -78,7 +126,7 @@ You can pass a parameter `?page=2` to load more.
 ]
 ~~~
 
-## /user/*{name}*/shouts
+### /user/*{name}*/shouts
 
 All shouts that are visible on a user's page.
 
@@ -117,7 +165,7 @@ All shouts that are visible on a user's page.
 ]
 ~~~
 
-## /user/*{name}*/commissions
+### /user/*{name}*/commissions
 
 Returns all the information listed on a users Commission Info page.
 
@@ -151,7 +199,7 @@ Returns all the information listed on a users Commission Info page.
 ]
 ~~~
 
-## /user/*{name}*/journals
+### /user/*{name}*/journals
 
 Return all journals posted by a user.
 
@@ -200,7 +248,7 @@ If you want more information, pass `?full=1` to retrieve more fields.
 ]
 ~~~
 
-## /user/*{name}*/*{folder}*
+### /user/*{name}*/*{folder}*
 
 Gets the the first few submissions from the specified folder.
 Options for `{folder}` are `gallery`, `scraps` and `favorites`.
@@ -246,7 +294,7 @@ If you want more information, pass `?full=1` to retrieve more fields.
 ]
 ~~~
 
-## /submission/*{id}*
+### /submission/*{id}*
 
 Retrieves information about the submission with the specified id.
 
@@ -284,7 +332,7 @@ Retrieves information about the submission with the specified id.
 }
 ~~~
 
-## /journal/*{id}*
+### /journal/*{id}*
 
 Retrieves information about the journal with the specified id.
 
@@ -302,7 +350,7 @@ Retrieves information about the journal with the specified id.
 }
 ~~~
 
-## /submission/*{id}*/comments <br/> /journal/*{id}*/comments
+### /submission/*{id}*/comments <br/> /journal/*{id}*/comments
 
 Retrivies a list of comments made on the submission or journal with the specified id.
 
@@ -361,7 +409,7 @@ Hidden comments are displayed in the following format:
 
 ~~~
 
-## /search
+### /search
 
 Perfoms a site wide search of Furaffinity.
 The following parameters can be provided:
