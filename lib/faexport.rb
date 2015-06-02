@@ -219,13 +219,16 @@ module FAExport
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
       full = !!params[:full]
-      cache("#{folder}:#{name}.#{type}.#{page}.#{full}") do
+      include_deleted = !!params[:include_deleted]
+      cache("#{folder}:#{name}.#{type}.#{page}.#{full}.#{include_deleted}") do
         case type
         when 'rss'
           @name = name.capitalize
           @resource = folder.capitalize
           @link = "http://www.furaffinity.net/#{folder}/#{name}/"
-          @posts = @fa.submissions(name, folder, 1).take(FAExport.config[:rss_limit]).map do |sub|
+          subs = @fa.submissions(name, folder, 1)
+          subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
+          @posts = subs.take(FAExport.config[:rss_limit]).map do |sub|
             cache "submission:#{sub[:id]}.rss" do
               @post = @fa.submission(sub[:id])
               @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
@@ -236,10 +239,12 @@ module FAExport
           builder :feed
         when 'json'
           subs =  @fa.submissions(name, folder, page)
+          subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
           subs = subs.map{|sub| sub[:id]} unless full
           JSON.pretty_generate subs
         when 'xml'
           subs =  @fa.submissions(name, folder, page)
+          subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
           subs = subs.map{|sub| sub[:id]} unless full
           subs.to_xml(root: 'submissions', skip_types: true)
         end

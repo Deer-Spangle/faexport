@@ -294,6 +294,18 @@ If you want more information, pass `?full=1` to retrieve more fields.
 ]
 ~~~
 
+To return deleted items as well, pass `?include_deleted=1`.
+Deleted submissions are displayed in the following format:
+
+~~~json
+{
+  "id": "",
+  "title": "Submission has been deleted",
+  "thumbnail": "http:/themes/classic/img/submission-message-deleted.gif",
+  "link": "http://www.furaffinity.net/"
+}
+~~~
+
 ### /submission/*{id}*
 
 Retrieves information about the submission with the specified id.
