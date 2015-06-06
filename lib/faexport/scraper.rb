@@ -269,8 +269,7 @@ class Furaffinity
 
   def journals(user)
     html = fetch("journals/#{escape(user)}/")
-    journals = html.css('table.maintable table.maintable tr')[2].at_css('td td')
-    journals.css('table.maintable').map do |j|
+    html.xpath('//table[starts-with(@id, "jid")]').map do |j|
       title = j.at_css('.cat a')
       contents = j.at_css('.alt1 table')
       info = contents.at_css('.ldot table')
