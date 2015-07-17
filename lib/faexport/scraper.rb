@@ -155,19 +155,15 @@ class Furaffinity
   end
 
   def login(username, password)
-    uri = URI.parse('https://www.furaffinity.net')
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    request = Net::HTTP::Post.new('/login/')
-    request.add_field('Content-Type', 'application/x-www-form-urlencoded')
-    request.add_field('Origin', 'https://www.furaffinity.net')
-    request.add_field('Referer', 'https://www.furaffinity.net/login/')
-    request.add_field('Accept', '*/*')
-    request.add_field('User-Agent', USER_AGENT)
-    request.body = "action=login&retard_protection=1&name=#{username}"\
-                   "&pass=#{password}&login=Login to Furaffinity"
-    response = http.request(request)
-    @login_cookie = "b=#{response['set-cookie'][/b=([a-z0-9\-]+);/, 1]}; a=#{response['set-cookie'][/a=([a-z0-9\-]+);/, 1]}"
+    response = post('/login/', {
+      'action' => 'login',
+      'retard_protection' => '1',
+      'name' => username,
+      'pass' => password,
+      'login' => 'Login to Furaffinity'
+    })
+    @login_cookie = "b=#{response['set-cookie'][/b=([a-z0-9\-]+);/, 1]}; "\
+                    "a=#{response['set-cookie'][/a=([a-z0-9\-]+);/, 1]}"
   end
 
   def user(name)
@@ -332,50 +328,38 @@ class Furaffinity
     end
 
     options = SEARCH_DEFAULTS.merge(options)
+    params = {}
 
     page = options['page']
     if page !~ /[0-9]+/ || page.to_i <= 1
       options['page'] = 1
-      submit_mode = "&do_search=Search"
+      params['do_search'] = 'Search'
     else
       options['page'] = options['page'].to_i - 1
-      submit_mode = "&next_page=>>> #{options['perpage']} more >>>"
+      params['next_page'] = ">>> #{options['perpage']} more >>>"
     end
 
-    params = options.map do |key, value|
+    options.each do |key, value|
       name = key.gsub('_','-')
       if SEARCH_MULTIPLE.include? key
         values = options[key].gsub(' ', '').split(',')
         raise FASearchError.new(key, options[key]) unless values.all?{|v| SEARCH_OPTIONS[key].include? v}
-        values.map{|v| "#{name}-#{v}=on"}
+        values.each{|v| params["#{name}-#{v}"] = 'on'}
       elsif SEARCH_OPTIONS.keys.include? key
         raise FASearchError.new(key, options[key]) unless SEARCH_OPTIONS[key].include? options[key].to_s
-        "#{name}=#{value}"
+        params[name] = value
       elsif SEARCH_DEFAULTS.keys.include? key
-        "#{name}=#{value}"
-      else
-        []
+        params[name] = value
       end
-    end.flatten
-
-    uri = URI.parse('http://www.furaffinity.net')
-    request = Net::HTTP::Post.new('/search/')
-    request.add_field('Content-Type', 'application/x-www-form-urlencoded')
-    request.add_field('Origin', 'http://www.furaffinity.net')
-    request.add_field('Referer', 'http://www.furaffinity.net/search/')
-    request.add_field('Accept', '*/*')
-    request.add_field('User-Agent', USER_AGENT)
-    request.add_field('Cookie', @login_cookie)
-    request.body = params.join('&') + submit_mode
-
-    raw = @cache.add("url:serach:#{request.body}") do
-      response = Net::HTTP.start(uri.host, uri.port) {|http| http.request(request)}
-      unless response.is_a?(Net::HTTPSuccess)
-        raise FAStatusError.new(fa_url('/search/'), response.message)
-      end
-      response.body
     end
 
+    raw = @cache.add("url:serach:#{params.to_s}") do
+      response = post('/search/', params).body
+      unless response.is_a?(Net::HTTPSuccess)
+        raise FAStatusError.new(fa_url(path), response.message)
+      end
+      response
+    end
     html = Nokogiri::HTML(raw)
     html.css('.search > b').map{|art| build_submission(art)}
   end
@@ -470,6 +454,21 @@ private
     end
 
     html
+  end
+
+  def post(path, params)
+    uri = URI.parse('https://www.furaffinity.net')
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    request = Net::HTTP::Post.new(path)
+    request.add_field('Content-Type', 'application/x-www-form-urlencoded')
+    request.add_field('Origin', 'https://www.furaffinity.net')
+    request.add_field('Referer', "https://www.furaffinity.net#{path}")
+    request.add_field('Accept', '*/*')
+    request.add_field('User-Agent', USER_AGENT)
+    request.add_field('Cookie', @login_cookie)
+    request.form_data = params
+    http.request(request)
   end
 
   def build_submission(elem)
