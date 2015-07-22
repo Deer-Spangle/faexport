@@ -354,11 +354,11 @@ class Furaffinity
     end
 
     raw = @cache.add("url:serach:#{params.to_s}") do
-      response = post('/search/', params).body
+      response = post('/search/', params)
       unless response.is_a?(Net::HTTPSuccess)
-        raise FAStatusError.new(fa_url(path), response.message)
+        raise FAStatusError.new(fa_url('search/'), response.message)
       end
-      response
+      response.body
     end
     html = Nokogiri::HTML(raw)
     html.css('.search > b').map{|art| build_submission(art)}
