@@ -24,8 +24,13 @@ Standard response if everything went well.
 
 ### 400 Bad Request
 
-You probably sent an incorrect parameter.
+You probably sent an incorrect parameter or didn't include a valid login cookie.
 Check the error returned for more information.
+
+### 401 Unauthorized
+
+The login cookie you provided didn't not provide access to a users page.
+This is most likely due to an unauthorized or old cookie.
 
 ### 404 Not Found
 

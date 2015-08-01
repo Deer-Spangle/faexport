@@ -49,6 +49,7 @@ module FAExport
 
     USER_REGEX = /((?:[a-zA-Z0-9\-_~.]|%5B|%5D|%60)+)/
     ID_REGEX = /([0-9]+)/
+    COOKIE_REGEX = /^b=[a-z0-9\-]+; a=[a-z0-9\-]+$/
 
     def initialize(app, config = {})
       FAExport.config = config.with_indifferent_access
@@ -67,12 +68,10 @@ module FAExport
                               FAExport.config[:cache_time])
       @fa = Furaffinity.new(@cache)
 
-      cookie = @cache.redis.get('login_cookie')
-      if cookie
-        @fa.login_cookie = cookie
-      else
-        @fa.login(FAExport.config[:username], FAExport.config[:password])
-        @cache.redis.set('login_cookie', @fa.login_cookie)
+      @system_cookie = @cache.redis.get('login_cookie')
+      unless @system_cookie
+        @system_cookie = @fa.login(FAExport.config[:username], FAExport.config[:password])
+        @cache.redis.set('login_cookie', @system_cookie)
       end
 
       super(app)
@@ -86,6 +85,32 @@ module FAExport
       def set_content_type(type)
         content_type FAExport.config[:content_types][type], 'charset' => 'utf-8'
       end
+
+      def ensure_login!
+        unless @user_cookie
+          raise FALoginCookieError,
+            "You must provide a valid login cookie in the header 'FA_COOKIE'"
+        end
+      end
+    end
+
+    before do
+      @user_cookie = request.env['HTTP_FA_COOKIE']
+      if @user_cookie
+        if @user_cookie =~ COOKIE_REGEX
+          @fa.login_cookie = @user_cookie.strip
+        else
+          raise FALoginCookieError,
+            "The login cookie provided must be in the format "\
+            "'b=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx; a=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'"
+        end
+      else
+        @fa.login_cookie = @system_cookie
+      end
+    end
+
+    after do
+      @fa.login_cookie = nil
     end
 
     get '/' do
@@ -331,7 +356,15 @@ module FAExport
 
     error FAError do
       err = env['sinatra.error']
-      status err.status
+      status case err
+      when FASearchError      then 400
+      when FALoginCookieError then 400
+      when FALoginError       then @user_cookie ? 401 : 503
+      when FASystemError      then 404
+      when FAStatusError      then 502
+      else 500
+      end
+
       JSON.pretty_generate error: err.message, url: err.url
     end
 

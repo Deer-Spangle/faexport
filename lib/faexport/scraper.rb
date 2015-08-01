@@ -59,17 +59,16 @@ SEARCH_MULTIPLE = [
 ]
 
 class FAError < StandardError
-  attr_accessor :url, :status
-  def initialize(status, url)
+  attr_accessor :url
+  def initialize(url)
     super('Error accessing FA')
     @url = url
-    @status = status
   end
 end
 
 class FASearchError < FAError
   def initialize(key, value)
-    super(400, 'http://www.furaffinity.net/search/')
+    super('http://www.furaffinity.net/search/')
     @key = key
     @value = value
   end
@@ -84,7 +83,7 @@ end
 
 class FAStatusError < FAError
   def initialize(url, status)
-    super(502, url)
+    super(url)
     @status = status
   end
 
@@ -95,7 +94,7 @@ end
 
 class FASystemError < FAError
   def initialize(url)
-    super(404, url)
+    super(url)
   end
 
   def to_s
@@ -105,7 +104,7 @@ end
 
 class FALoginError < FAError
   def initialize(url)
-    super(503, url)
+    super(url)
   end
 
   def to_s
@@ -113,9 +112,20 @@ class FALoginError < FAError
   end
 end
 
+class FALoginCookieError < FAError
+  def initialize(message)
+    super(nil)
+    @message = message
+  end
+
+  def to_s
+    @message
+  end
+end
+
 class CacheError < FAError
   def initialize
-    super(500, '')
+    super('')
   end
 end
 
@@ -162,8 +172,8 @@ class Furaffinity
       'pass' => password,
       'login' => 'Login to Furaffinity'
     })
-    @login_cookie = "b=#{response['set-cookie'][/b=([a-z0-9\-]+);/, 1]}; "\
-                    "a=#{response['set-cookie'][/a=([a-z0-9\-]+);/, 1]}"
+    "b=#{response['set-cookie'][/b=([a-z0-9\-]+);/, 1]}; "\
+    "a=#{response['set-cookie'][/a=([a-z0-9\-]+);/, 1]}"
   end
 
   def user(name)
