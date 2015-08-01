@@ -58,7 +58,7 @@ For example, to get json data about Fender's profile, you could request `/user/f
 RSS feeds are only available on 'list' type data and contain actual info rather than just ids.
 For this reason they are limited to the first 10 items and can take a bit longer to load.
 
-### /user/*{name}*
+### GET /user/*{name}*
 
 General information about a user's account.
 
@@ -114,7 +114,7 @@ General information about a user's account.
 }
 ~~~
 
-### /user/*{name}*/watching <br/> /user/*{name}*/watchers
+### GET /user/*{name}*/watching <br/> GET /user/*{name}*/watchers
 
 Accounts that are watching or watched by the specified user.
 By default, the first 200 users are returned.
@@ -131,7 +131,7 @@ You can pass a parameter `?page=2` to load more.
 ]
 ~~~
 
-### /user/*{name}*/shouts
+### GET /user/*{name}*/shouts
 
 All shouts that are visible on a user's page.
 
@@ -170,7 +170,7 @@ All shouts that are visible on a user's page.
 ]
 ~~~
 
-### /user/*{name}*/commissions
+### GET /user/*{name}*/commissions
 
 Returns all the information listed on a users Commission Info page.
 
@@ -204,7 +204,7 @@ Returns all the information listed on a users Commission Info page.
 ]
 ~~~
 
-### /user/*{name}*/journals
+### GET /user/*{name}*/journals
 
 Return all journals posted by a user.
 
@@ -253,7 +253,7 @@ If you want more information, pass `?full=1` to retrieve more fields.
 ]
 ~~~
 
-### /user/*{name}*/*{folder}*
+### GET /user/*{name}*/*{folder}*
 
 Gets the the first few submissions from the specified folder.
 Options for `{folder}` are `gallery`, `scraps` and `favorites`.
@@ -311,7 +311,7 @@ Deleted submissions are displayed in the following format:
 }
 ~~~
 
-### /submission/*{id}*
+### GET /submission/*{id}*
 
 Retrieves information about the submission with the specified id.
 
@@ -349,7 +349,7 @@ Retrieves information about the submission with the specified id.
 }
 ~~~
 
-### /journal/*{id}*
+### GET /journal/*{id}*
 
 Retrieves information about the journal with the specified id.
 
@@ -367,7 +367,7 @@ Retrieves information about the journal with the specified id.
 }
 ~~~
 
-### /submission/*{id}*/comments <br/> /journal/*{id}*/comments
+### GET /submission/*{id}*/comments <br/> GET /journal/*{id}*/comments
 
 Retrivies a list of comments made on the submission or journal with the specified id.
 
@@ -426,7 +426,7 @@ Hidden comments are displayed in the following format:
 
 ~~~
 
-### /search
+### GET /search
 
 Perfoms a site wide search of Furaffinity.
 The following parameters can be provided:

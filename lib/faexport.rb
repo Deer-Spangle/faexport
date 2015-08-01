@@ -124,8 +124,8 @@ module FAExport
       end
     end
 
-    # /user/{name}.json
-    # /user/{name}.xml
+    # GET /user/{name}.json
+    # GET /user/{name}.xml
     get %r{/user/#{USER_REGEX}\.(json|xml)} do |name, type|
       set_content_type(type)
       cache("data:#{name}.#{type}") do
@@ -138,9 +138,9 @@ module FAExport
       end
     end
 
-    #/user/{name}/shouts.rss
-    #/user/{name}/shouts.json
-    #/user/{name}/shouts.xml
+    # GET /user/{name}/shouts.rss
+    # GET /user/{name}/shouts.json
+    # GET /user/{name}/shouts.xml
     get %r{/user/#{USER_REGEX}/shouts\.(rss|json|xml)} do |name, type|
       set_content_type(type)
       cache("shouts:#{name}.#{type}") do
@@ -167,10 +167,10 @@ module FAExport
       end
     end
 
-    #/user/{name}/watching.json
-    #/user/{name}/watching.xml
-    #/user/{name}/watchers.json
-    #/user/{name}/watchers.xml
+    # GET /user/{name}/watching.json
+    # GET /user/{name}/watching.xml
+    # GET /user/{name}/watchers.json
+    # GET /user/{name}/watchers.xml
     get %r{/user/#{USER_REGEX}/(watching|watchers)\.(json|xml)} do |name, mode, type|
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
@@ -185,8 +185,8 @@ module FAExport
       end
     end
 
-    #/user/{name}/commissions.json
-    #/user/{name}/commissions.xml
+    # GET /user/{name}/commissions.json
+    # GET /user/{name}/commissions.xml
     get %r{/user/#{USER_REGEX}/commissions\.(json|xml)} do |name, type|
       set_content_type(type)
       cache("commissions:#{name}.#{type}") do
@@ -199,9 +199,9 @@ module FAExport
       end
     end
 
-    # /user/{name}/journals.rss
-    # /user/{name}/journals.json
-    # /user/{name}/journals.xml
+    # GET /user/{name}/journals.rss
+    # GET /user/{name}/journals.json
+    # GET /user/{name}/journals.xml
     get %r{/user/#{USER_REGEX}/journals\.(rss|json|xml)} do |name, type|
       set_content_type(type)
       full = !!params[:full]
@@ -231,15 +231,15 @@ module FAExport
       end
     end
 
-    # /user/{name}/gallery.rss
-    # /user/{name}/gallery.json
-    # /user/{name}/gallery.xml
-    # /user/{name}/scraps.rss
-    # /user/{name}/scraps.json
-    # /user/{name}/scraps.xml
-    # /user/{name}/favorites.rss
-    # /user/{name}/favorites.json
-    # /user/{name}/favorites.xml
+    # GET /user/{name}/gallery.rss
+    # GET /user/{name}/gallery.json
+    # GET /user/{name}/gallery.xml
+    # GET /user/{name}/scraps.rss
+    # GET /user/{name}/scraps.json
+    # GET /user/{name}/scraps.xml
+    # GET /user/{name}/favorites.rss
+    # GET /user/{name}/favorites.json
+    # GET /user/{name}/favorites.xml
     get %r{/user/#{USER_REGEX}/(gallery|scraps|favorites)\.(rss|json|xml)} do |name, folder, type|
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
@@ -276,8 +276,8 @@ module FAExport
       end
     end
 
-    # /submission/{id}.json
-    # /submission/{id}.xml
+    # GET /submission/{id}.json
+    # GET /submission/{id}.xml
     get %r{/submission/#{ID_REGEX}\.(json|xml)} do |id, type|
       set_content_type(type)
       cache("submission:#{id}.#{type}") do
@@ -290,8 +290,8 @@ module FAExport
       end
     end
 
-    # /journal/{id}.json
-    # /journal/{id}.xml
+    # GET /journal/{id}.json
+    # GET /journal/{id}.xml
     get %r{/journal/#{ID_REGEX}\.(json|xml)} do |id, type|
       set_content_type(type)
       cache("journal:#{id}.#{type}") do
@@ -304,8 +304,8 @@ module FAExport
       end
     end
 
-    # /submission/{id}/comments.json
-    # /submission/{id}/comments.xml
+    # GET /submission/{id}/comments.json
+    # GET /submission/{id}/comments.xml
     get %r{/submission/#{ID_REGEX}/comments\.(json|xml)} do |id, type|
       set_content_type(type)
       include_hidden = !!params[:include_hidden]
@@ -319,8 +319,8 @@ module FAExport
       end
     end
 
-    # /journal/{id}/comments.json
-    # /journal/{id}/comments.xml
+    # GET /journal/{id}/comments.json
+    # GET /journal/{id}/comments.xml
     get %r{/journal/#{ID_REGEX}/comments\.(json|xml)} do |id, type|
       set_content_type(type)
       include_hidden = !!params[:include_hidden]
@@ -334,8 +334,8 @@ module FAExport
       end
     end
 
-    # /search.json?q={query}
-    # /search.xml?q={query}
+    # GET /search.json?q={query}
+    # GET /search.xml?q={query}
     # TODO: Implement RSS
     get %r{/search\.(json|xml)} do |type|
       set_content_type(type)
