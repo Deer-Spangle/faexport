@@ -5,6 +5,16 @@ All requests and data returned from FA are cached for 30 seconds so spamming req
 Be aware that this service runs on limited hardware and is not intended for heavy usage.
 Please send any questions, comments or ramblings to [erra@boothale.net](mailto:erra@boothale.net).
 
+## Security
+
+When accessing routes that view or modify account specific data,
+you will need to provide a login cookie in the header `FA_COOKIE`.
+Run this code in the console of any FA page to get one.
+
+~~~javascript
+document.cookie.split('; ').filter(function(x){return/^[ab]=/.test(x)}).sort().reverse().join('; ')
+~~~
+
 ## Status Codes
 
 In the case of an error, the response will be returned as json with an `error` field
@@ -53,8 +63,10 @@ Try again later.
 
 ## Routes
 
-All routes should have a format appended.  Possible formats are `json`, `xml` and `rss`.
+All routes that return data should have a format appended.  Possible formats are `json`, `xml` and `rss`.
 For example, to get json data about Fender's profile, you could request `/user/fender.json`.
+All routes that modify data should have the format of the data you will be sending to them.
+For example, to post a journal using json data, you would make a request to `/journal.json`.
 RSS feeds are only available on 'list' type data and contain actual info rather than just ids.
 For this reason they are limited to the first 10 items and can take a bit longer to load.
 
@@ -478,4 +490,22 @@ If you want more information, pass `&full=1` to retrieve more fields.
   }
   <snip>
 ]
+~~~
+
+### POST /journal
+
+*Formats:* `json`, `query`
+
+Posts a new journal.
+The following parameters must be provided:
+
+* **title**: The title of the journal.
+* **description**: Body of the journal.
+
+The response will contain the url of the created journal.
+
+~~~json
+{
+  "url": "http://www.furaffinity.net/journal/6944093/"
+}
 ~~~

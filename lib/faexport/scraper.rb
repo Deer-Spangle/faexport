@@ -66,6 +66,21 @@ class FAError < StandardError
   end
 end
 
+class FAFormError < FAError
+  def initialize(url, field = nil)
+    super(400, url)
+    @field = field
+  end
+
+  def to_s
+    if @field
+      "You must provide a value for the field '#{@field}'."
+    else
+      "There was an unknown error submitting to FA."
+    end
+  end
+end
+
 class FASearchError < FAError
   def initialize(key, value)
     super('http://www.furaffinity.net/search/')
@@ -165,7 +180,7 @@ class Furaffinity
   end
 
   def login(username, password)
-    response = post('/login/', {
+    response = post('/login/', nil, {
       'action' => 'login',
       'retard_protection' => '1',
       'name' => username,
@@ -364,7 +379,7 @@ class Furaffinity
     end
 
     raw = @cache.add("url:serach:#{params.to_s}") do
-      response = post('/search/', params)
+      response = post('/search/', nil, params)
       unless response.is_a?(Net::HTTPSuccess)
         raise FAStatusError.new(fa_url('search/'), response.message)
       end
@@ -372,6 +387,28 @@ class Furaffinity
     end
     html = Nokogiri::HTML(raw)
     html.css('.search > b').map{|art| build_submission(art)}
+  end
+
+  def submit_journal(title, description)
+    raise FAFormError.new(fa_url('controls/journal'), 'title') unless title
+    raise FAFormError.new(fa_url('controls/journal'), 'description') unless description
+
+    html = fetch("controls/journal/")
+    key = html.at_css('input[name="key"]')['value']
+    response = post('/controls/journal/', {
+      'id' => '',
+      'key' => key,
+      'do' => 'update',
+      'subject' => title,
+      'message' => description
+    })
+    unless response.is_a?(Net::HTTPMovedTemporarily)
+      raise FAFormError.new(fa_url('controls/journal/'))
+    end
+
+    {
+      url: fa_url(response['location'][1..-1])
+    }
   end
 
 private

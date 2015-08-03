@@ -354,6 +354,18 @@ module FAExport
       end
     end
 
+    post %r{/journal(\.json|)} do |type|
+      ensure_login!
+      journal = case type
+                when '.json' then JSON.parse(request.body.read)
+                else params
+                end
+      result = @fa.submit_journal(journal['title'], journal['description'])
+
+      set_content_type('json')
+      JSON.pretty_generate(result)
+    end
+
     error FAError do
       err = env['sinatra.error']
       status case err
