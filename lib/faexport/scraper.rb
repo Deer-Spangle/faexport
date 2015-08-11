@@ -379,7 +379,7 @@ class Furaffinity
     end
 
     raw = @cache.add("url:serach:#{params.to_s}") do
-      response = post('/search/', nil, params)
+      response = post('/search/', params)
       unless response.is_a?(Net::HTTPSuccess)
         raise FAStatusError.new(fa_url('search/'), response.message)
       end
