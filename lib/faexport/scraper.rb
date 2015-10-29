@@ -285,7 +285,7 @@ class Furaffinity
 
   def submissions(user, folder, page)
     html = fetch("#{folder}/#{escape(user)}/#{page}/")
-    html.css('td.alt1 > center > b').map {|art| build_submission(art)}
+    html.css('.submission-list > center > b').map {|art| build_submission(art)}
   end
 
   def journals(user)
