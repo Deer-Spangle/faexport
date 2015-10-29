@@ -238,7 +238,7 @@ class Furaffinity
 
   def submission(id)
     html = fetch("view/#{id}/")
-    submission = html.at_css('div#submission table.maintable table.maintable')
+    submission = html.at_css('div#page-submission table.maintable table.maintable')
     raw_info = submission.at_css('td.alt1')
     info = raw_info.content.lines.map{|i| i.gsub(/^\p{Space}*/, '').rstrip}
     keywords = raw_info.css('div#keywords a')
