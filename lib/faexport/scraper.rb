@@ -200,7 +200,7 @@ class Furaffinity
     tables = {}
     html.css('table.maintable').each do |table|
       title = table.at_css('td.cat b')
-      tables[title.content.strip] = table.at_css('td.alt1') if title
+      tables[title.content.strip] = table if title
     end
 
     {
@@ -224,7 +224,9 @@ class Furaffinity
       featured_submission: build_submission(html.at_css('#featured-submission b')),
       profile_id: build_submission(html.at_css('#profilepic-submission b')),
       artist_information: select_artist_info(tables['Artist Information']),
-      contact_information: select_contact_info(tables['Contact Information'])
+      contact_information: select_contact_info(tables['Contact Information']),
+      watchers: select_watchers_info(tables['Watched by'], 'watched-by'),
+      watching: select_watchers_info(tables['Is watching'], 'is-watching')
     }
   end
 
@@ -449,6 +451,7 @@ private
   end
 
   def select_artist_info(elem)
+    elem = elem.at_css('td.alt1')
     return nil unless elem
     info = {}
     elem.children.to_s.scan(/<span>\s*(.*?)\s*<\/span>\s*:\s*(.*?)\s*<br\/?>/).each do |match|
@@ -458,6 +461,7 @@ private
   end
 
   def select_contact_info(elem)
+    elem = elem.at_css('td.alt1')
     return nil unless elem
     elem.css('tr').map do |tr|
       link_elem = tr.at_css('a')
@@ -467,6 +471,19 @@ private
         link: link_elem ? link_elem['href'] : ''
       }
     end
+  end
+
+  def select_watchers_info(elem, selector)
+    users = elem.css("##{selector} a").map do |user|
+      {
+        name: user.at_css('.artist_name').content.strip,
+        link: fa_url(user['href'][1..-1])
+      }
+    end
+    {
+      count: elem.at_css('td.cat a').content[/([0-9]+)/, 1].to_i,
+      recent: users
+    }
   end
 
   def escape(name)

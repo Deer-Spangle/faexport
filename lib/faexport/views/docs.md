@@ -122,7 +122,27 @@ General information about a user's account.
       "name": "FenderFA",
       "link": ""
     }
-  ]
+  ],
+  "watchers": {
+    "count": 11769,
+    "recent": [
+      {
+        "name": "fennic288",
+        "link": "http://www.furaffinity.net/fennic288"
+      },
+      <snip>
+    ]
+  },
+  "watching": {
+    "count": 87,
+    "recent": [
+      {
+        "name": "catsgotyourbag",
+        "link": "http://www.furaffinity.net/catsgotyourbag"
+      },
+      <snip>
+    ]
+  }
 }
 ~~~
 
