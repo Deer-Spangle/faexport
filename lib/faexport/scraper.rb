@@ -451,7 +451,7 @@ private
   end
 
   def select_artist_info(elem)
-    elem = elem.at_css('td.alt1')
+    elem = elem.at_css('td.alt1') if elem
     return nil unless elem
     info = {}
     elem.children.to_s.scan(/<span>\s*(.*?)\s*<\/span>\s*:\s*(.*?)\s*<br\/?>/).each do |match|
@@ -461,7 +461,7 @@ private
   end
 
   def select_contact_info(elem)
-    elem = elem.at_css('td.alt1')
+    elem = elem.at_css('td.alt1') if elem
     return nil unless elem
     elem.css('tr').map do |tr|
       link_elem = tr.at_css('a')
