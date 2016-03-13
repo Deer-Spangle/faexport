@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # scraper.rb - Quick and dirty API for scraping data from FA
 #
 # Copyright (C) 2015 Erra Boothale <erra@boothale.net>
@@ -180,7 +182,7 @@ class Furaffinity
   end
 
   def login(username, password)
-    response = post('/login/', nil, {
+    response = post('/login/', {
       'action' => 'login',
       'retard_protection' => '1',
       'name' => username,
@@ -231,10 +233,9 @@ class Furaffinity
   end
 
   def budlist(name, page, is_watchers)
-    mode = is_watchers ? 'watched_by' : 'watches'
+    mode = is_watchers ? 'to' : 'by'
     html = fetch("user/#{escape(name)}")
-    id = find_id(html)
-    html = fetch("budslist/?name=#{escape(name)}&uid=#{id}&mode=#{mode}&page=#{page}")
+    html = fetch("watchlist/#{mode}/#{escape(name)}/#{page}/")
     html.css('.artist_name').map{|elem| elem.content}
   end
 
