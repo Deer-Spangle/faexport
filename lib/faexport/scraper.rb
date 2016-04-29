@@ -217,7 +217,7 @@ class Furaffinity
       registered_at: to_iso8601(date),
       current_mood: html_field(info, 'Current mood'),
       artist_profile: html_long_field(info, 'Artist Profile'),
-      pageviews: html_field(stats, 'Pageviews'),
+      pageviews: html_field(stats, 'Page Visits'),
       submissions: html_field(stats, 'Submissions'),
       comments_received: html_field(stats, 'Comments Received'),
       comments_given: html_field(stats, 'Comments Given'),
@@ -444,11 +444,11 @@ private
   end
 
   def html_field(info, field)
-    (info[/<b>#{field}:<\/b>(.+?)<br>/, 1] || '').gsub(%r{</?[^>]+?>}, '').strip
+    (info[/<b[^>]*>#{field}:<\/b>(.+?)<br>/, 1] || '').gsub(%r{</?[^>]+?>}, '').strip
   end
 
   def html_long_field(info, field)
-    (info[/<b>#{field}:<\/b><br>(.+)/m, 1] || '').strip
+    (info[/<b[^>]*>#{field}:<\/b><br>(.+)/m, 1] || '').strip
   end
 
   def select_artist_info(elem)
