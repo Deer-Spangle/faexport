@@ -247,6 +247,7 @@ class Furaffinity
     keywords = raw_info.css('div#keywords a')
     date = pick_date(raw_info.at_css('.popup_date'))
     thumbnail = html.at_css('img#submissionImg')
+    urls = html.at_css('#page-submission .alt1 script').content
 
     {
       title: html.at_css('td.cat b').content,
@@ -256,7 +257,7 @@ class Furaffinity
       link: fa_url("view/#{id}/"),
       posted: date,
       posted_at: to_iso8601(date),
-      full: "http:#{html.css('.actions b a')[1]['href']}",
+      full: "http:#{urls[/var\s+full_url\s+=\s+"([^\s]+)";/, 1]}",
       thumbnail: thumbnail ? "http:#{thumbnail['src']}" : '',
       category: field(info, 'Category'),
       theme: field(info, 'Theme'),
