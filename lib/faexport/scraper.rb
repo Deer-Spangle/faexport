@@ -246,7 +246,6 @@ class Furaffinity
     info = raw_info.content.lines.map{|i| i.gsub(/^\p{Space}*/, '').rstrip}
     keywords = raw_info.css('div#keywords a')
     date = pick_date(raw_info.at_css('.popup_date'))
-    thumbnail = html.at_css('img#submissionImg')
     urls = html.at_css('#page-submission .alt1 script').content
 
     {
@@ -258,7 +257,7 @@ class Furaffinity
       posted: date,
       posted_at: to_iso8601(date),
       full: "http:#{urls[/var\s+full_url\s+=\s+"([^\s]+)";/, 1]}",
-      thumbnail: thumbnail ? "http:#{thumbnail['src']}" : '',
+      thumbnail: "http:#{urls[/var\s+small_url\s+=\s+"([^\s]+)";/, 1]}",
       category: field(info, 'Category'),
       theme: field(info, 'Theme'),
       species: field(info, 'Species'),
