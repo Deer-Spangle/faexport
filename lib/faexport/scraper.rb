@@ -246,7 +246,8 @@ class Furaffinity
     info = raw_info.content.lines.map{|i| i.gsub(/^\p{Space}*/, '').rstrip}
     keywords = raw_info.css('div#keywords a')
     date = pick_date(raw_info.at_css('.popup_date'))
-    urls = html.at_css('#page-submission .alt1 script').content
+    urls = html.at_css('#page-submission .alt1 script').try(:content)
+    downloadurl = "http:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
 
     {
       title: html.at_css('td.cat b').content,
@@ -256,8 +257,9 @@ class Furaffinity
       link: fa_url("view/#{id}/"),
       posted: date,
       posted_at: to_iso8601(date),
-      full: "http:#{urls[/var\s+full_url\s+=\s+"([^\s]+)";/, 1]}",
-      thumbnail: "http:#{urls[/var\s+small_url\s+=\s+"([^\s]+)";/, 1]}",
+      download: downloadurl,
+      full: urls ? "http:#{urls[/var\s+full_url\s+=\s+"([^\s]+)";/, 1]}" : nil,
+      thumbnail: urls ? "http:#{urls[/var\s+small_url\s+=\s+"([^\s]+)";/, 1]}" : nil,
       category: field(info, 'Category'),
       theme: field(info, 'Theme'),
       species: field(info, 'Species'),
