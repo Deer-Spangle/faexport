@@ -346,6 +346,7 @@ Deleted submissions are displayed in the following format:
 ### GET /submission/*{id}*
 
 Retrieves information about the submission with the specified id.
+Note: the "full" and "thumbnail" members are parsed from the image viewer javascript snippet, the "download" is parsed from the "Download" link. When getting a non-image submission, the "thumbnail" and "full" members are null, but the "download" is guaranteed to point to the submission.
 
 *Formats:* `json`, `xml`
 
@@ -358,6 +359,7 @@ Retrieves information about the submission with the specified id.
   "link": "http://www.furaffinity.net/view/4483888/",
   "posted": "September 16th, 2010 08:21 PM",
   "posted_at": "2010-09-16T20:21:00Z",
+  "download" : "http://d.facdn.net/art/fender/1284661300/1284661300.fender_fender.png",
   "full": "http://d.facdn.net/art/fender/1284661300/1284661300.fender_fender.png",
   "thumbnail": "http://t.facdn.net/4483888@400-1284661300.jpg",
   "category": "Artwork (Digital)",
