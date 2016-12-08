@@ -290,7 +290,9 @@ class Furaffinity
 
   def submissions(user, folder, page)
     html = fetch("#{folder}/#{escape(user)}/#{page}/")
-    css = (folder == "favorites") ? 'td.alt1 > center > b' : '.submission-list > center > b'
+    # css = (folder == "favorites") ? 'td.alt1 > center > b' : '.submission-list > center > b'
+    css = '.gallery > figure'
+    p css
     html.css(css).map {|art| build_submission(art)}
   end
 
@@ -392,7 +394,7 @@ class Furaffinity
       response.body
     end
     html = Nokogiri::HTML(raw)
-    html.css('.search > b').map{|art| build_submission(art)}
+    html.css('.gallery > figure').map{|art| build_submission(art)}
   end
 
   def submit_journal(title, description)
@@ -542,9 +544,10 @@ private
   def build_submission(elem)
     if elem
       id = elem['id']
-      title_elem = elem.at_css('span')
+      title_elem = elem.at_css('figcaption').at_css('p').at_css('a')
+      p fa_url(elem.at_css('a')['href'][1..-1])
       {
-        id: id ? id.gsub('sid_', '') : '',
+        id: id ? id.gsub('sid-', '') : '',
         title: title_elem ? title_elem.content : '',
         thumbnail: "http:#{elem.at_css('img')['src']}",
         link: fa_url(elem.at_css('a')['href'][1..-1])
