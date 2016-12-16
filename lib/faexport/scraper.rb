@@ -290,10 +290,7 @@ class Furaffinity
 
   def submissions(user, folder, page)
     html = fetch("#{folder}/#{escape(user)}/#{page}/")
-    # css = (folder == "favorites") ? 'td.alt1 > center > b' : '.submission-list > center > b'
-    css = '.gallery > figure'
-    p css
-    html.css(css).map {|art| build_submission(art)}
+    html.css('.gallery > figure').map {|art| build_submission(art)}
   end
 
   def journals(user)
@@ -511,7 +508,7 @@ private
 
     head = html.xpath('//head//title').first
     if !head || head.content == 'System Error'
-      raise FASystemError.new(url) 
+      raise FASystemError.new(url)
     end
 
     page = html.to_s
@@ -545,7 +542,6 @@ private
     if elem
       id = elem['id']
       title_elem = elem.at_css('figcaption').at_css('p').at_css('a')
-      p fa_url(elem.at_css('a')['href'][1..-1])
       {
         id: id ? id.gsub('sid-', '') : '',
         title: title_elem ? title_elem.content : '',
