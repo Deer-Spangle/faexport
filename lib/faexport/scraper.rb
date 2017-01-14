@@ -223,7 +223,7 @@ class Furaffinity
       comments_given: html_field(stats, 'Comments Given'),
       journals: html_field(stats, 'Journals'),
       favorites: html_field(stats, 'Favorites'),
-      featured_submission: build_submission(html.at_css('#featured-submission b')),
+      featured_submission: build_submission(html.at_css('#userpage-featured-submission b')),
       profile_id: build_submission(html.at_css('#profilepic-submission b')),
       artist_information: select_artist_info(tables['Artist Information']),
       contact_information: select_contact_info(tables['Contact Information']),
