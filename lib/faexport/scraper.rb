@@ -541,7 +541,7 @@ private
   def build_submission(elem)
     if elem
       id = elem['id']
-      title_elem = elem.at_css('figcaption').at_css('p').at_css('a')
+      title_elem = elem.at_css('figcaption') ? elem.at_css('figcaption').at_css('p').at_css('a') : nil
       {
         id: id ? id.gsub('sid-', '') : '',
         title: title_elem ? title_elem.content : '',
