@@ -85,7 +85,7 @@ end
 
 class FASearchError < FAError
   def initialize(key, value)
-    super('http://www.furaffinity.net/search/')
+    super('https://www.furaffinity.net/search/')
     @key = key
     @value = value
   end
@@ -418,7 +418,7 @@ class Furaffinity
 
 private
   def fa_url(path)
-    "http://www.furaffinity.net/#{path}"
+    "https://www.furaffinity.net/#{path}"
   end
 
   def field(info, field)
