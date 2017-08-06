@@ -15,6 +15,8 @@ Run this code in the console of any FA page to get one.
 document.cookie.split('; ').filter(function(x){return/^[ab]=/.test(x)}).sort().reverse().join('; ')
 ~~~
 
+Note: This code only works on the "classic" version of the site.
+
 ## Status Codes
 
 In the case of an error, the response will be returned as json with an `error` field
