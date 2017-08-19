@@ -15,7 +15,7 @@ Run this code in the console of any FA page to get one.
 document.cookie.split('; ').filter(function(x){return/^[ab]=/.test(x)}).sort().reverse().join('; ')
 ~~~
 
-Note: This code only works on the "classic" version of the site.
+If you're having trouble with this, check out [issue 17](https://github.com/boothale/faexport/issues/17).
 
 ## Status Codes
 
