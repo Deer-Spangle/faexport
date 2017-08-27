@@ -250,7 +250,7 @@ class Furaffinity
     downloadurl = "http:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
 
     {
-      title: html.at_css('td.cat b').content,
+      title: html.at_css('#page-submission td.cat b').content,
       description: submission.css('td.alt1')[2].children.to_s.strip,
       name: html.at_css('td.cat a').content,
       profile: fa_url(html.at_css('td.cat a')['href'][1..-1]),
