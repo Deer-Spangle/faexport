@@ -149,16 +149,17 @@ end
 class RedisCache
   attr_accessor :redis
 
-  def initialize(redis_url = nil, expire = 0)
+  def initialize(redis_url = nil, expire = 0, long_expire = 0)
     @redis = redis_url ? Redis.new(url: redis_url) : Redis.new
     @expire = expire
+    @long_expire = long_expire
   end
 
-  def add(key)
+  def add(key, wait_long = false)
     @redis.get(key) || begin
       value = yield
       @redis.set(key, value)
-      @redis.expire(key, @expire)
+      @redis.expire(key, wait_long ? @long_expire : @expire)
       value
     end
   rescue Redis::BaseError => e

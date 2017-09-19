@@ -53,7 +53,8 @@ module FAExport
 
     def initialize(app, config = {})
       FAExport.config = config.with_indifferent_access
-      FAExport.config[:cache_time] ||= 30 # seconds
+      FAExport.config[:cache_time] ||= 30 # 30 seconds
+      FAExport.config[:cache_time_long] ||= 86400 # 1 day
       FAExport.config[:redis_url] ||= ENV['REDISTOGO_URL']
       FAExport.config[:username] ||= ENV['FA_USERNAME']
       FAExport.config[:password] ||= ENV['FA_PASSWORD']
@@ -66,7 +67,8 @@ module FAExport
       }
 
       @cache = RedisCache.new(FAExport.config[:redis_url],
-                              FAExport.config[:cache_time])
+                              FAExport.config[:cache_time],
+                              FAExport.config[:cache_time_long])
       @fa = Furaffinity.new(@cache)
 
       @system_cookie = FAExport.config[:cookie] || @cache.redis.get('login_cookie') 
@@ -80,7 +82,9 @@ module FAExport
 
     helpers do
       def cache(key)
-        @cache.add(key) { yield }
+        # Cache rss feeds for one hour
+        long_cache = key =~ /\.rss$/
+        @cache.add(key, long_cache) { yield }
       end
 
       def set_content_type(type)
