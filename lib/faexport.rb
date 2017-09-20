@@ -44,6 +44,7 @@ module FAExport
   end
 
   class Application < Sinatra::Base
+    enable :logging
     set :public_folder, File.join(File.dirname(__FILE__), 'faexport', 'public')
     set :views, File.join(File.dirname(__FILE__), 'faexport', 'views')
 
