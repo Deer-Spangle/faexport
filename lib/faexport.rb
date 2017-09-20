@@ -55,7 +55,7 @@ module FAExport
       FAExport.config = config.with_indifferent_access
       FAExport.config[:cache_time] ||= 30 # 30 seconds
       FAExport.config[:cache_time_long] ||= 86400 # 1 day
-      FAExport.config[:redis_url] ||= ENV['REDISTOGO_URL']
+      FAExport.config[:redis_url] ||= (ENV['REDIS_URL'] || ENV['REDISTOGO_URL'])
       FAExport.config[:username] ||= ENV['FA_USERNAME']
       FAExport.config[:password] ||= ENV['FA_PASSWORD']
       FAExport.config[:cookie] ||= ENV['FA_COOKIE']
