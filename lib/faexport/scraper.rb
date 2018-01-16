@@ -141,8 +141,13 @@ class FALoginCookieError < FAError
 end
 
 class CacheError < FAError
-  def initialize
-    super('')
+  def initialize(message)
+    super(nil)
+    @message = message
+  end
+
+  def to_s
+    @message
   end
 end
 
