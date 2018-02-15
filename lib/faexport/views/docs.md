@@ -358,6 +358,7 @@ Note: the "full" and "thumbnail" members are parsed from the image viewer javasc
   "description": "<snip>",
   "name": "Fender",
   "profile": "http://www.furaffinity.net/user/fender/",
+  "profile_name": "fender",
   "link": "http://www.furaffinity.net/view/4483888/",
   "posted": "September 16th, 2010 08:21 PM",
   "posted_at": "2010-09-16T20:21:00Z",
@@ -397,6 +398,7 @@ Retrieves information about the journal with the specified id.
   "description": "Just a quick update... <snip>",
   "name": "Fender",
   "profile": "http://www.furaffinity.net/user/fender/",
+  "profile_name": "fender",
   "link": "http://www.furaffinity.net/journal/6534234/",
   "posted": "February 26th, 2015 07:53 PM",
   "posted_at": "2015-02-26T19:53:00Z"
@@ -414,7 +416,8 @@ Retrivies a list of comments made on the submission or journal with the specifie
   {
     "id": "260397",
     "name": "AnotherArtist",
-    "profle": "http://www.furaffinity.net/user/anotherartist/",
+    "profile": "http://www.furaffinity.net/user/anotherartist/",
+    "profile_name": "anotherartist",
     "avatar": "http://a.facdn.net/1424258659/anotherartist.gif",
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
@@ -425,7 +428,8 @@ Retrivies a list of comments made on the submission or journal with the specifie
   {
     "id": "252377",
     "name": "AnnoyingSalamander",
-    "profle": "http://www.furaffinity.net/user/annoyingsalamander/",
+    "profile": "http://www.furaffinity.net/user/annoyingsalamander/",
+    "profile_name": "annoyingsalamander",
     "avatar": "http://a.facdn.net/1424258659/annoyingsalamander.gif",
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
@@ -436,7 +440,8 @@ Retrivies a list of comments made on the submission or journal with the specifie
   {
     "id": "236568",
     "name": "afreshcat001",
-    "profle": "http://www.furaffinity.net/user/afreshcat001/",
+    "profile": "http://www.furaffinity.net/user/afreshcat001/",
+    "profile_name": "afreshcat001",
     "avatar": "http://a.facdn.net/1424258659/afreshcat001.gif",
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",

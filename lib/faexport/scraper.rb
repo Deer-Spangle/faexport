@@ -254,12 +254,14 @@ class Furaffinity
     date = pick_date(raw_info.at_css('.popup_date'))
     img = html.at_css('img#submissionImg')
     downloadurl = "http:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
+    profile_url = html.at_css('td.cat a')['href'][1..-1]
 
     {
       title: html.at_css('#page-submission td.cat b').content,
       description: submission.css('td.alt1')[2].children.to_s.strip,
       name: html.at_css('td.cat a').content,
-      profile: fa_url(html.at_css('td.cat a')['href'][1..-1]),
+      profile: fa_url(profile_url),
+      profile_name: last_path(profile_url),
       link: fa_url("view/#{id}/"),
       posted: date,
       posted_at: to_iso8601(date),
@@ -282,12 +284,14 @@ class Furaffinity
   def journal(id)
     html = fetch("journal/#{id}/")
     date = pick_date(html.at_css('td.cat .popup_date'))
+    profile_url = html.at_css('td.cat a')['href'][1..-1]
 
     {
       title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
       description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
       name: html.at_css('td.cat a').content,
-      profile: fa_url(html.at_css('td.cat a')['href'][1..-1]),
+      profile: fa_url(profile_url),
+      profile_name: last_path(profile_url),
       link: fa_url("journal/#{id}/"),
       posted: date,
       posted_at: to_iso8601(date)
@@ -322,10 +326,12 @@ class Furaffinity
     html.xpath('//table[starts-with(@id, "shout")]').map do |shout|
       name = shout.at_css('td.lead.addpad a')
       date = pick_date(shout.at_css('.popup_date'))
+      profile_url = name['href'][1..-1]
       {
         id: shout.attr('id'),
         name: name.content,
-        profile: fa_url(name['href'][1..-1]),
+        profile: fa_url(profile_url),
+        profile_name: last_path(profile_url),
         avatar: "http:#{shout.at_css('td.alt1.addpad img')['src']}",
         posted: date,
         posted_at: to_iso8601(date),
@@ -425,6 +431,10 @@ class Furaffinity
 private
   def fa_url(path)
     "https://www.furaffinity.net/#{path}"
+  end
+
+  def last_path(path)
+    path.split('/').last
   end
 
   def field(info, field)
@@ -577,10 +587,12 @@ private
 
       if has_id
         date = pick_date(comment.at_css('.popup_date'))
+        profile_url = comment.at_css('ul ul li a')['href'][1..-1]
         {
           id: id,
           name: comment.at_css('.replyto-name').content.strip,
-          profile: fa_url(comment.at_css('ul ul li a')['href'][1..-1]),
+          profile: fa_url(profile_url),
+          profile_name: last_path(profile_url),
           avatar: "http:#{comment.at_css('.icon img')['src']}",
           posted: date,
           posted_at: to_iso8601(date),
