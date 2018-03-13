@@ -70,7 +70,7 @@ end
 
 class FAFormError < FAError
   def initialize(url, field = nil)
-    super(400, url)
+    super(url)
     @field = field
   end
 
