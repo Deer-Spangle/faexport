@@ -303,8 +303,8 @@ class Furaffinity
     html.css('.gallery > figure').map {|art| build_submission(art)}
   end
 
-  def journals(user)
-    html = fetch("journals/#{escape(user)}/")
+  def journals(user, page)
+    html = fetch("journals/#{escape(user)}/#{page}")
     html.xpath('//table[starts-with(@id, "jid")]').map do |j|
       title = j.at_css('.cat a')
       contents = j.at_css('.alt1 table')

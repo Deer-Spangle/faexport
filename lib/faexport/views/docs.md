@@ -244,6 +244,7 @@ Returns all the information listed on a users Commission Info page.
 ### GET /user/*{name}*/journals
 
 Return all journals posted by a user.
+You can pass a parameter `?page=2` to load more.
 
 *Formats:* `json`, `xml`
 
