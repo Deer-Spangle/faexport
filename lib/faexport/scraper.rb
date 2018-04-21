@@ -199,6 +199,20 @@ class Furaffinity
     "a=#{response['set-cookie'][/a=([a-z0-9\-]+);/, 1]}"
   end
 
+  def home
+    html = fetch('')
+    groups = html.css('#frontpage > .old-table-emulation')
+    data = groups.map do |group|
+      group.css('figure').map{|art| build_submission(art)}
+    end
+    {
+      artwork: data[0],
+      writing: data[1],
+      music: data[2],
+      crafts: data[3]
+    }
+  end
+
   def user(name)
     profile = "user/#{escape(name)}/"
     html = fetch(profile)

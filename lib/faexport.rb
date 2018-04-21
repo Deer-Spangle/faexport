@@ -130,6 +130,18 @@ module FAExport
       end
     end
 
+    get %r{/home\.(json|xml)} do |type|
+      set_content_type(type)
+      cache("home:#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.home
+        when 'xml'
+          @fa.home.to_xml(root: 'home', skip_types: true)
+        end
+      end
+    end
+
     # GET /user/{name}.json
     # GET /user/{name}.xml
     get %r{/user/#{USER_REGEX}\.(json|xml)} do |name, type|

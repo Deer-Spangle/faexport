@@ -4,6 +4,12 @@
   or
   %input#id{type: 'text', placeholder: 'id', autocomplete: 'off'}
 %dl#links{style: 'display: none'}
+  %dt Home
+  %dd
+    - %w(json xml).map do |type|
+      %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/home.#{type}"}
+        = "#{@base_url}/home.#{type}"
+      %br
   %dt User
   %dd
     - %w(json xml).map do |type|

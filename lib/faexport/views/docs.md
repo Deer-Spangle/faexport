@@ -72,6 +72,53 @@ For example, to post a journal using json data, you would make a request to `/jo
 RSS feeds are only available on 'list' type data and contain actual info rather than just ids.
 For this reason they are limited to the first 10 items and can take a bit longer to load.
 
+### GET /home
+
+Fetches all the latest posts from the home page
+
+*Formats:* `json`, `xml`
+
+~~~json
+{
+  "artwork": [
+    {
+      "id": "27085784",
+      "title": "Stress relief",
+      "thumbnail": "http://t.facdn.net/27085784@200-1524291669.jpg",
+      "link": "https://www.furaffinity.net/view/27085784/"
+    },
+    <snip>
+  ],
+  "writing": [
+    {
+      "id": "27085745",
+      "title": "Fate: chapter 1, bonus",
+      "thumbnail": "http://t.facdn.net/27085745@400-1524291268.jpg",
+      "link": "https://www.furaffinity.net/view/27085745/"
+    },
+    <snip>
+  ],
+  "music": [
+    {
+      "id": "27085580",
+      "title": "os_v2.5",
+      "thumbnail": "http://t.facdn.net/27085580@75-1524289114.jpg",
+      "link": "https://www.furaffinity.net/view/27085580/"
+    },
+    <snip>
+  ],
+  "crafts": [
+    {
+      "id": "27085767",
+      "title": "Kamadan wearing the Amazing Spider-Man Mk.4 Suit/Armor",
+      "thumbnail": "http://t.facdn.net/27085767@400-1524291459.jpg",
+      "link": "https://www.furaffinity.net/view/27085767/"
+    },
+    <snip>
+  ]
+}
+~~~
+
 ### GET /user/*{name}*
 
 General information about a user's account.
