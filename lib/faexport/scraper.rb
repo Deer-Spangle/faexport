@@ -84,8 +84,8 @@ class FAFormError < FAError
 end
 
 class FASearchError < FAError
-  def initialize(key, value)
-    super('https://www.furaffinity.net/search/')
+  def initialize(key, value, url)
+    super(url)
     @key = key
     @value = value
   end
@@ -181,10 +181,11 @@ class RedisCache
 end
 
 class Furaffinity
-  attr_accessor :login_cookie
+  attr_accessor :login_cookie, :safe_for_work
 
   def initialize(cache)
     @cache = cache
+    @safe_for_work = false
   end
 
   def login(username, password)
@@ -399,10 +400,10 @@ class Furaffinity
       name = key.gsub('_','-')
       if SEARCH_MULTIPLE.include? key
         values = options[key].gsub(' ', '').split(',')
-        raise FASearchError.new(key, options[key]) unless values.all?{|v| SEARCH_OPTIONS[key].include? v}
+        raise FASearchError.new(key, options[key], fa_url('search')) unless values.all?{|v| SEARCH_OPTIONS[key].include? v}
         values.each{|v| params["#{name}-#{v}"] = 'on'}
       elsif SEARCH_OPTIONS.keys.include? key
-        raise FASearchError.new(key, options[key]) unless SEARCH_OPTIONS[key].include? options[key].to_s
+        raise FASearchError.new(key, options[key], fa_url('search')) unless SEARCH_OPTIONS[key].include? options[key].to_s
         params[name] = value
       elsif SEARCH_DEFAULTS.keys.include? key
         params[name] = value
@@ -442,9 +443,13 @@ class Furaffinity
     }
   end
 
-private
   def fa_url(path)
-    "https://www.furaffinity.net/#{path}"
+    "#{fa_address}/#{path}"
+  end
+
+private
+  def fa_address
+    "https://#{safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
   end
 
   def last_path(path)
@@ -554,13 +559,13 @@ private
   end
 
   def post(path, params)
-    uri = URI.parse('https://www.furaffinity.net')
+    uri = URI.parse(fa_address)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     request = Net::HTTP::Post.new(path)
     request.add_field('Content-Type', 'application/x-www-form-urlencoded')
-    request.add_field('Origin', 'https://www.furaffinity.net')
-    request.add_field('Referer', "https://www.furaffinity.net#{path}")
+    request.add_field('Origin', fa_address)
+    request.add_field('Referer', fa_address + path)
     request.add_field('Accept', '*/*')
     request.add_field('User-Agent', USER_AGENT)
     request.add_field('Cookie', @login_cookie)

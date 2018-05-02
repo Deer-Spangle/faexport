@@ -85,7 +85,7 @@ module FAExport
       def cache(key)
         # Cache rss feeds for one hour
         long_cache = key =~ /\.rss$/
-        @cache.add(key, long_cache) { yield }
+        @cache.add("#{key}.#{@fa.safe_for_work}", long_cache) { yield }
       end
 
       def set_content_type(type)
@@ -113,10 +113,13 @@ module FAExport
       else
         @fa.login_cookie = @system_cookie
       end
+
+      @fa.safe_for_work = !!params[:sfw]
     end
 
     after do
       @fa.login_cookie = nil
+      @fa.safe_for_work = false
     end
 
     get '/' do
@@ -166,11 +169,11 @@ module FAExport
         when 'rss'
           @name = name.capitalize
           @resource = 'shouts'
-          @link = "http://www.furaffinity.net/user/#{name}"
+          @link = @fa.fa_url("user/#{name}")
           @posts = @fa.shouts(name).map do |shout|
             @post = {
               title: "Shout from #{shout[:name]}",
-              link: "http://www.furaffinity.net/user/#{name}/##{shout[:id]}",
+              link: @fa.fa_url("user/#{name}/##{shout[:id]}"),
               posted: shout[:posted]
             }
             @description = shout[:text]
@@ -229,7 +232,7 @@ module FAExport
         when 'rss'
           @name = name.capitalize
           @resource = 'journals'
-          @link = "http://www.furaffinity.net/journals/#{name}/"
+          @link = @fa.fa_url("journals/#{name}/")
           @posts = @fa.journals(name, 1).take(FAExport.config[:rss_limit]).map do |journal|
             cache "journal:#{journal[:id]}.rss" do
               @post = @fa.journal(journal[:id])
@@ -269,7 +272,7 @@ module FAExport
         when 'rss'
           @name = name.capitalize
           @resource = folder.capitalize
-          @link = "http://www.furaffinity.net/#{folder}/#{name}/"
+          @link = @fa.fa_url("#{folder}/#{name}/")
           subs = @fa.submissions(name, folder, 1)
           subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
           @posts = subs.take(FAExport.config[:rss_limit]).map do |sub|

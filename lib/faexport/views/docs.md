@@ -71,6 +71,7 @@ All routes that modify data should have the format of the data you will be sendi
 For example, to post a journal using json data, you would make a request to `/journal.json`.
 RSS feeds are only available on 'list' type data and contain actual info rather than just ids.
 For this reason they are limited to the first 10 items and can take a bit longer to load.
+If you want to return only SFW results, you can add `?sfw=1` to any url.
 
 ### GET /home
 
