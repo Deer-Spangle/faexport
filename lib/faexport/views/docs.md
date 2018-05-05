@@ -15,6 +15,12 @@ Run this code in the console of any FA page to get one.
 document.cookie.split('; ').filter(function(x){return/^[ab]=/.test(x)}).sort().reverse().join('; ')
 ~~~
 
+The output should look something like this:
+
+~~~javascript
+"b=3a485360-d203-4a38-97e8-4ff7cdfa244c; a=b1b985c4-d73e-492a-a830-ad238a3693ef"
+~~~
+
 If you're having trouble with this, check out [issue 17](https://github.com/boothale/faexport/issues/17).
 
 ## Status Codes
