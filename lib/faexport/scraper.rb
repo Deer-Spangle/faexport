@@ -220,6 +220,7 @@ class Furaffinity
     info = html.css('.ldot')[0].children.to_s
     stats = html.css('.ldot')[1].children.to_s
     date = html_field(info, 'Registered since')
+    user_title = html_field(info, 'User Title')
     tables = {}
     html.css('table.maintable').each do |table|
       title = table.at_css('td.cat b')
@@ -233,7 +234,8 @@ class Furaffinity
       account_type: html.at_css('.addpad.lead').content[/\((.+?)\)/,1].strip,
       avatar: "http:#{html.at_css('td.addpad img')['src']}",
       full_name: html_field(info, 'Full Name'),
-      artist_type: html_field(info, 'Artist Type'),
+      artist_type: user_title, # Backwards compatability
+      user_title: user_title,
       registered_since: date,
       registered_at: to_iso8601(date),
       current_mood: html_field(info, 'Current mood'),
