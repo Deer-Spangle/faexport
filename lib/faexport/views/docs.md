@@ -141,6 +141,7 @@ General information about a user's account.
   "avatar": "http://a.facdn.net/1424255659/fender.gif",
   "full_name": "Fender!",
   "artist_type": "Watcher",
+  "user_title": "Watcher",
   "registered_since": "December 4th, 2005 10:49",
   "registered_at": "2005-12-04T10:49:00Z",
   "current_mood": "accomplished",
