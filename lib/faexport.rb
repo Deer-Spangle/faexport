@@ -358,20 +358,35 @@ module FAExport
 
     # GET /search.json?q={query}
     # GET /search.xml?q={query}
-    # TODO: Implement RSS
-    get %r{/search\.(json|xml)} do |type|
+    # GET /search.rss?q={query}
+    get %r{/search\.(json|xml|rss)} do |type|
       set_content_type(type)
       full = !!params[:full]
       cache("search_results:#{params.to_s}.#{type}") do
         case type
         when 'json'
-          results = @fa.search(params)
+          results, _ = @fa.search(params)
           results = results.map{|result| result[:id]} unless full
           JSON.pretty_generate results
         when 'xml'
-          results = @fa.search(params)
+          results, _ = @fa.search(params)
           results = results.map{|result| result[:id]} unless full
           results.to_xml(root: 'results', skip_types: true)
+        when 'rss'
+          results, uri = @fa.search(params)
+
+          @name = params['q']
+          @info = "Search for '#{params['q']}'"
+          @link = uri.to_s
+          @posts = results.take(FAExport.config[:rss_limit]).map do |sub|
+            cache "submission:#{sub[:id]}.rss" do
+              @post = @fa.submission(sub[:id])
+              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
+                             "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+              builder :post
+            end
+          end
+          builder :feed
         end
       end
     end

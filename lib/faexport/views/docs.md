@@ -541,7 +541,7 @@ The following parameters can be provided:
 * **rating**: what rating levels are included.  Can be any of: `general`, `mature` and `adult` separated by commas.  Defaults to: `general,mature,adult`.
 * **type**: Content type of results.  Can be any of: `art`, `flash`, `photo`, `music`, `story` and `poetry` separated by commas.  Defaults to: `art,flash,photo,music,story,poetry`.
 
-*Formats:* `json`, `xml`
+*Formats:* `json`, `xml`, `rss`
 
 By default, this only returns the id of each submission.
 
