@@ -189,7 +189,7 @@ class Furaffinity
   end
 
   def login(username, password)
-    response = post('/login/', {
+    response, _ = post('/login/', {
       'action' => 'login',
       'retard_protection' => '1',
       'name' => username,
@@ -381,6 +381,7 @@ class Furaffinity
     comments("journal/#{id}/", include_hidden)
   end
 
+  # Also returns the URI of the search
   def search(options = {})
     if options['q'].blank?
       return []
@@ -412,15 +413,15 @@ class Furaffinity
       end
     end
 
-    raw = @cache.add("url:serach:#{params.to_s}") do
-      response = post('/search/', params)
+    raw, uri = @cache.add("url:serach:#{params.to_s}") do
+      response, uri = post('/search/', params)
       unless response.is_a?(Net::HTTPSuccess)
         raise FAStatusError.new(fa_url('search/'), response.message)
       end
-      response.body
+      [response.body, uri]
     end
     html = Nokogiri::HTML(raw)
-    html.css('.gallery > figure').map{|art| build_submission(art)}
+    [html.css('.gallery > figure').map{|art| build_submission(art)}, uri]
   end
 
   def submit_journal(title, description)
@@ -429,7 +430,7 @@ class Furaffinity
 
     html = fetch("controls/journal/")
     key = html.at_css('input[name="key"]')['value']
-    response = post('/controls/journal/', {
+    response, _ = post('/controls/journal/', {
       'id' => '',
       'key' => key,
       'do' => 'update',
@@ -572,7 +573,7 @@ private
     request.add_field('User-Agent', USER_AGENT)
     request.add_field('Cookie', @login_cookie)
     request.form_data = params
-    http.request(request)
+    [http.request(request), request.uri]
   end
 
   def build_submission(elem)
