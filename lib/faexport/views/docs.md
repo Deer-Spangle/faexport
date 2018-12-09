@@ -352,7 +352,7 @@ Gets the the first few submissions from the specified folder.
 Options for `{folder}` are `gallery`, `scraps` and `favorites`.
 By default, the first 60 submissions are returned.
 
-If this `gallery` or `scraps`, you can pass a parameter `?page=2` to load more.
+If this is `gallery` or `scraps`, you can pass a parameter `?page=2` to load more.
 
 **BREAKING CHANGE**
 
