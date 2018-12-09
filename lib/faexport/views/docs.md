@@ -1,4 +1,4 @@
-This API can be considered fully stable and will not have backwards incompatible changes made.
+This API can be considered fully stable and will not have backwards incompatible changes made (when possible).
 In the case that the markup on FA changes in a way that prevents this API from functioning,
 a best effort will be made to update and maintain it (aka uptime not guaranteed).
 All requests and data returned from FA are cached for 30 seconds so spamming requests won't do anything.
@@ -351,7 +351,16 @@ If you want more information, pass `?full=1` to retrieve more fields.
 Gets the the first few submissions from the specified folder.
 Options for `{folder}` are `gallery`, `scraps` and `favorites`.
 By default, the first 60 submissions are returned.
-You can pass a parameter `?page=2` to load more.
+
+If this `gallery` or `scraps`, you can pass a parameter `?page=2` to load more.
+
+**BREAKING CHANGE**
+
+Due to FA changing the way it handles pagination on favorites using `page` will no longer work.
+Instead, all favorites all now come with a `fav_id` field that can be used with `next` and `prev`.
+For instance if the last favorite fetched has an `fav_id` of `29980`, we can set `?next=29980` to
+load the next set of favorites that come after it.
+Likewise we can also use `?prev=29980` to load the set of favorites directly before it.
 
 *Formats:* `json`, `xml`, `rss`
 

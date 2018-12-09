@@ -33,10 +33,13 @@ require 'active_support'
 require 'active_support/core_ext'
 require 'builder'
 require 'faexport/scraper'
-require 'rdiscount'
+require 'redcarpet'
 require 'sinatra/base'
 require 'sinatra/json'
 require 'yaml'
+require 'tilt'
+
+Tilt.register Tilt::RedcarpetTemplate, 'markdown', 'md'
 
 module FAExport
   class << self
@@ -47,6 +50,7 @@ module FAExport
     enable :logging
     set :public_folder, File.join(File.dirname(__FILE__), 'faexport', 'public')
     set :views, File.join(File.dirname(__FILE__), 'faexport', 'views')
+    set :markdown, with_toc_data: true, fenced_code_blocks: true
 
     USER_REGEX = /((?:[a-zA-Z0-9\-_~.]|%5B|%5D|%60)+)/
     ID_REGEX = /([0-9]+)/
@@ -264,16 +268,22 @@ module FAExport
     # GET /user/{name}/favorites.xml
     get %r{/user/#{USER_REGEX}/(gallery|scraps|favorites)\.(rss|json|xml)} do |name, folder, type|
       set_content_type(type)
-      page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
+
+      offset = {}
+      offset[:page] = params[:page] if params[:page] =~ /^[0-9]+$/
+      offset[:prev] = params[:prev] if params[:prev] =~ ID_REGEX
+      offset[:next] = params[:next] if params[:next] =~ ID_REGEX
+
       full = !!params[:full]
       include_deleted = !!params[:include_deleted]
-      cache("#{folder}:#{name}.#{type}.#{page}.#{full}.#{include_deleted}") do
+
+      cache("#{folder}:#{name}.#{type}.#{offset}.#{full}.#{include_deleted}") do
         case type
         when 'rss'
           @name = name.capitalize
           @resource = folder.capitalize
           @link = @fa.fa_url("#{folder}/#{name}/")
-          subs = @fa.submissions(name, folder, 1)
+          subs = @fa.submissions(name, folder, {})
           subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
           @posts = subs.take(FAExport.config[:rss_limit]).map do |sub|
             cache "submission:#{sub[:id]}.rss" do
@@ -285,12 +295,12 @@ module FAExport
           end
           builder :feed
         when 'json'
-          subs =  @fa.submissions(name, folder, page)
+          subs =  @fa.submissions(name, folder, offset)
           subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
           subs = subs.map{|sub| sub[:id]} unless full
           JSON.pretty_generate subs
         when 'xml'
-          subs =  @fa.submissions(name, folder, page)
+          subs =  @fa.submissions(name, folder, offset)
           subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
           subs = subs.map{|sub| sub[:id]} unless full
           subs.to_xml(root: 'submissions', skip_types: true)
@@ -408,6 +418,8 @@ module FAExport
       status case err
       when FASearchError      then 400
       when FALoginCookieError then 400
+      when FAFormError        then 400
+      when FAOffsetError      then 400
       when FALoginError       then @user_cookie ? 401 : 503
       when FASystemError      then 404
       when FAStatusError      then 502
