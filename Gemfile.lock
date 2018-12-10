@@ -25,7 +25,7 @@ GEM
     rack (2.0.6)
     rack-protection (2.0.4)
       rack
-    rdiscount (2.2.0.1)
+    redcarpet (3.4.0)
     redis (4.0.3)
     sinatra (2.0.4)
       mustermann (~> 1.0)
@@ -58,7 +58,7 @@ DEPENDENCIES
   builder
   haml
   nokogiri
-  rdiscount
+  redcarpet
   redis
   sinatra
   sinatra-contrib

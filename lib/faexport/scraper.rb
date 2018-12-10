@@ -83,6 +83,17 @@ class FAFormError < FAError
   end
 end
 
+class FAOffsetError < FAError
+  def initialize(url, message)
+    super(url)
+    @message = message
+  end
+
+  def to_s
+    @message
+  end
+end
+
 class FASearchError < FAError
   def initialize(key, value, url)
     super(url)
@@ -315,8 +326,32 @@ class Furaffinity
     }
   end
 
-  def submissions(user, folder, page)
-    html = fetch("#{folder}/#{escape(user)}/#{page}/")
+  def submissions(user, folder, offset)
+    if offset.size > 1
+      raise FAOffsetError.new(
+        fa_url("#{folder}/#{escape(user)}/"),
+        "You may only provide one of 'page', 'next' or 'prev' as a parameter")
+    elsif folder == 'favorites' && offset[:page]
+      raise FAOffsetError.new(
+        fa_url("#{folder}/#{escape(user)}/"),
+        "Due to a change by Furaffinity, favorites can no longer be accessed by page. See http://faexport.boothale.net/docs#get-user-name-folder for more details.")
+    elsif folder != 'favorites' && (offset[:next] || offset[:prev])
+      raise FAOffsetError.new(
+        fa_url("#{folder}/#{escape(user)}/"),
+        "The options 'next' and 'prev' are only usable on favorites. Use 'page' instead with a page number")
+    end
+    
+    url = if offset[:page]
+      "#{folder}/#{escape(user)}/#{offset[:page]}/"
+    elsif offset[:next]
+      "#{folder}/#{escape(user)}/#{offset[:next]}/next"
+    elsif offset[:prev]
+      "#{folder}/#{escape(user)}/#{offset[:prev]}/prev"
+    else
+      "#{folder}/#{escape(user)}/"
+    end
+
+    html = fetch(url)
     html.css('.gallery > figure').map {|art| build_submission(art)}
   end
 
@@ -580,12 +615,14 @@ private
     if elem
       id = elem['id']
       title_elem = elem.at_css('figcaption') ? elem.at_css('figcaption').at_css('p').at_css('a') : nil
-      {
+      sub = {
         id: id ? id.gsub('sid-', '') : '',
         title: title_elem ? title_elem.content : '',
         thumbnail: "http:#{elem.at_css('img')['src']}",
         link: fa_url(elem.at_css('a')['href'][1..-1])
       }
+      sub[:fav_id] = elem['data-fav-id'] if elem['data-fav-id']
+      sub
     else
       nil
     end
