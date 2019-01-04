@@ -127,7 +127,6 @@ module FAExport
     end
 
     get '/' do
-      @base_url = request.base_url
       haml :index, layout: :page
     end
 

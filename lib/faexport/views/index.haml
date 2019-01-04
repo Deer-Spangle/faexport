@@ -7,43 +7,30 @@
   %dt Home
   %dd
     - %w(json xml).map do |type|
-      %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/home.#{type}"}
-        = "#{@base_url}/home.#{type}"
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/home.#{type}"}
       %br
   %dt User
   %dd
     - %w(json xml).map do |type|
-      %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/user/{name}.#{type}"}
-        = "#{@base_url}/user/"
-        %span.name> name
-        = ".#{type}"
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/user/{name}.#{type}"}
       %br
   - %w(watching watchers commissions).each do |resource|
     %dt= resource.capitalize
     %dd
       - %w(json xml).each do |type|
-        %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/user/{name}/#{resource}.#{type}"}
-          = "#{@base_url}/user/"
-          %span.name> name
-          = "/#{resource}.#{type}"
+        %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/user/{name}/#{resource}.#{type}"}
         %br
   - %w(shouts journals gallery scraps favorites).each do |resource|
     %dt= resource.capitalize
     %dd
       - %w(json xml rss).each do |type|
-        %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/user/{name}/#{resource}.#{type}"}
-          = "#{@base_url}/user/"
-          %span.name> name
-          = "/#{resource}.#{type}"
+        %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/user/{name}/#{resource}.#{type}"}
         %br
   - %w(submission journal).each do |resource|
     %dt= resource.capitalize
     %dd
       - %w(json xml).each do |type|
-        %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/#{resource}/{id}.#{type}"}
-          = "#{@base_url}/#{resource}/"
-          %span.id> id
-          = ".#{type}"
+        %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/#{resource}/{id}.#{type}"}
         %br
   - %w(submission journal).each do |resource|
     %dt
@@ -51,9 +38,6 @@
       Comments
     %dd
       - %w(json xml).each do |type|
-        %a.resource{href: '#', target: '_blank', :'data-format' => "#{@base_url}/#{resource}/{id}/comments.#{type}"}
-          = "#{@base_url}/#{resource}/"
-          %span.id> id
-          = "/comments.#{type}"
+        %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/#{resource}/{id}/comments.#{type}"}
         %br
 
