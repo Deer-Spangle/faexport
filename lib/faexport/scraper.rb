@@ -311,13 +311,13 @@ class Furaffinity
 
   def journal(id)
     html = fetch("journal/#{id}/")
-    date = pick_date(html.at_css('td.cat .popup_date'))
-    profile_url = html.at_css('td.cat a')['href'][1..-1]
+    date = pick_date(html.at_css('td.cat .journal-title-box .popup_date'))
+    profile_url = html.at_css('td.cat .journal-title-box a')['href'][1..-1]
 
     {
       title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
       description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
-      name: html.at_css('td.cat a').content,
+      name: html.at_css('td.cat .journal-title-box a').content,
       profile: fa_url(profile_url),
       profile_name: last_path(profile_url),
       link: fa_url("journal/#{id}/"),
