@@ -9,6 +9,10 @@
     - %w(json xml).map do |type|
       %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/home.#{type}"}
       %br
+  %dt Search
+  %dd
+    - %w(json xml rss).map do |type|
+      %a.resource{href: '#', target: '_blank', :'data-format' => "search.#{type}?q={name}"}
   %dt User
   %dd
     - %w(json xml).map do |type|
