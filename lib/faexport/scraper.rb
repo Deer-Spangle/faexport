@@ -320,6 +320,7 @@ class Furaffinity
       name: html.at_css('td.cat a').content,
       profile: fa_url(profile_url),
       profile_name: last_path(profile_url),
+      avatar: "https:#{html.at_css("img.avatar")['src']}",
       link: fa_url("journal/#{id}/"),
       posted: date,
       posted_at: to_iso8601(date)
