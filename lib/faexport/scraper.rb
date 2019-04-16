@@ -481,6 +481,12 @@ class Furaffinity
     }
   end
 
+  def new_submissions(offset)  #TODO: implement offset
+    url = "msg/submissions/new"
+    html = fetch(url)
+    html.css('.gallery > figure').map{|art| build_submission_notification(art)}
+  end
+
   def fa_url(path)
     "#{fa_address}/#{path}"
   end
@@ -626,6 +632,20 @@ private
     else
       nil
     end
+  end
+
+  def build_submission_notification(elem)
+    title_link = elem.css('a')[1]
+    uploader_link = elem.css('a')[2]
+    {
+      id: last_path(title_link['href']),
+      title: title_link.content.to_s,
+      thumbnail: "https:#{elem.at_css('img')['src']}",
+      link: fa_url(title_link['href']),
+      name: uploader_link.content.to_s,
+      profile: fa_url(uploader_link['href']),
+      profile_name: last_path(uploader_link['href'])
+    }
   end
 
   def comments(path, include_hidden)

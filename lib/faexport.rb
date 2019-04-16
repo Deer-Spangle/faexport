@@ -400,6 +400,22 @@ module FAExport
       end
     end
 
+    # GET /new_submissions.json
+    get %r{/new_submissions\.(json|xml|rss)} do |type|
+      ensure_login!
+      set_content_type(type)
+      cache("submissions:#{@user_cookie}:#{params.to_s}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.new_submissions(params)
+        when 'xml'
+          @fa.new_submissions(params).to_xml(root: 'results', skip_types: true)
+        when 'rss'
+          raise FASystemError  # TODO: create RSS feed
+        end
+      end
+    end
+
     post %r{/journal(\.json|)} do |type|
       ensure_login!
       journal = case type
