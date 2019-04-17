@@ -481,8 +481,12 @@ class Furaffinity
     }
   end
 
-  def new_submissions(offset)  #TODO: implement offset
+  def new_submissions(options = {})
+    from_id = options['from']
     url = "msg/submissions/new"
+    if from_id
+      url << "~#{from_id}@72/"
+    end
     html = fetch(url)
     html.css('.gallery > figure').map{|art| build_submission_notification(art)}
   end
