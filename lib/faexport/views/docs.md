@@ -134,7 +134,7 @@ General information about a user's account.
 
 ~~~json
 {
-  "id": "8",
+  "id": null,
   "name": "Fender",
   "profile": "http://www.furaffinity.net/user/fender/",
   "account_type": "Administrator",

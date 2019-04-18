@@ -239,7 +239,7 @@ class Furaffinity
     end
 
     {
-      id: find_id(html),
+      id: nil,
       name: html.at_css('.addpad.lead b').content[1..-1],
       profile: fa_url(profile),
       account_type: html.at_css('.addpad.lead').content[/\((.+?)\)/,1].strip,
@@ -512,10 +512,6 @@ private
 
   def to_iso8601(date)
     Time.parse(date + ' UTC').iso8601
-  end
-
-  def find_id(html)
-    html.at_css('#is-watching').parent.parent.at_css('.cat > a')['href'][/uid=([0-9]+)/, 1]
   end
 
   def html_field(info, field)
