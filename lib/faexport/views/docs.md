@@ -155,8 +155,8 @@ General information about a user's account.
   "featured_submission": {
     "id": "4483888",
     "title": "Fender (Character Sheet)",
-    "thumbnail": "http://t.facdn.net/4483888@200-1284661300.jpg",
-    "link": "http://www.furaffinity.net/view/4483888/"
+    "thumbnail": "https://t.facdn.net/4483888@200-1284661300.jpg",
+    "link": "https://www.furaffinity.net/view/4483888/"
   },
   profile_id": {
     "id": "1345722",

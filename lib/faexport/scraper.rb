@@ -257,7 +257,7 @@ class Furaffinity
       comments_given: html_field(stats, 'Comments Given'),
       journals: html_field(stats, 'Journals'),
       favorites: html_field(stats, 'Favorites'),
-      featured_submission: build_submission(html.at_css('#userpage-featured-submission b')),
+      featured_submission: build_submission(html.at_css('.userpage-featured-submission b')),
       profile_id: build_submission(html.at_css('#profilepic-submission b')),
       artist_information: select_artist_info(tables['Artist Information']),
       contact_information: select_contact_info(tables['Contact Information']),
@@ -610,10 +610,15 @@ private
   def build_submission(elem)
     if elem
       id = elem['id']
-      title_elem = elem.at_css('figcaption') ? elem.at_css('figcaption').at_css('p').at_css('a') : nil
+      title = ""
+      if elem.at_css('figcaption')
+        title = elem.at_css('figcaption').at_css('p').at_css('a').content
+      elsif elem.at_css('span')
+        title = elem.at_css('span').content
+      end
       sub = {
-        id: id ? id.gsub('sid-', '') : '',
-        title: title_elem ? title_elem.content : '',
+        id: id ? id.gsub(/sid[-_]/, '') : '',
+        title: title,
         thumbnail: "https:#{elem.at_css('img')['src']}",
         link: fa_url(elem.at_css('a')['href'][1..-1])
       }
