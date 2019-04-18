@@ -311,8 +311,8 @@ class Furaffinity
 
   def journal(id)
     html = fetch("journal/#{id}/")
-    date = pick_date(html.at_css('td.cat .popup_date'))
-    profile_url = html.at_css('td.cat a')['href'][1..-1]
+    date = pick_date(html.at_css('td.cat .journal-title-box .popup_date'))
+    profile_url = html.at_css('td.cat .journal-title-box a')['href'][1..-1]
     journal_header = html.at_css('.journal-header').children[0..-3].to_s.strip unless html.at_css('.journal-header').nil?
     journal_footer = html.at_css('.journal-footer').children[2..-1].to_s.strip unless html.at_css('.journal-footer').nil?
 
@@ -322,7 +322,7 @@ class Furaffinity
       journal_header: journal_header,
       journal_body: html.at_css('.journal-body').children.to_s.strip,
       journal_footer: journal_footer,
-      name: html.at_css('td.cat a').content,
+      name: html.at_css('td.cat .journal-title-box a').content,
       profile: fa_url(profile_url),
       profile_name: last_path(profile_url),
       link: fa_url("journal/#{id}/"),
