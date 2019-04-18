@@ -465,10 +465,11 @@ Retrieves information about the journal with the specified id.
 ~~~json
 {
   "title": "Banner Update",
-  "description": "Just a quick update... <snip>",
+  "description": "<div class=\"journal-body\">\n                                Just a quick update... <snip>",
   "name": "Fender",
   "profile": "http://www.furaffinity.net/user/fender/",
   "profile_name": "fender",
+  "avatar": "https://a.facdn.net/1424255659/fender.gif",
   "link": "http://www.furaffinity.net/journal/6534234/",
   "posted": "February 26th, 2015 07:53 PM",
   "posted_at": "2015-02-26T19:53:00Z"
