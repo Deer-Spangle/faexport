@@ -484,13 +484,22 @@ class Furaffinity
   end
 
   def new_submissions(options = {})
+    # Set pagination
     from_id = options['from']
     url = "msg/submissions/new"
     if from_id
       url << "~#{from_id}@72/"
     end
+
+    # Get page code
     html = fetch(url)
-    html.css('.gallery > figure').map{|art| build_submission_notification(art)}
+
+    login_user = get_current_user(html)
+    submissions = html.css('.gallery > figure').map{|art| build_submission_notification(art)}
+    {
+        "current_user": login_user,
+        "new_submissions": submissions
+    }
   end
 
   def fa_url(path)
@@ -647,9 +656,9 @@ private
       id: last_path(title_link['href']),
       title: title_link.content.to_s,
       thumbnail: "https:#{elem.at_css('img')['src']}",
-      link: fa_url(title_link['href']),
+      link: fa_url(title_link['href'][1..-1]),
       name: uploader_link.content.to_s,
-      profile: fa_url(uploader_link['href']),
+      profile: fa_url(uploader_link['href'][1..-1]),
       profile_name: last_path(uploader_link['href'])
     }
   end
@@ -695,5 +704,14 @@ private
         nil
       end
     end.compact
+  end
+
+  def get_current_user(html)
+    name_elem = html.at_css("a#my-username")
+    {
+        "name": name_elem.content.gsub(/^~/, ''),
+        "profile": fa_url(name_elem['href'][1..-1]),
+        "profile_name": last_path(name_elem['href'])
+    }
   end
 end
