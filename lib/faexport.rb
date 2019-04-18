@@ -411,7 +411,20 @@ module FAExport
         when 'xml'
           @fa.new_submissions(params).to_xml(root: 'results', skip_types: true)
         when 'rss'
-          raise FASystemError  # TODO: create RSS feed
+          results = @fa.new_submissions(params)
+
+          @name = "New submissions"
+          @info = "New submissions for current user"  # TODO: get username?
+          @link = "https://www.furaffinity.net/msg/submissions/"
+          @posts = results.take(FAExport.config[:rss_limit]).map do |sub|
+            cache "submission:#{sub[:id]}.rss" do
+              @post = @fa.submission(sub[:id])
+              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
+                             "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+              builder :post
+            end
+          end
+          builder :feed
         end
       end
     end
