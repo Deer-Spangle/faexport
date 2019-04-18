@@ -161,8 +161,8 @@ General information about a user's account.
   profile_id": {
     "id": "1345722",
     "title": "",
-    "thumbnail": "http://t.facdn.net/1345722@300-1212292592.jpg",
-    "link": "http://www.furaffinity.net/view/1345722/"
+    "thumbnail": "https://t.facdn.net/1345722@300-1212292592.jpg",
+    "link": "https://www.furaffinity.net/view/1345722/"
   },
   "artist_information": {
     "Species": "Ferrox (Mustlidae Vulpis Vulpis)",
