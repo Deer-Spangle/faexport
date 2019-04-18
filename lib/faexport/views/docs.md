@@ -589,9 +589,52 @@ If you want more information, pass `&full=1` to retrieve more fields.
 ]
 ~~~
 
+### GET /new_submissions
+
+*Formats:* `json`, `xml`, `rss`
+
+Login cookie required.
+
+Retrieves a list of new submission notifications.
+
+~~~json
+[
+  {
+    "id": "31236893",
+    "title": "Lineless inf0xicated",
+    "thumbnail": "https://t.facdn.net/31236893@200-1555626711.jpg",
+    "link": "https://sfw.furaffinity.net//view/31236893/",
+    "name": "feve",
+    "profile": "https://sfw.furaffinity.net//user/feve/",
+    "profile_name": "feve"
+  },
+  {
+    "id": "31235658",
+    "title": "Lineless Rex",
+    "thumbnail": "https://t.facdn.net/31235658@200-1555619949.jpg",
+    "link": "https://sfw.furaffinity.net//view/31235658/",
+    "name": "feve",
+    "profile": "https://sfw.furaffinity.net//user/feve/",
+    "profile_name": "feve"
+  },
+  {
+    "id": "31235009",
+    "title": "Lineless Ripley",
+    "thumbnail": "https://t.facdn.net/31235009@200-1555616433.jpg",
+    "link": "https://sfw.furaffinity.net//view/31235009/",
+    "name": "feve",
+    "profile": "https://sfw.furaffinity.net//user/feve/",
+    "profile_name": "feve"
+  }
+  <snip>
+]
+~~~
+
 ### POST /journal
 
 *Formats:* `json`, `query`
+
+Login cookie required.
 
 Posts a new journal.
 The following parameters must be provided:
