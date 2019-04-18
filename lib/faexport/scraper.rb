@@ -243,7 +243,7 @@ class Furaffinity
       name: html.at_css('.addpad.lead b').content[1..-1],
       profile: fa_url(profile),
       account_type: html.at_css('.addpad.lead').content[/\((.+?)\)/,1].strip,
-      avatar: "http:#{html.at_css('td.addpad img')['src']}",
+      avatar: "https:#{html.at_css('td.addpad img')['src']}",
       full_name: html_field(info, 'Full Name'),
       artist_type: user_title, # Backwards compatability
       user_title: user_title,
@@ -281,7 +281,7 @@ class Furaffinity
     keywords = raw_info.css('div#keywords a')
     date = pick_date(raw_info.at_css('.popup_date'))
     img = html.at_css('img#submissionImg')
-    downloadurl = "http:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
+    downloadurl = "https:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
     profile_url = html.at_css('td.cat a')['href'][1..-1]
 
     {
@@ -294,8 +294,8 @@ class Furaffinity
       posted: date,
       posted_at: to_iso8601(date),
       download: downloadurl,
-      full: img ? "http:" + img['data-fullview-src'] : nil,
-      thumbnail: img ? "http:" + img['data-preview-src'] : nil,
+      full: img ? "https:" + img['data-fullview-src'] : nil,
+      thumbnail: img ? "https:" + img['data-preview-src'] : nil,
       category: field(info, 'Category'),
       theme: field(info, 'Theme'),
       species: field(info, 'Species'),
@@ -384,7 +384,7 @@ class Furaffinity
         name: name.content,
         profile: fa_url(profile_url),
         profile_name: last_path(profile_url),
-        avatar: "http:#{shout.at_css('td.alt1.addpad img')['src']}",
+        avatar: "https:#{shout.at_css('td.alt1.addpad img')['src']}",
         posted: date,
         posted_at: to_iso8601(date),
         text: shout.css('.no_overflow.alt1')[0].children.to_s.strip
@@ -618,7 +618,7 @@ private
       sub = {
         id: id ? id.gsub('sid-', '') : '',
         title: title_elem ? title_elem.content : '',
-        thumbnail: "http:#{elem.at_css('img')['src']}",
+        thumbnail: "https:#{elem.at_css('img')['src']}",
         link: fa_url(elem.at_css('a')['href'][1..-1])
       }
       sub[:fav_id] = elem['data-fav-id'] if elem['data-fav-id']
@@ -652,7 +652,7 @@ private
           name: comment.at_css('.replyto-name').content.strip,
           profile: fa_url(profile_url),
           profile_name: last_path(profile_url),
-          avatar: "http:#{comment.at_css('.icon img')['src']}",
+          avatar: "https:#{comment.at_css('.icon img')['src']}",
           posted: date,
           posted_at: to_iso8601(date),
           text: comment.at_css('.replyto-message').children.to_s.strip.gsub(/ <br><br>$/, ''),
