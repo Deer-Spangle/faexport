@@ -318,8 +318,9 @@ class Furaffinity
 
     {
       title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
+      description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
       journal_header: journal_header,
-      description: html.at_css('.journal-body').children.to_s.strip,
+      journal_body: html.at_css('.journal-body').children.to_s.strip,
       journal_footer: journal_footer,
       name: html.at_css('td.cat a').content,
       profile: fa_url(profile_url),
