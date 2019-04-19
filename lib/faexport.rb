@@ -429,6 +429,22 @@ module FAExport
       end
     end
 
+    # GET /notifications.json
+    get %r{/notifications\.(json|xml|rss)} do |type|
+      ensure_login!
+      set_content_type(type)
+      cache("notifications:#{@user_cookie}:#{params.to_s}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.notifications(params)
+        when 'xml'
+          @fa.notifications(params).to_xml(root: 'results', skip_types: true)
+        when 'rss'
+          raise FASystemError # TODO: Need to write this.
+        end
+      end
+    end
+
     post %r{/journal(\.json|)} do |type|
       ensure_login!
       journal = case type

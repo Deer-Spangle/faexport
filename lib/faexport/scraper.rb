@@ -502,7 +502,109 @@ class Furaffinity
     }
   end
 
+  def notifications(options = {})
+    # Get page code
+    html = fetch("msg/others/")
+    # Parse page
+    login_user = get_current_user(html)
+    new_watches = []
+    if html.at_css("ul#watches")
+      html.at_css("ul#watches").css("li:not(.section-controls)").each do |elem|
+        new_watches << {
+            # TODO handle deleted watches properly
+            name: elem.at_css("span").content,
+            profile: fa_url(elem.at_css("a")['href']),
+            profile_name: last_path(elem.at_css("a")['href']),
+            avatar: "https:#{elem.at_css("img")['src']}"
+        }
+      end
+    end
+    new_submission_comments = []
+    if html.at_css("fieldset#messages-comments-submission")
+      html.at_css("fieldset#messages-comments-submission").css("li:not(.section-controls)").each do |elem|
+        next if elem.to_s.include? "has been deleted."
+        elem_links = elem.css("a")
+        new_submission_comments << {
+            comment_id: elem.at_css("input")['value'],
+            name: elem_links[0].content,
+            profile: fa_url(elem_links[0]['href']),
+            profile_name: last_path(elem_links[0]['href']),
+            is_reply: elem.to_s.include?("<em>your</em> comment on"),
+            your_submission: elem.css('em').last.content == "your",
+            submission_id: last_path(elem_links[1]['href']),
+            title: elem_links[1].content
+        }
+      end
+    end
+    new_journal_comments = []
+    if html.at_css("fieldset#messages-comments-journals")
+      html.at_css("fieldset#messages-comments-journals").css("li:not(.section-controls)").each do |elem|
+        elem_links = elem.css("a")
+        new_journal_comments << {
+            comment_id: elem.at_css("input")['value'],
+            name: elem_links[0].content,
+            profile: fa_url(elem_links[0]['href']),
+            profile_name: last_path(elem_links[0]['href']),
+            is_reply: elem.to_s.include?("<em>your</em> comment on"),
+            your_journal: elem.css('em').last.content == "your",
+            journal_id: last_path(elem_links[1]['href']),
+            title: elem_links[1].content
+        }
+      end
+    end
+    new_shouts = []
+    if html.at_css("fieldset#messages-shouts")
+      html.at_css("fieldset#messages-shouts").css("li:not(.section-controls)").each do |elem|
+        new_shouts << {
+            shout_id: elem.at_css("input")['value'],
+            name: elem.at_css("a").content,
+            profile: fa_url(elem.at_css("a")['href']),
+            profile_name: last_path(elem.at_css("a")['href'])
+        }
+      end
+    end
+    new_favorites = []
+    if html.at_css("ul#favorites")
+      html.at_css("ul#favorites").css("li:not(.section-controls)").each do |elem|
+        elem_links = elem.css("a")
+        new_favorites << {
+            favorite_notification_id: elem.at_css("input")["value"],
+            name: elem_links[0].content,
+            profile: fa_url(elem_links[0]['href']),
+            profile_name: last_path(elem_links[0]['href']),
+            submission_id: last_path(elem_links[1]['href']),
+            submission_name: elem_links[1].content
+        }
+      end
+    end
+    new_journals = []
+    if html.at_css("ul#journals")
+      html.at_css("ul#journals").css("li:not(.section-controls)").each do |elem|
+        elem_links = elem.css("a")
+        new_journals << {
+            journal_id: elem.at_css("input")['value'],
+            title: elem_links[0].content,
+            name: elem_links[1].content,
+            profile: fa_url(elem_links[1]['href']),
+            profile_name: last_path(elem_links[1]['href'])
+        }
+      end
+    end
+    {
+        current_user: login_user,
+        new_watches: new_watches,
+        new_submission_comments: new_submission_comments,
+        new_journal_comments: new_journal_comments,
+        new_shouts: new_shouts,
+        new_favorites: new_favorites,
+        new_journals: new_journals
+    }
+  end
+
   def fa_url(path)
+    if path.to_s.start_with? "/"
+      path = path[1..-1]
+    end
     "#{fa_address}/#{path}"
   end
 
