@@ -510,6 +510,7 @@ class Furaffinity
     new_watches = []
     if html.at_css("ul#watches")
       html.at_css("ul#watches").css("li:not(.section-controls)").each do |elem|
+        next if elem.at_css("input")['checked'] == "checked"
         new_watches << {
             # TODO handle deleted watches properly
             name: elem.at_css("span").content,
@@ -522,7 +523,7 @@ class Furaffinity
     new_submission_comments = []
     if html.at_css("fieldset#messages-comments-submission")
       html.at_css("fieldset#messages-comments-submission").css("li:not(.section-controls)").each do |elem|
-        next if elem.to_s.include? "has been deleted."
+        next if elem.at_css("input")['checked'] == "checked"
         elem_links = elem.css("a")
         new_submission_comments << {
             comment_id: elem.at_css("input")['value'],
@@ -539,6 +540,7 @@ class Furaffinity
     new_journal_comments = []
     if html.at_css("fieldset#messages-comments-journals")
       html.at_css("fieldset#messages-comments-journals").css("li:not(.section-controls)").each do |elem|
+        next if elem.at_css("input")['checked'] == "checked"
         elem_links = elem.css("a")
         new_journal_comments << {
             comment_id: elem.at_css("input")['value'],
@@ -555,6 +557,7 @@ class Furaffinity
     new_shouts = []
     if html.at_css("fieldset#messages-shouts")
       html.at_css("fieldset#messages-shouts").css("li:not(.section-controls)").each do |elem|
+        next if elem.at_css("input")['checked'] == "checked"
         new_shouts << {
             shout_id: elem.at_css("input")['value'],
             name: elem.at_css("a").content,
@@ -566,6 +569,7 @@ class Furaffinity
     new_favorites = []
     if html.at_css("ul#favorites")
       html.at_css("ul#favorites").css("li:not(.section-controls)").each do |elem|
+        next if elem.at_css("input")['checked'] == "checked"
         elem_links = elem.css("a")
         new_favorites << {
             favorite_notification_id: elem.at_css("input")["value"],
@@ -580,6 +584,7 @@ class Furaffinity
     new_journals = []
     if html.at_css("ul#journals")
       html.at_css("ul#journals").css("li:not(.section-controls)").each do |elem|
+        next if elem.at_css("input")['checked'] == "checked"
         elem_links = elem.css("a")
         new_journals << {
             journal_id: elem.at_css("input")['value'],
