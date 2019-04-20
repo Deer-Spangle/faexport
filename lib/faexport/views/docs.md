@@ -130,6 +130,10 @@ Fetches all the latest posts from the home page
 
 General information about a user's account.
 
+**BREAKING CHANGE**
+
+FA has removed the user id number from the profile page now, which means that "id" in the endpoint here will always return `null`.
+
 *Formats:* `json`, `xml`
 
 ~~~json
