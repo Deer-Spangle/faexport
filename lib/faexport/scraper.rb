@@ -483,9 +483,8 @@ class Furaffinity
     }
   end
 
-  def new_submissions(options = {})
+  def new_submissions(from_id)
     # Set pagination
-    from_id = options['from']
     url = "msg/submissions/new"
     if from_id
       url << "~#{from_id}@72/"

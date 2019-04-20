@@ -404,15 +404,16 @@ module FAExport
     get %r{/new_submissions\.(json|xml|rss)} do |type|
       ensure_login!
       set_content_type(type)
-      # TODO: Move paging out to here
-      cache("submissions:#{@user_cookie}:#{params.to_s}.#{type}") do
+      # TODO: write docs
+      from_id = params['from']
+      cache("submissions:#{@user_cookie}:#{from_id}.#{type}") do
         case type
         when 'json'
-          JSON.pretty_generate @fa.new_submissions(params)
+          JSON.pretty_generate @fa.new_submissions(from_id)
         when 'xml'
-          @fa.new_submissions(params).to_xml(root: 'results', skip_types: true)
+          @fa.new_submissions(from_id).to_xml(root: 'results', skip_types: true)
         when 'rss'
-          results = @fa.new_submissions(params)
+          results = @fa.new_submissions(from_id)
 
           @name = "New submissions"
           @info = "New submissions for #{results["current_user"]["name"]}"
