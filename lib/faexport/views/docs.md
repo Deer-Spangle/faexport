@@ -463,7 +463,7 @@ Retrieves information about the journal with the specified id.
 ~~~json
 {
   "title": "Banner Update",
-  "description": "Just a quick update... <snip>",
+  "description": "<div class=\"journal-body\">\nJust a quick update... <snip>",
   "journal_header": null,
   "journal_body": "Just a quick update...<snip>",
   "journal_footer": "<strong class=\"bbcode bbcode_b\">... <snip>",
