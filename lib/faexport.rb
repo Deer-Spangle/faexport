@@ -432,13 +432,15 @@ module FAExport
     # GET /notifications.json
     get %r{/notifications\.(json|xml|rss)} do |type|
       ensure_login!
+      # # TODO: write docs
+      include_deleted = !!params[:include_deleted]
       set_content_type(type)
-      cache("notifications:#{@user_cookie}:#{params.to_s}.#{type}") do
+      cache("notifications:#{@user_cookie}:#{include_deleted}.#{type}") do
         case type
         when 'json'
-          JSON.pretty_generate @fa.notifications(params)
+          JSON.pretty_generate @fa.notifications(include_deleted)
         when 'xml'
-          @fa.notifications(params).to_xml(root: 'results', skip_types: true)
+          @fa.notifications(include_deleted).to_xml(root: 'results', skip_types: true)
         when 'rss'
           raise FASystemError # TODO: Need to write this.
         end

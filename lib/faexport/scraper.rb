@@ -502,17 +502,29 @@ class Furaffinity
     }
   end
 
-  def notifications(options = {})
+  def notifications(include_deleted)
     # Get page code
     html = fetch("msg/others/")
     # Parse page
     login_user = get_current_user(html)
+    # Parse new watcher notifications
     new_watches = []
     if html.at_css("ul#watches")
       html.at_css("ul#watches").css("li:not(.section-controls)").each do |elem|
-        next if elem.at_css("input")['checked'] == "checked"
+        if elem.at_css("input")['checked'] == "checked"
+          if include_deleted
+            new_watches << {
+                watch_id: "",
+                name: "Removed by the user",
+                profile: fa_address,
+                profile_name: "",
+                avatar: fa_url(elem.at_css("img")['src'])
+            }
+          end
+          next
+        end
         new_watches << {
-            # TODO handle deleted watches properly
+            watch_id: elem.at_css("input")['value'],
             name: elem.at_css("span").content,
             profile: fa_url(elem.at_css("a")['href']),
             profile_name: last_path(elem.at_css("a")['href']),
@@ -520,10 +532,25 @@ class Furaffinity
         }
       end
     end
+    # Parse new submission comments notifications
     new_submission_comments = []
     if html.at_css("fieldset#messages-comments-submission")
       html.at_css("fieldset#messages-comments-submission").css("li:not(.section-controls)").each do |elem|
-        next if elem.at_css("input")['checked'] == "checked"
+        if elem.at_css("input")['checked'] == "checked"
+          if include_deleted
+            new_submission_comments << {
+                comment_id: "",
+                name: "Comment or the submission it was left on has been deleted",
+                profile: fa_address,
+                profile_name: "",
+                is_reply: nil,
+                your_submission: nil,
+                submission_id: "",
+                title: "Comment or the submission it was left on has been deleted"
+            }
+          end
+          next
+        end
         elem_links = elem.css("a")
         new_submission_comments << {
             comment_id: elem.at_css("input")['value'],
@@ -537,10 +564,25 @@ class Furaffinity
         }
       end
     end
+    # Parse new journal comments notifications
     new_journal_comments = []
     if html.at_css("fieldset#messages-comments-journals")
       html.at_css("fieldset#messages-comments-journals").css("li:not(.section-controls)").each do |elem|
-        next if elem.at_css("input")['checked'] == "checked"
+        if elem.at_css("input")['checked'] == "checked"
+          if include_deleted
+            new_journal_comments << {
+                comment_id: "",
+                name: "Comment or the journal it was left on has been deleted",
+                profile: fa_address,
+                profile_name: "",
+                is_reply: nil,
+                your_journal: nil,
+                journal_id: "",
+                title: "Comment or the journal it was left on has been deleted"
+            }
+          end
+          next
+        end
         elem_links = elem.css("a")
         new_journal_comments << {
             comment_id: elem.at_css("input")['value'],
@@ -554,10 +596,21 @@ class Furaffinity
         }
       end
     end
+    # Parse new shout notifications
     new_shouts = []
     if html.at_css("fieldset#messages-shouts")
       html.at_css("fieldset#messages-shouts").css("li:not(.section-controls)").each do |elem|
-        next if elem.at_css("input")['checked'] == "checked"
+        if elem.at_css("input")['checked'] == "checked"
+          if include_deleted
+            new_shouts << {
+                shout_id: "",
+                name: "Shout has been removed from your page",
+                profile: fa_address,
+                profile_name: ""
+            }
+          end
+          next
+        end
         new_shouts << {
             shout_id: elem.at_css("input")['value'],
             name: elem.at_css("a").content,
@@ -566,10 +619,23 @@ class Furaffinity
         }
       end
     end
+    # Parse new favourite notifications
     new_favorites = []
     if html.at_css("ul#favorites")
       html.at_css("ul#favorites").css("li:not(.section-controls)").each do |elem|
-        next if elem.at_css("input")['checked'] == "checked"
+        if elem.at_css("input")['checked'] == "checked"
+          if include_deleted
+            new_favorites << {
+                favorite_notification_id: "",
+                name: "The favorite this notification was for has since been removed by the user",
+                profile: fa_address,
+                profile_name: "",
+                submission_id: "",
+                submission_name: "The favorite this notification was for has since been removed by the user"
+            }
+          end
+          next
+        end
         elem_links = elem.css("a")
         new_favorites << {
             favorite_notification_id: elem.at_css("input")["value"],
@@ -581,10 +647,11 @@ class Furaffinity
         }
       end
     end
+    # Parse new journal notifications
     new_journals = []
     if html.at_css("ul#journals")
       html.at_css("ul#journals").css("li:not(.section-controls)").each do |elem|
-        next if elem.at_css("input")['checked'] == "checked"
+        # No "deleted journal" handling, because FA doesn't display those anymore, it just removes the notification.
         elem_links = elem.css("a")
         new_journals << {
             journal_id: elem.at_css("input")['value'],
@@ -595,6 +662,7 @@ class Furaffinity
         }
       end
     end
+    # Create response
     {
         current_user: login_user,
         new_watches: new_watches,
