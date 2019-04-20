@@ -404,6 +404,7 @@ module FAExport
     get %r{/new_submissions\.(json|xml|rss)} do |type|
       ensure_login!
       set_content_type(type)
+      # TODO: Move paging out to here
       cache("submissions:#{@user_cookie}:#{params.to_s}.#{type}") do
         case type
         when 'json'
