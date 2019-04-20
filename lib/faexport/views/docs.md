@@ -597,6 +597,10 @@ Login cookie required.
 
 Retrieves a list of new submission notifications.
 
+The way that FA handles paging in submission notifications is that you specify the ID of a submission in your notifications, and it will display that submission, and all the ones after it.
+You can specify the submission ID to start from with the `from=` parameter in the URL.
+Paging through submissions without overlap can be achieved by taking the last submission, adding 1 to the ID, and supplying that using the `from` parameter.
+
 ~~~json
 {
   "current_user": {

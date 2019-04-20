@@ -404,7 +404,6 @@ module FAExport
     get %r{/new_submissions\.(json|xml|rss)} do |type|
       ensure_login!
       set_content_type(type)
-      # TODO: write docs
       from_id = params['from']
       cache("submissions:#{@user_cookie}:#{from_id}.#{type}") do
         case type
