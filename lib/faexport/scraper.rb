@@ -558,7 +558,7 @@ class Furaffinity
           next
         end
         elem_links = elem.css("a")
-        date = pick_date(comment.at_css('.popup_date'))
+        date = pick_date(elem.at_css('.popup_date'))
         new_submission_comments << {
             comment_id: elem.at_css("input")['value'],
             name: elem_links[0].content,
