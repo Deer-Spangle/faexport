@@ -400,6 +400,7 @@ module FAExport
       end
     end
 
+    # POST /journal.json
     post %r{/journal(\.json|)} do |type|
       ensure_login!
       journal = case type
