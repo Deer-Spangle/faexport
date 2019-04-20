@@ -517,17 +517,22 @@ class Furaffinity
                 name: "Removed by the user",
                 profile: fa_address,
                 profile_name: "",
-                avatar: fa_url(elem.at_css("img")['src'])
+                avatar: fa_url(elem.at_css("img")['src']),
+                posted: "",
+                posted_at: ""
             }
           end
           next
         end
+        date = pick_date(elem.at_css('.popup_date'))
         new_watches << {
             watch_id: elem.at_css("input")['value'],
             name: elem.at_css("span").content,
             profile: fa_url(elem.at_css("a")['href']),
             profile_name: last_path(elem.at_css("a")['href']),
-            avatar: "https:#{elem.at_css("img")['src']}"
+            avatar: "https:#{elem.at_css("img")['src']}",
+            posted: date,
+            posted_at: to_iso8601(date)
         }
       end
     end
@@ -545,12 +550,15 @@ class Furaffinity
                 is_reply: nil,
                 your_submission: nil,
                 submission_id: "",
-                title: "Comment or the submission it was left on has been deleted"
+                title: "Comment or the submission it was left on has been deleted",
+                posted: "",
+                posted_at: ""
             }
           end
           next
         end
         elem_links = elem.css("a")
+        date = pick_date(comment.at_css('.popup_date'))
         new_submission_comments << {
             comment_id: elem.at_css("input")['value'],
             name: elem_links[0].content,
@@ -559,7 +567,9 @@ class Furaffinity
             is_reply: elem.to_s.include?("<em>your</em> comment on"),
             your_submission: elem.css('em').last.content == "your",
             submission_id: last_path(elem_links[1]['href']),
-            title: elem_links[1].content
+            title: elem_links[1].content,
+            posted: date,
+            posted_at: to_iso8601(date)
         }
       end
     end
@@ -577,12 +587,15 @@ class Furaffinity
                 is_reply: nil,
                 your_journal: nil,
                 journal_id: "",
-                title: "Comment or the journal it was left on has been deleted"
+                title: "Comment or the journal it was left on has been deleted",
+                posted: "",
+                posted_at: ""
             }
           end
           next
         end
         elem_links = elem.css("a")
+        date = pick_date(elem.at_css('.popup_date'))
         new_journal_comments << {
             comment_id: elem.at_css("input")['value'],
             name: elem_links[0].content,
@@ -591,7 +604,9 @@ class Furaffinity
             is_reply: elem.to_s.include?("<em>your</em> comment on"),
             your_journal: elem.css('em').last.content == "your",
             journal_id: last_path(elem_links[1]['href']),
-            title: elem_links[1].content
+            title: elem_links[1].content,
+            posted: date,
+            posted_at: to_iso8601(date)
         }
       end
     end
@@ -605,16 +620,21 @@ class Furaffinity
                 shout_id: "",
                 name: "Shout has been removed from your page",
                 profile: fa_address,
-                profile_name: ""
+                profile_name: "",
+                posted: "",
+                posted_at: ""
             }
           end
           next
         end
+        date = pick_date(elem.at_css('.popup_date'))
         new_shouts << {
             shout_id: elem.at_css("input")['value'],
             name: elem.at_css("a").content,
             profile: fa_url(elem.at_css("a")['href']),
-            profile_name: last_path(elem.at_css("a")['href'])
+            profile_name: last_path(elem.at_css("a")['href']),
+            posted: date,
+            posted_at: to_iso8601(date)
         }
       end
     end
@@ -630,19 +650,24 @@ class Furaffinity
                 profile: fa_address,
                 profile_name: "",
                 submission_id: "",
-                submission_name: "The favorite this notification was for has since been removed by the user"
+                submission_name: "The favorite this notification was for has since been removed by the user",
+                posted: "",
+                posted_at: ""
             }
           end
           next
         end
         elem_links = elem.css("a")
+        date = pick_date(elem.at_css('.popup_date'))
         new_favorites << {
             favorite_notification_id: elem.at_css("input")["value"],
             name: elem_links[0].content,
             profile: fa_url(elem_links[0]['href']),
             profile_name: last_path(elem_links[0]['href']),
             submission_id: last_path(elem_links[1]['href']),
-            submission_name: elem_links[1].content
+            submission_name: elem_links[1].content,
+            posted: date,
+            posted_at: to_iso8601(date)
         }
       end
     end
@@ -652,12 +677,15 @@ class Furaffinity
       html.at_css("ul#journals").css("li:not(.section-controls)").each do |elem|
         # No "deleted journal" handling, because FA doesn't display those anymore, it just removes the notification.
         elem_links = elem.css("a")
+        date = pick_date(elem.at_css('.popup_date'))
         new_journals << {
             journal_id: elem.at_css("input")['value'],
             title: elem_links[0].content,
             name: elem_links[1].content,
             profile: fa_url(elem_links[1]['href']),
-            profile_name: last_path(elem_links[1]['href'])
+            profile_name: last_path(elem_links[1]['href']),
+            posted: date,
+            posted_at: to_iso8601(date)
         }
       end
     end
