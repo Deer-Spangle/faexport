@@ -36,7 +36,7 @@ require 'redis'
 
 USER_AGENT = 'FAExport'
 SEARCH_OPTIONS = {
-  'perpage' => %w(24 36 48 60),
+  'perpage' => %w(24 48 72),
   'order_by' => %w(relevancy date popularity),
   'order_direction' => %w(asc desc),
   'range' => %w(day 3days week month all),
@@ -47,7 +47,7 @@ SEARCH_OPTIONS = {
 SEARCH_DEFAULTS = {
   'q' => '',
   'page' => 1,
-  'perpage' => 60,
+  'perpage' => 72,
   'order_by' => 'date',
   'order_direction' => 'desc',
   'range' => 'all',

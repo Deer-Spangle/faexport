@@ -548,7 +548,7 @@ The following parameters can be provided:
 
 * **q**: Words to search for.
 * **page**: Page of results to display.  Defaults to: `1`.
-* **perpage**: How many results to display per page.  Can be one of: `24`, `36`, `48` or `60`.  Defaults to: `60`.
+* **perpage**: How many results to display per page.  Can be one of: `24`, `48` or `72`.  Defaults to: `72`.
 * **order_by**: How the results should be ordered.  Can be one of: `relevancy`, `date` or `popularity`.  Defaults to: `date`.
 * **order_direction**: if results should be ordered in ascending or descending order.  Can be one of: `asc` or `desc`.  Defaults to: `desc`.
 * **range**: How far in the past should results be loaded from.  Can be one of: `day`, `3days`, `week`, `month` or `all`.  Defaults to: `all`.
