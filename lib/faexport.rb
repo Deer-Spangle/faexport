@@ -473,6 +473,35 @@ module FAExport
       end
     end
 
+    # GET /notifications/submission_comments.rss
+    get %r{/notifications/submission_comments\.(rss)} do |type|
+      ensure_login!
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications/submission_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'rss'
+          results = @fa.notifications(include_deleted)
+          submission_comments = results[:new_submission_comments]
+          @name = "New submission comment notifications"
+          @info = "New submission comment notifications for #{results[:current_user][:name]}. #{include_deleted ? "Including" : "Not including"} removed comments/submissions."
+          @link = "https://www.furaffinity.net/msg/others/#comments"
+          @posts = submission_comments.map do |comment|
+            @post = {
+                title: "New submission comment by #{comment[:name]}",
+                link: comment[:profile],
+                posted: comment[:posted]
+            }
+            @description = "You have a new submission comment notification.
+<a href=\"#{comment[:profile]}\">#{comment[:name]}</a> has made a new comment #{comment[:is_reply] ? "in response to your comment " : ""}on
+#{comment[:your_submission] ? "your" : "their"} submission <a href=\"https://furaffinity.net/view/#{comment[:submission_id]}/\">#{comment[:title]}</a>"
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
     post %r{/journal(\.json|)} do |type|
       ensure_login!
       journal = case type
