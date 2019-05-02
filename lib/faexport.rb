@@ -448,6 +448,33 @@ module FAExport
       end
     end
 
+    # GET /notifications/watches.rss
+    get %r{/notifications/watches\.(rss)} do |type|
+      ensure_login!
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications/watches:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'rss'
+          results = @fa.notifications(include_deleted)
+          watches = results[:watches]
+          @name = "New watch notifications"
+          @info = "New watch notifications for #{results[:current_user][:name]}. #{include_deleted ? "Including" : "Not including"} removed watches."
+          @link = "https://www.furaffinity.net/msg/others/#watches"
+          @posts = watches.map do |watch|
+            @post = {
+                title: "New watch by #{watch[:name]}",
+                link: watch[:profile],
+                posted: watch[:posted]
+            }
+            @description = "You have been watched by a new user <a href=\"#{watch[:profile]}\">#{watch[:name]}</a> <img src=\"#{watch[:avatar]}\" alt=\"avatar\"/>"
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
     post %r{/journal(\.json|)} do |type|
       ensure_login!
       journal = case type
