@@ -455,7 +455,7 @@ module FAExport
         case type
         when 'rss'
           results = @fa.notifications(include_deleted)
-          watches = results[:watches]
+          watches = results[:new_watches]
           @name = "New watch notifications"
           @info = "New watch notifications for #{results[:current_user][:name]}. #{include_deleted ? "Including" : "Not including"} removed watches."
           @link = "https://www.furaffinity.net/msg/others/#watches"
