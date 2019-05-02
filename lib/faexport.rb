@@ -431,7 +431,7 @@ module FAExport
     end
 
     # GET /notifications.json
-    get %r{/notifications\.(json|xml|rss)} do |type|
+    get %r{/notifications\.(json|xml)} do |type|
       ensure_login!
       # # TODO: write docs
       include_deleted = !!params[:include_deleted]
@@ -442,8 +442,6 @@ module FAExport
           JSON.pretty_generate @fa.notifications(include_deleted)
         when 'xml'
           @fa.notifications(include_deleted).to_xml(root: 'results', skip_types: true)
-        when 'rss'
-          raise FASystemError # TODO: Need to write this.
         end
       end
     end
