@@ -559,9 +559,11 @@ private
 
   def select_watchers_info(elem, selector)
     users = elem.css("##{selector} a").map do |user|
+      link = fa_url(user['href'][1..-1])
       {
         name: user.at_css('.artist_name').content.strip,
-        link: fa_url(user['href'][1..-1])
+        profile_name: last_path(link),
+        link: link
       }
     end
     {
