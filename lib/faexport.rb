@@ -558,6 +558,34 @@ module FAExport
       end
     end
 
+    # GET /notifications/favorites.rss
+    get %r{/notifications/favorites\.(rss)} do |type|
+      ensure_login!
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications/favorites:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'rss'
+          results = @fa.notifications(include_deleted)
+          favorites = results[:new_favorites]
+          @name = "New favorite notifications"
+          @info = "New favorite notifications for #{results[:current_user][:name]}. #{include_deleted ? "Including" : "Not including"} removed favorites."
+          @link = "https://www.furaffinity.net/msg/others/#favorite"
+          @posts = favorites.map do |favorite|
+            @post = {
+                title: "#{favorite[:name]} has favorited \"#{favorite[:submission_name]}\"",
+                link: "https://furaffinity.net/view/#{favorite[:submission_id]}",
+                posted: favorite[:posted]
+            }
+            @description = "You have a new favorite notification. <a href=\"#{favorite[:profile]}\">#{favorite[:name]}</a> has favorited your submission
+\"<a href=\"https://furaffinity.net/view/#{favorite[:submission_id]}\">#{favorite[:submission_name]}</a>\"."
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
     post %r{/journal(\.json|)} do |type|
       ensure_login!
       journal = case type
