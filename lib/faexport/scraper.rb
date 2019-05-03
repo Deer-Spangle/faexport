@@ -625,15 +625,15 @@ private
     if elem
       id = elem['id']
       title_elem = elem.at_css('figcaption') ? elem.at_css('figcaption').at_css('p').at_css('a') : nil
-      author_elem = elem.at_css('figcaption').css('p')[1].at_css('a')
+      author_elem = elem.at_css('figcaption') ? elem.at_css('figcaption').css('p')[1].at_css('a') : nil
       sub = {
         id: id ? id.gsub('sid-', '') : '',
         title: title_elem ? title_elem.content : '',
         thumbnail: "https:#{elem.at_css('img')['src']}",
         link: fa_url(elem.at_css('a')['href'][1..-1]),
-        name: author_elem.content,
-        profile: fa_url(author_elem['href'][1..-1]),
-        profile_name: last_path(author_elem['href'])
+        name: author_elem ? author_elem.content : '',
+        profile: author_elem ? fa_url(author_elem['href'][1..-1]) : '',
+        profile_name: author_elem ? last_path(author_elem['href']) : ''
       }
       sub[:fav_id] = elem['data-fav-id'] if elem['data-fav-id']
       sub
