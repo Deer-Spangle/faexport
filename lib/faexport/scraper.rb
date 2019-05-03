@@ -36,7 +36,7 @@ require 'redis'
 
 USER_AGENT = 'FAExport'
 SEARCH_OPTIONS = {
-  'perpage' => %w(24 36 48 60),
+  'perpage' => %w(24 48 72),
   'order_by' => %w(relevancy date popularity),
   'order_direction' => %w(asc desc),
   'range' => %w(day 3days week month all),
@@ -47,7 +47,7 @@ SEARCH_OPTIONS = {
 SEARCH_DEFAULTS = {
   'q' => '',
   'page' => 1,
-  'perpage' => 60,
+  'perpage' => 72,
   'order_by' => 'date',
   'order_direction' => 'desc',
   'range' => 'all',
@@ -286,7 +286,8 @@ class Furaffinity
 
     {
       title: html.at_css('#page-submission td.cat b').content,
-      description: submission.css('td.alt1')[2].children[5..-1].to_s.strip,
+      description: submission.css('td.alt1')[2].children.to_s.strip,
+      description_body: submission.css('td.alt1')[2].children[5..-1].to_s.strip,
       name: html.at_css('td.cat a').content,
       profile: fa_url(profile_url),
       profile_name: last_path(profile_url),
@@ -314,10 +315,15 @@ class Furaffinity
     html = fetch("journal/#{id}/")
     date = pick_date(html.at_css('td.cat .journal-title-box .popup_date'))
     profile_url = html.at_css('td.cat .journal-title-box a')['href'][1..-1]
+    journal_header = html.at_css('.journal-header').children[0..-3].to_s.strip unless html.at_css('.journal-header').nil?
+    journal_footer = html.at_css('.journal-footer').children[2..-1].to_s.strip unless html.at_css('.journal-footer').nil?
 
     {
       title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
       description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
+      journal_header: journal_header,
+      journal_body: html.at_css('.journal-body').children.to_s.strip,
+      journal_footer: journal_footer,
       name: html.at_css('td.cat .journal-title-box a').content,
       profile: fa_url(profile_url),
       profile_name: last_path(profile_url),
@@ -774,9 +780,11 @@ private
 
   def select_watchers_info(elem, selector)
     users = elem.css("##{selector} a").map do |user|
+      link = fa_url(user['href'][1..-1])
       {
         name: user.at_css('.artist_name').content.strip,
-        link: fa_url(user['href'][1..-1])
+        profile_name: last_path(link),
+        link: link
       }
     end
     {
