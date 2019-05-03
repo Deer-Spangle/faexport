@@ -553,6 +553,7 @@ module FAExport
             @description = "You have a new shout, from <a href=\"#{shout[:profile]}\">#{shout[:name]}</a>."
             builder :post
           end
+          builder :feed
         end
       end
     end
