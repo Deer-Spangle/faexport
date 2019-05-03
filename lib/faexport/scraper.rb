@@ -610,12 +610,14 @@ private
   def build_submission(elem)
     if elem
       id = elem['id']
-      title = ""
-      if elem.at_css('figcaption')
-        title = elem.at_css('figcaption').at_css('p').at_css('a').content
-      elsif elem.at_css('span')
-        title = elem.at_css('span').content
-      end
+      title = 
+        if elem.at_css('figcaption')
+          elem.at_css('figcaption').at_css('p').at_css('a').content
+        elsif elem.at_css('span')
+          elem.at_css('span').content
+        else
+          ""
+        end
       sub = {
         id: id ? id.gsub(/sid[-_]/, '') : '',
         title: title,
