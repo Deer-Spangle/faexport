@@ -489,7 +489,7 @@ module FAExport
           @posts = submission_comments.map do |comment|
             @post = {
                 title: "New submission comment by #{comment[:name]}",
-                link: comment[:profile],
+                link: "https://www.furaffinity.net/view/#{comment[:submission_id]}/#cid:#{comment[:comment_id]}",
                 posted: comment[:posted]
             }
             @description = "You have a new submission comment notification.
@@ -518,7 +518,7 @@ module FAExport
           @posts = journal_comments.map do |comment|
             @post = {
                 title: "New journal comment by #{comment[:name]}",
-                link: comment[:profile],
+                link: "https://www.furaffinity.net/journal/#{comment[:journal_id]}/#cid:#{comment[:comment_id]}",
                 posted: comment[:posted]
             }
             @description = "You have a new journal comment notification.
@@ -547,7 +547,7 @@ module FAExport
           @posts = shouts.map do |shout|
             @post = {
                 title: "New shout by #{shout[:name]}",
-                link: "", # TODO
+                link: "#{results[:current_user][:profile]}#shout-#{shout[:shout_id]}",
                 posted: shout[:posted]
             }
             @description = "You have a new shout, from <a href=\"#{shout[:profile]}\">#{shout[:name]}</a>."
