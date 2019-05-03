@@ -92,7 +92,10 @@ Fetches all the latest posts from the home page
       "id": "27085784",
       "title": "Stress relief",
       "thumbnail": "http://t.facdn.net/27085784@200-1524291669.jpg",
-      "link": "https://www.furaffinity.net/view/27085784/"
+      "link": "https://www.furaffinity.net/view/27085784/",
+      "name": "valvi_369",
+      "profile": "https://www.furaffinity.net/user/valvi369/",
+      "profile_name": "valvi_369"
     },
     <snip>
   ],
@@ -101,7 +104,10 @@ Fetches all the latest posts from the home page
       "id": "27085745",
       "title": "Fate: chapter 1, bonus",
       "thumbnail": "http://t.facdn.net/27085745@400-1524291268.jpg",
-      "link": "https://www.furaffinity.net/view/27085745/"
+      "link": "https://www.furaffinity.net/view/27085745/",
+      "name": "Chronos213",
+      "profile": "https://www.furaffinity.net/user/chronos213/",
+      "profile_name": "chronos213"
     },
     <snip>
   ],
@@ -110,7 +116,10 @@ Fetches all the latest posts from the home page
       "id": "27085580",
       "title": "os_v2.5",
       "thumbnail": "http://t.facdn.net/27085580@75-1524289114.jpg",
-      "link": "https://www.furaffinity.net/view/27085580/"
+      "link": "https://www.furaffinity.net/view/27085580/",
+      "name": "nexuswolf96",
+      "profile": "https://www.furaffinity.net/user/nexuswolf96/",
+      "profile_name": "nexuswolf96"
     },
     <snip>
   ],
@@ -119,7 +128,10 @@ Fetches all the latest posts from the home page
       "id": "27085767",
       "title": "Kamadan wearing the Amazing Spider-Man Mk.4 Suit/Armor",
       "thumbnail": "http://t.facdn.net/27085767@400-1524291459.jpg",
-      "link": "https://www.furaffinity.net/view/27085767/"
+      "link": "https://www.furaffinity.net/view/27085767/",
+      "name": "lyctiger",
+      "profile": "https://www.furaffinity.net/user/lyctiger/",
+      "profile_name": "lyctiger"
     },
     <snip>
   ]
@@ -156,13 +168,19 @@ General information about a user's account.
     "id": "4483888",
     "title": "Fender (Character Sheet)",
     "thumbnail": "http://t.facdn.net/4483888@200-1284661300.jpg",
-    "link": "http://www.furaffinity.net/view/4483888/"
+    "link": "http://www.furaffinity.net/view/4483888/",
+    "name": "",
+    "profile": "",
+    "profile_name": ""
   },
-  profile_id": {
+  "profile_id": {
     "id": "1345722",
     "title": "",
     "thumbnail": "http://t.facdn.net/1345722@300-1212292592.jpg",
-    "link": "http://www.furaffinity.net/view/1345722/"
+    "link": "http://www.furaffinity.net/view/1345722/",
+    "name": "",
+    "profile": "",
+    "profile_name": ""
   },
   "artist_information": {
     "Species": "Ferrox (Mustlidae Vulpis Vulpis)",
@@ -277,7 +295,10 @@ Returns all the information listed on a users Commission Info page.
       "id": "",
       "title": "",
       "thumbnail": "http://t.facdn.net/404_thumbnail.gif",
-      "link": "http://www.furaffinity.net/"
+      "link": "http://www.furaffinity.net/",
+      "name": "",
+      "profile": "",
+      "profile_name": ""
     }
   },
   {
@@ -288,7 +309,10 @@ Returns all the information listed on a users Commission Info page.
       "id": "12921627",
       "title": "",
       "thumbnail": "http://t.facdn.net/12921627@200-1394373667.jpg",
-      "link": "http://www.furaffinity.net/view/12921627"
+      "link": "http://www.furaffinity.net/view/12921627",
+      "name": "",
+      "profile": "",
+      "profile_name": ""
     }
   },
   <snip>
@@ -382,19 +406,28 @@ If you want more information, pass `?full=1` to retrieve more fields.
     "id": "3277777",
     "title": "Epic Five Year Post of Maximum Relaxation (and Carnage)",
     "thumbnail": "http://t.facdn.net/3277777@200-1263612598.jpg",
-    "link": "http://www.furaffinity.net/view/3277777/"
+    "link": "http://www.furaffinity.net/view/3277777/",
+    "name": "Fender",
+    "profile": "http://www.furaffinity.net/user/fender/",
+    "profile_name": "fender"
   },
   {
     "id": "1896964",
     "title": "Epic Four Year Post of City Crunching Havoc",
     "thumbnail": "http://t.facdn.net/1896964@200-1232143532.jpg",
-    "link": "http://www.furaffinity.net/view/1896964/"
+    "link": "http://www.furaffinity.net/view/1896964/",
+    "name": "Fender",
+    "profile": "http://www.furaffinity.net/user/fender/",
+    "profile_name": "fender"
   },
   {
     "id": "1010790",
     "title": "Epic Three Year Post of Tie Wearing Destruction",
     "thumbnail": "http://t.facdn.net/1010790@200-1200494770.jpg",
-    "link": "http://www.furaffinity.net/view/1010790/"
+    "link": "http://www.furaffinity.net/view/1010790/",
+    "name": "Fender",
+    "profile": "http://www.furaffinity.net/user/fender/",
+    "profile_name": "fender"
   }
   <snip>
 ]
@@ -408,7 +441,10 @@ Deleted submissions are displayed in the following format:
   "id": "",
   "title": "Submission has been deleted",
   "thumbnail": "http:/themes/classic/img/submission-message-deleted.gif",
-  "link": "http://www.furaffinity.net/"
+  "link": "http://www.furaffinity.net/",
+    "name": "",
+    "profile": "",
+    "profile_name": ""
 }
 ~~~
 
@@ -576,19 +612,28 @@ If you want more information, pass `&full=1` to retrieve more fields.
     "id": "3277777",
     "title": "Epic Five Year Post of Maximum Relaxation (and Carnage)",
     "thumbnail": "http://t.facdn.net/3277777@200-1263612598.jpg",
-    "link": "http://www.furaffinity.net/view/3277777/"
+    "link": "http://www.furaffinity.net/view/3277777/",
+    "name": "Fender",
+    "profile": "http://www.furaffinity.net/user/fender/",
+    "profile_name": "fender"
   },
   {
     "id": "1896964",
     "title": "Epic Four Year Post of City Crunching Havoc",
     "thumbnail": "http://t.facdn.net/1896964@200-1232143532.jpg",
-    "link": "http://www.furaffinity.net/view/1896964/"
+    "link": "http://www.furaffinity.net/view/1896964/",
+    "name": "Fender",
+    "profile": "http://www.furaffinity.net/user/fender/",
+    "profile_name": "fender"
   },
   {
     "id": "1010790",
     "title": "Epic Three Year Post of Tie Wearing Destruction",
     "thumbnail": "http://t.facdn.net/1010790@200-1200494770.jpg",
-    "link": "http://www.furaffinity.net/view/1010790/"
+    "link": "http://www.furaffinity.net/view/1010790/",
+    "name": "Fender",
+    "profile": "http://www.furaffinity.net/user/fender/",
+    "profile_name": "fender"
   }
   <snip>
 ]
