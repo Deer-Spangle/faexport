@@ -531,6 +531,32 @@ module FAExport
       end
     end
 
+    # GET /notifications/shouts.rss
+    get %r{/notifications/shouts\.(rss)} do |type|
+      ensure_login!
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications/shouts:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'rss'
+          results = @fa.notifications(include_deleted)
+          shouts = results[:new_shouts]
+          @name = "New shout notifications"
+          @info = "New shout notifications for #{results[:current_user][:name]}. #{include_deleted ? "Including" : "Not including"} removed shouts."
+          @link = "https://www.furaffinity.net/msg/others/#shouts"
+          @posts = shouts.map do |shout|
+            @post = {
+                title: "New shout by #{shout[:name]}",
+                link: "", # TODO
+                posted: shout[:posted]
+            }
+            @description = "You have a new shout, from <a href=\"#{shout[:profile]}\">#{shout[:name]}</a>."
+            builder :post
+          end
+        end
+      end
+    end
+
     post %r{/journal(\.json|)} do |type|
       ensure_login!
       journal = case type
