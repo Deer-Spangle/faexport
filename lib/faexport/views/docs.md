@@ -136,22 +136,22 @@ General information about a user's account.
 {
   "id": "8",
   "name": "Fender",
-  "profile": "http://www.furaffinity.net/user/fender/",
+  "profile": "https://www.furaffinity.net/user/fender/",
   "account_type": "Administrator",
-  "avatar": "http://a.facdn.net/1424255659/fender.gif",
+  "avatar": "https://a.facdn.net/1424255659/fender.gif",
   "full_name": "Fender!",
   "artist_type": "Watcher",
   "user_title": "Watcher",
-  "registered_since": "December 4th, 2005 10:49",
+  "registered_since": "Dec 4th, 2005 10:49",
   "registered_at": "2005-12-04T10:49:00Z",
   "current_mood": "accomplished",
   "artist_profile": "<snip>",
-  "pageviews": "532635",
-  "submissions": "12",
-  "comments_received": "35800",
-  "comments_given": "910",
-  "journals": "113",
-  "favorites": "6388",
+  "pageviews": "681266",
+  "submissions": "13",
+  "comments_received": "52694",
+  "comments_given": "1121",
+  "journals": "167",
+  "favorites": "7166",
   "featured_submission": {
     "id": "4483888",
     "title": "Fender (Character Sheet)",
@@ -166,12 +166,9 @@ General information about a user's account.
   },
   "artist_information": {
     "Species": "Ferrox (Mustlidae Vulpis Vulpis)",
-    "Shell of choice": "Pistachio",
-    "Operating system": "FeNDOS",
     "Personal quote": "'My error code just gained a level! It's now at 504!'",
     "Favorite animal": "James Belushi",
-    "Favorite website": "<a href=\"http://www.furaffinity.net\" title=\"http://www.furaffinity.net\" class=\"auto_link\">http://www.furaffinity.net</a>",
-    "Favorite food": "You!"
+    "Favorite website": "<a href=\"http://www.furaffinity.net\" title=\"http://www.furaffinity.net\" class=\"auto_link\">http://www.furaffinity.net</a>"
   },
   "contact_information": [
     {
@@ -181,11 +178,12 @@ General information about a user's account.
     }
   ],
   "watchers": {
-    "count": 11769,
+    "count": 14271,
     "recent": [
       {
-        "name": "fennic288",
-        "link": "http://www.furaffinity.net/fennic288"
+        "name": "catxpx",
+        "profile_name": "catxpx",
+        "link": "https://www.furaffinity.net/user/catxpx/"
       },
       <snip>
     ]
@@ -194,8 +192,9 @@ General information about a user's account.
     "count": 87,
     "recent": [
       {
-        "name": "catsgotyourbag",
-        "link": "http://www.furaffinity.net/catsgotyourbag"
+        "name": "LunaCatta",
+        "profile_name": "lunacatta",
+        "link": "https://www.furaffinity.net/user/lunacatta/"
       },
       <snip>
     ]
@@ -548,7 +547,7 @@ The following parameters can be provided:
 
 * **q**: Words to search for.
 * **page**: Page of results to display.  Defaults to: `1`.
-* **perpage**: How many results to display per page.  Can be one of: `24`, `36`, `48` or `60`.  Defaults to: `60`.
+* **perpage**: How many results to display per page.  Can be one of: `24`, `48` or `72`.  Defaults to: `72`.
 * **order_by**: How the results should be ordered.  Can be one of: `relevancy`, `date` or `popularity`.  Defaults to: `date`.
 * **order_direction**: if results should be ordered in ascending or descending order.  Can be one of: `asc` or `desc`.  Defaults to: `desc`.
 * **range**: How far in the past should results be loaded from.  Can be one of: `day`, `3days`, `week`, `month` or `all`.  Defaults to: `all`.

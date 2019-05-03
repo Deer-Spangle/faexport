@@ -36,7 +36,7 @@ require 'redis'
 
 USER_AGENT = 'FAExport'
 SEARCH_OPTIONS = {
-  'perpage' => %w(24 36 48 60),
+  'perpage' => %w(24 48 72),
   'order_by' => %w(relevancy date popularity),
   'order_direction' => %w(asc desc),
   'range' => %w(day 3days week month all),
@@ -47,7 +47,7 @@ SEARCH_OPTIONS = {
 SEARCH_DEFAULTS = {
   'q' => '',
   'page' => 1,
-  'perpage' => 60,
+  'perpage' => 72,
   'order_by' => 'date',
   'order_direction' => 'desc',
   'range' => 'all',
@@ -559,9 +559,11 @@ private
 
   def select_watchers_info(elem, selector)
     users = elem.css("##{selector} a").map do |user|
+      link = fa_url(user['href'][1..-1])
       {
         name: user.at_css('.artist_name').content.strip,
-        link: fa_url(user['href'][1..-1])
+        profile_name: last_path(link),
+        link: link
       }
     end
     {
