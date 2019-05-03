@@ -136,22 +136,22 @@ General information about a user's account.
 {
   "id": "8",
   "name": "Fender",
-  "profile": "http://www.furaffinity.net/user/fender/",
+  "profile": "https://www.furaffinity.net/user/fender/",
   "account_type": "Administrator",
-  "avatar": "http://a.facdn.net/1424255659/fender.gif",
+  "avatar": "https://a.facdn.net/1424255659/fender.gif",
   "full_name": "Fender!",
   "artist_type": "Watcher",
   "user_title": "Watcher",
-  "registered_since": "December 4th, 2005 10:49",
+  "registered_since": "Dec 4th, 2005 10:49",
   "registered_at": "2005-12-04T10:49:00Z",
   "current_mood": "accomplished",
   "artist_profile": "<snip>",
-  "pageviews": "532635",
-  "submissions": "12",
-  "comments_received": "35800",
-  "comments_given": "910",
-  "journals": "113",
-  "favorites": "6388",
+  "pageviews": "681266",
+  "submissions": "13",
+  "comments_received": "52694",
+  "comments_given": "1121",
+  "journals": "167",
+  "favorites": "7166",
   "featured_submission": {
     "id": "4483888",
     "title": "Fender (Character Sheet)",
@@ -166,12 +166,9 @@ General information about a user's account.
   },
   "artist_information": {
     "Species": "Ferrox (Mustlidae Vulpis Vulpis)",
-    "Shell of choice": "Pistachio",
-    "Operating system": "FeNDOS",
     "Personal quote": "'My error code just gained a level! It's now at 504!'",
     "Favorite animal": "James Belushi",
-    "Favorite website": "<a href=\"http://www.furaffinity.net\" title=\"http://www.furaffinity.net\" class=\"auto_link\">http://www.furaffinity.net</a>",
-    "Favorite food": "You!"
+    "Favorite website": "<a href=\"http://www.furaffinity.net\" title=\"http://www.furaffinity.net\" class=\"auto_link\">http://www.furaffinity.net</a>"
   },
   "contact_information": [
     {
@@ -181,11 +178,12 @@ General information about a user's account.
     }
   ],
   "watchers": {
-    "count": 11769,
+    "count": 14271,
     "recent": [
       {
-        "name": "fennic288",
-        "link": "http://www.furaffinity.net/fennic288"
+        "name": "catxpx",
+        "profile_name": "catxpx",
+        "link": "https://www.furaffinity.net/user/catxpx/"
       },
       <snip>
     ]
@@ -194,8 +192,9 @@ General information about a user's account.
     "count": 87,
     "recent": [
       {
-        "name": "catsgotyourbag",
-        "link": "http://www.furaffinity.net/catsgotyourbag"
+        "name": "LunaCatta",
+        "profile_name": "lunacatta",
+        "link": "https://www.furaffinity.net/user/lunacatta/"
       },
       <snip>
     ]
@@ -423,23 +422,25 @@ Note: the "full" and "thumbnail" members are parsed from the image viewer javasc
 ~~~json
 {
   "title": "Fender (Character Sheet)",
-  "description": "<snip>",
+  "description": "<a href=\"/user/fender/\"><img class=\"avatar\" ... <snip>",
+  "description_body": "The official Fender character sheet... <snip>",
   "name": "Fender",
-  "profile": "http://www.furaffinity.net/user/fender/",
+  "profile": "https://www.furaffinity.net/user/fender/",
   "profile_name": "fender",
-  "link": "http://www.furaffinity.net/view/4483888/",
-  "posted": "September 16th, 2010 08:21 PM",
-  "posted_at": "2010-09-16T20:21:00Z",
-  "download" : "http://d.facdn.net/art/fender/1284661300/1284661300.fender_fender.png",
+  "avatar": "https://a.facdn.net/1424255659/fender.gif",
+  "link": "https://www.furaffinity.net/view/4483888/",
+  "posted": "Sep 16th, 2010 06:21 PM",
+  "posted_at": "2010-09-16T18:21:00Z",
+  "download": "http://d.facdn.net/art/fender/1284661300/1284661300.fender_fender.png",
   "full": "http://d.facdn.net/art/fender/1284661300/1284661300.fender_fender.png",
   "thumbnail": "http://t.facdn.net/4483888@400-1284661300.jpg",
   "category": "Artwork (Digital)",
   "theme": "Doodle",
   "species": "Unspecified / Any",
   "gender": "Male",
-  "favorites": "979",
-  "comments": "137",
-  "views": "22673",
+  "favorites": "1129",
+  "comments": "148",
+  "views": "34036",
   "resolution": "1146x707",
   "rating": "General",
   "keywords": [
@@ -463,10 +464,14 @@ Retrieves information about the journal with the specified id.
 ~~~json
 {
   "title": "Banner Update",
-  "description": "Just a quick update... <snip>",
+  "description": "<div class=\"journal-body\">\nJust a quick update... <snip>",
+  "journal_header": null,
+  "journal_body": "Just a quick update...<snip>",
+  "journal_footer": "<strong class=\"bbcode bbcode_b\">... <snip>",
   "name": "Fender",
   "profile": "http://www.furaffinity.net/user/fender/",
   "profile_name": "fender",
+  "avatar": "https://a.facdn.net/1424255659/fender.gif",
   "link": "http://www.furaffinity.net/journal/6534234/",
   "posted": "February 26th, 2015 07:53 PM",
   "posted_at": "2015-02-26T19:53:00Z"
@@ -542,7 +547,7 @@ The following parameters can be provided:
 
 * **q**: Words to search for.
 * **page**: Page of results to display.  Defaults to: `1`.
-* **perpage**: How many results to display per page.  Can be one of: `24`, `36`, `48` or `60`.  Defaults to: `60`.
+* **perpage**: How many results to display per page.  Can be one of: `24`, `48` or `72`.  Defaults to: `72`.
 * **order_by**: How the results should be ordered.  Can be one of: `relevancy`, `date` or `popularity`.  Defaults to: `date`.
 * **order_direction**: if results should be ordered in ascending or descending order.  Can be one of: `asc` or `desc`.  Defaults to: `desc`.
 * **range**: How far in the past should results be loaded from.  Can be one of: `day`, `3days`, `week`, `month` or `all`.  Defaults to: `all`.
