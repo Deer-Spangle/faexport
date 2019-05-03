@@ -507,7 +507,7 @@ module FAExport
       ensure_login!
       include_deleted = !!params[:include_deleted]
       set_content_type(type)
-      cache("notifications/submission_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
+      cache("notifications/journal_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
         case type
         when 'rss'
           results = @fa.notifications(include_deleted)
