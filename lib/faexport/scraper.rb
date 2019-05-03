@@ -566,7 +566,7 @@ class Furaffinity
             profile_name: last_path(elem_links[0]['href']),
             is_reply: elem.to_s.include?("<em>your</em> comment on"),
             your_submission: elem.css('em').last.content == "your",
-            submission_id: last_path(elem_links[1]['href']),
+            submission_id: elem_links[1]['href'].split("/")[-2],
             title: elem_links[1].content,
             posted: date,
             posted_at: to_iso8601(date)
@@ -603,7 +603,7 @@ class Furaffinity
             profile_name: last_path(elem_links[0]['href']),
             is_reply: elem.to_s.include?("<em>your</em> comment on"),
             your_journal: elem.css('em').last.content == "your",
-            journal_id: last_path(elem_links[1]['href']),
+            journal_id: elem_links[1]['href'].split("/")[-2],
             title: elem_links[1].content,
             posted: date,
             posted_at: to_iso8601(date)
