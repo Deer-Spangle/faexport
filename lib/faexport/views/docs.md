@@ -442,9 +442,9 @@ Deleted submissions are displayed in the following format:
   "title": "Submission has been deleted",
   "thumbnail": "http:/themes/classic/img/submission-message-deleted.gif",
   "link": "http://www.furaffinity.net/",
-    "name": "",
-    "profile": "",
-    "profile_name": ""
+  "name": "",
+  "profile": "",
+  "profile_name": ""
 }
 ~~~
 
