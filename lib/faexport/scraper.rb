@@ -239,7 +239,7 @@ class Furaffinity
     end
 
     {
-      id: find_id(html),
+      id: nil,
       name: html.at_css('.addpad.lead b').content[1..-1],
       profile: fa_url(profile),
       account_type: html.at_css('.addpad.lead').content[/\((.+?)\)/,1].strip,
@@ -257,7 +257,7 @@ class Furaffinity
       comments_given: html_field(stats, 'Comments Given'),
       journals: html_field(stats, 'Journals'),
       favorites: html_field(stats, 'Favorites'),
-      featured_submission: build_submission(html.at_css('#userpage-featured-submission b')),
+      featured_submission: build_submission(html.at_css('.userpage-featured-submission b')),
       profile_id: build_submission(html.at_css('#profilepic-submission b')),
       artist_information: select_artist_info(tables['Artist Information']),
       contact_information: select_contact_info(tables['Contact Information']),
@@ -456,7 +456,7 @@ class Furaffinity
       end
     end
 
-    raw, uri = @cache.add("url:serach:#{params.to_s}") do
+    raw, uri = @cache.add("url:search:#{params.to_s}") do
       response, uri = post('/search/', params)
       unless response.is_a?(Net::HTTPSuccess)
         raise FAStatusError.new(fa_url('search/'), response.message)
@@ -520,10 +520,6 @@ private
 
   def to_iso8601(date)
     Time.parse(date + ' UTC').iso8601
-  end
-
-  def find_id(html)
-    html.at_css('#is-watching').parent.parent.at_css('.cat > a')['href'][/uid=([0-9]+)/, 1]
   end
 
   def html_field(info, field)
@@ -624,11 +620,18 @@ private
   def build_submission(elem)
     if elem
       id = elem['id']
-      title_elem = elem.at_css('figcaption') ? elem.at_css('figcaption').at_css('p').at_css('a') : nil
+      title =
+        if elem.at_css('figcaption')
+          elem.at_css('figcaption').at_css('p').at_css('a').content
+        elsif elem.at_css('span')
+          elem.at_css('span').content
+        else
+          ""
+        end
       author_elem = elem.at_css('figcaption') ? elem.at_css('figcaption').css('p')[1].at_css('a') : nil
       sub = {
-        id: id ? id.gsub('sid-', '') : '',
-        title: title_elem ? title_elem.content : '',
+        id: id ? id.gsub(/sid[-_]/, '') : '',
+        title: title,
         thumbnail: "https:#{elem.at_css('img')['src']}",
         link: fa_url(elem.at_css('a')['href'][1..-1]),
         name: author_elem ? author_elem.content : '',
