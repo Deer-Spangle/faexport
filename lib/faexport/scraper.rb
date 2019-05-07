@@ -522,7 +522,7 @@ class Furaffinity
             new_watches << {
                 watch_id: "",
                 name: "Removed by the user",
-                profile: fa_address,
+                profile: "",
                 profile_name: "",
                 avatar: fa_url(elem.at_css("img")['src']),
                 posted: "",
@@ -553,7 +553,7 @@ class Furaffinity
             new_submission_comments << {
                 comment_id: "",
                 name: "Comment or the submission it was left on has been deleted",
-                profile: fa_address,
+                profile: "",
                 profile_name: "",
                 is_reply: nil,
                 your_submission: nil,
@@ -591,7 +591,7 @@ class Furaffinity
             new_journal_comments << {
                 comment_id: "",
                 name: "Comment or the journal it was left on has been deleted",
-                profile: fa_address,
+                profile: "",
                 profile_name: "",
                 is_reply: nil,
                 your_journal: nil,
@@ -629,7 +629,7 @@ class Furaffinity
             new_shouts << {
                 shout_id: "",
                 name: "Shout has been removed from your page",
-                profile: fa_address,
+                profile: "",
                 profile_name: "",
                 posted: "",
                 posted_at: ""
@@ -658,7 +658,7 @@ class Furaffinity
             new_favorites << {
                 favorite_notification_id: "",
                 name: "The favorite this notification was for has since been removed by the user",
-                profile: fa_address,
+                profile: "",
                 profile_name: "",
                 submission_id: "",
                 submission_name: "The favorite this notification was for has since been removed by the user",
