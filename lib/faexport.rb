@@ -406,7 +406,7 @@ module FAExport
     get %r{/new_submissions\.(json|xml|rss)} do |type|
       ensure_login!
       set_content_type(type)
-      from_id = params['from']
+      from_id = params['from'] if params['from'] =~ ID_REGEX
       cache("submissions:#{@user_cookie}:#{from_id}.#{type}") do
         case type
         when 'json'
