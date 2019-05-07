@@ -401,6 +401,8 @@ module FAExport
     end
 
     # GET /new_submissions.json
+    # GET /new_submissions.xml
+    # GET /new_submissions.rss
     get %r{/new_submissions\.(json|xml|rss)} do |type|
       ensure_login!
       set_content_type(type)
@@ -431,6 +433,7 @@ module FAExport
     end
 
     # GET /notifications.json
+    # GET /notifications.xml
     get %r{/notifications\.(json|xml)} do |type|
       ensure_login!
       # # TODO: write docs
