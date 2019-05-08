@@ -130,11 +130,15 @@ Fetches all the latest posts from the home page
 
 General information about a user's account.
 
+**BREAKING CHANGE**
+
+FA has removed the user id number from the profile page now, which means that "id" in the endpoint here will always return `null`.
+
 *Formats:* `json`, `xml`
 
 ~~~json
 {
-  "id": "8",
+  "id": null,
   "name": "Fender",
   "profile": "https://www.furaffinity.net/user/fender/",
   "account_type": "Administrator",
@@ -155,14 +159,14 @@ General information about a user's account.
   "featured_submission": {
     "id": "4483888",
     "title": "Fender (Character Sheet)",
-    "thumbnail": "http://t.facdn.net/4483888@200-1284661300.jpg",
-    "link": "http://www.furaffinity.net/view/4483888/"
+    "thumbnail": "https://t.facdn.net/4483888@200-1284661300.jpg",
+    "link": "https://www.furaffinity.net/view/4483888/"
   },
   profile_id": {
     "id": "1345722",
     "title": "",
-    "thumbnail": "http://t.facdn.net/1345722@300-1212292592.jpg",
-    "link": "http://www.furaffinity.net/view/1345722/"
+    "thumbnail": "https://t.facdn.net/1345722@300-1212292592.jpg",
+    "link": "https://www.furaffinity.net/view/1345722/"
   },
   "artist_information": {
     "Species": "Ferrox (Mustlidae Vulpis Vulpis)",
