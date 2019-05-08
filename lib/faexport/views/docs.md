@@ -594,7 +594,7 @@ If you want more information, pass `&full=1` to retrieve more fields.
 ]
 ~~~
 
-### GET /new_submissions
+### GET /notifications/submissions
 
 *Formats:* `json`, `xml`, `rss`
 
@@ -645,15 +645,15 @@ Paging through submissions without overlap can be achieved by taking the last su
   ]
 ]
 ~~~
-### GET /notifications
+### GET /notifications/others
 
 *Formats:* `json`, `xml`, `rss` (rss note below)
 
 Login cookie required.
 
-Retrieves a dictionary of all current notifications. RSS feeds are available for each notification type.
+Retrieves a dictionary of all current (non-submission) notifications. RSS feeds are available for each individual notification type.
 
-While json and xml are available at the simple /notifications endpoint, rss feeds are separated into 6 different endpoints:
+While json and xml formats are available as a combined endpoint at /notifications/others, rss feeds are separated into 6 different endpoints:
 - /notifications/watches.rss
 - /notifications/submission_comments.rss
 - /notifications/journal_comments.rss

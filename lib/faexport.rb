@@ -400,10 +400,10 @@ module FAExport
       end
     end
 
-    # GET /new_submissions.json
-    # GET /new_submissions.xml
-    # GET /new_submissions.rss
-    get %r{/new_submissions\.(json|xml|rss)} do |type|
+    # GET /notifications/submissions.json
+    # GET /notifications/submissions.xml
+    # GET /notifications/submissions.rss
+    get %r{/notifications/submissions\.(json|xml|rss)} do |type|
       ensure_login!
       set_content_type(type)
       from_id = params['from'] if params['from'] =~ ID_REGEX
@@ -432,9 +432,9 @@ module FAExport
       end
     end
 
-    # GET /notifications.json
-    # GET /notifications.xml
-    get %r{/notifications\.(json|xml)} do |type|
+    # GET /notifications/others.json
+    # GET /notifications/others.xml
+    get %r{/notifications/others\.(json|xml)} do |type|
       ensure_login!
       # # TODO: write docs
       include_deleted = !!params[:include_deleted]
