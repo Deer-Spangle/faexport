@@ -672,7 +672,7 @@ private
           avatar: "https:#{comment.at_css('.icon img')['src']}",
           posted: date,
           posted_at: to_iso8601(date),
-          text: comment.at_css('.replyto-message').children.to_s.strip.gsub(/ <br><br>$/, ''),
+          text: comment.at_css('.message-text').children.to_s.strip,
           reply_to: reply_to,
           reply_level: reply_level
         }
