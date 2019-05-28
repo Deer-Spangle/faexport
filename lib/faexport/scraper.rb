@@ -282,11 +282,11 @@ class Furaffinity
     keywords = raw_info.css('div#keywords a')
     date = pick_date(raw_info.at_css('.popup_date'))
     img = html.at_css('img#submissionImg')
-    downloadurl = "https:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
+    download_url = "https:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
     profile_url = html.at_css('td.cat a')['href'][1..-1]
 
     {
-      title: html.at_css('#page-submission td.cat b').content,
+      title: submission_title.at_css('h2').content,
       description: submission.css('td.alt1')[2].children.to_s.strip,
       description_body: submission.css('td.alt1')[2].children[5..-1].to_s.strip,
       name: html.at_css('td.cat a').content,
@@ -296,7 +296,7 @@ class Furaffinity
       link: fa_url("view/#{id}/"),
       posted: date,
       posted_at: to_iso8601(date),
-      download: downloadurl,
+      download: download_url,
       full: img ? "https:" + img['data-fullview-src'] : nil,
       thumbnail: img ? "https:" + img['data-preview-src'] : nil,
       category: field(info, 'Category'),
