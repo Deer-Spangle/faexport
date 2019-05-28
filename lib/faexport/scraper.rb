@@ -230,7 +230,7 @@ class Furaffinity
     html = fetch(profile)
     info = html.css('.ldot')[0].children.to_s
     stats = html.css('.ldot')[1].children.to_s
-    date = html_field(info, 'Registered since')
+    date = html_field(info, 'Registered Since')
     user_title = html_field(info, 'User Title')
     tables = {}
     html.css('table.maintable').each do |table|
