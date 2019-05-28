@@ -276,6 +276,7 @@ class Furaffinity
   def submission(id)
     html = fetch("view/#{id}/")
     submission = html.css('div#page-submission table.maintable table.maintable')[-1]
+    submission_title = submission.at_css(".classic-submission-title")
     raw_info = submission.at_css('td.alt1')
     info = raw_info.content.lines.map{|i| i.gsub(/^\p{Space}*/, '').rstrip}
     keywords = raw_info.css('div#keywords a')
@@ -291,7 +292,7 @@ class Furaffinity
       name: html.at_css('td.cat a').content,
       profile: fa_url(profile_url),
       profile_name: last_path(profile_url),
-      avatar: "https:#{submission.css('td.alt1')[2].at_css("img.avatar")['src']}",
+      avatar: "https:#{submission_title.at_css("img.avatar")['src']}",
       link: fa_url("view/#{id}/"),
       posted: date,
       posted_at: to_iso8601(date),
