@@ -620,7 +620,7 @@ private
   def build_submission(elem)
     if elem
       id = elem['id']
-      title = 
+      title =
         if elem.at_css('figcaption')
           elem.at_css('figcaption').at_css('p').at_css('a').content
         elsif elem.at_css('span')
@@ -628,11 +628,15 @@ private
         else
           ""
         end
+      author_elem = elem.at_css('figcaption') ? elem.at_css('figcaption').css('p')[1].at_css('a') : nil
       sub = {
         id: id ? id.gsub(/sid[-_]/, '') : '',
         title: title,
         thumbnail: "https:#{elem.at_css('img')['src']}",
-        link: fa_url(elem.at_css('a')['href'][1..-1])
+        link: fa_url(elem.at_css('a')['href'][1..-1]),
+        name: author_elem ? author_elem.content : '',
+        profile: author_elem ? fa_url(author_elem['href'][1..-1]) : '',
+        profile_name: author_elem ? last_path(author_elem['href']) : ''
       }
       sub[:fav_id] = elem['data-fav-id'] if elem['data-fav-id']
       sub
@@ -668,7 +672,7 @@ private
           avatar: "https:#{comment.at_css('.icon img')['src']}",
           posted: date,
           posted_at: to_iso8601(date),
-          text: comment.at_css('.replyto-message').children.to_s.strip.gsub(/ <br><br>$/, ''),
+          text: comment.at_css('.message-text').children.to_s.strip,
           reply_to: reply_to,
           reply_level: reply_level
         }
