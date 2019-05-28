@@ -261,8 +261,8 @@ class Furaffinity
       profile_id: build_submission(html.at_css('#profilepic-submission b')),
       artist_information: select_artist_info(tables['Artist Information']),
       contact_information: select_contact_info(tables['Contact Information']),
-      watchers: select_watchers_info(tables['Watched by'], 'watched-by'),
-      watching: select_watchers_info(tables['Is watching'], 'is-watching')
+      watchers: select_watchers_info(tables['Watched By'], 'watched-by'),
+      watching: select_watchers_info(tables['Is Watching'], 'is-watching')
     }
   end
 
