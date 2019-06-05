@@ -417,9 +417,9 @@ module FAExport
           results = @fa.new_submissions(from_id)
 
           @name = "New submissions"
-          @info = "New submissions for #{results["current_user"]["name"]}"
+          @info = "New submissions for #{results[:current_user][:name]}"
           @link = "https://www.furaffinity.net/msg/submissions/"
-          @posts = results["new_submissions"].take(FAExport.config[:rss_limit]).map do |sub|
+          @posts = results[:new_submissions].take(FAExport.config[:rss_limit]).map do |sub|
             cache "submission:#{sub[:id]}.rss" do
               @post = @fa.submission(sub[:id])
               @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
