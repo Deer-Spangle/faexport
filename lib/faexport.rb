@@ -400,6 +400,222 @@ module FAExport
       end
     end
 
+    # GET /notifications/submissions.json
+    # GET /notifications/submissions.xml
+    # GET /notifications/submissions.rss
+    get %r{/notifications/submissions\.(json|xml|rss)} do |type|
+      ensure_login!
+      set_content_type(type)
+      from_id = params['from'] if params['from'] =~ ID_REGEX
+      cache("submissions:#{@user_cookie}:#{from_id}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.new_submissions(from_id)
+        when 'xml'
+          @fa.new_submissions(from_id).to_xml(root: 'results', skip_types: true)
+        when 'rss'
+          results = @fa.new_submissions(from_id)
+
+          @name = "New submissions"
+          @info = "New submissions for #{results[:current_user][:name]}"
+          @link = "https://www.furaffinity.net/msg/submissions/"
+          @posts = results[:new_submissions].take(FAExport.config[:rss_limit]).map do |sub|
+            cache "submission:#{sub[:id]}.rss" do
+              @post = @fa.submission(sub[:id])
+              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
+                             "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+              builder :post
+            end
+          end
+          builder :feed
+        end
+      end
+    end
+
+    # GET /notifications/others.json
+    # GET /notifications/others.xml
+    get %r{/notifications/others\.(json|xml)} do |type|
+      ensure_login!
+      # # TODO: write docs
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.notifications(include_deleted)
+        when 'xml'
+          @fa.notifications(include_deleted).to_xml(root: 'results', skip_types: true)
+        end
+      end
+    end
+
+    # GET /notifications/watches.rss
+    get %r{/notifications/watches\.(rss)} do |type|
+      ensure_login!
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications/watches:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'rss'
+          results = @fa.notifications(include_deleted)
+          watches = results[:new_watches]
+          @name = "New watch notifications"
+          @info = "New watch notifications for #{results[:current_user][:name]}. #{include_deleted ? "Including" : "Not including"} removed watches."
+          @link = "https://www.furaffinity.net/msg/others/#watches"
+          @posts = watches.map do |watch|
+            @post = {
+                title: "New watch by #{watch[:name]}",
+                link: watch[:profile],
+                posted: watch[:posted]
+            }
+            @description = "You have been watched by a new user <a href=\"#{watch[:profile]}\">#{watch[:name]}</a> <img src=\"#{watch[:avatar]}\" alt=\"avatar\"/>"
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
+    # GET /notifications/submission_comments.rss
+    get %r{/notifications/submission_comments\.(rss)} do |type|
+      ensure_login!
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications/submission_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'rss'
+          results = @fa.notifications(include_deleted)
+          submission_comments = results[:new_submission_comments]
+          @name = "New submission comment notifications"
+          @info = "New submission comment notifications for #{results[:current_user][:name]}. #{include_deleted ? "Including" : "Not including"} removed comments/submissions."
+          @link = "https://www.furaffinity.net/msg/others/#comments"
+          @posts = submission_comments.map do |comment|
+            @post = {
+                title: "New submission comment by #{comment[:name]}",
+                link: "https://www.furaffinity.net/view/#{comment[:submission_id]}/#cid:#{comment[:comment_id]}",
+                posted: comment[:posted]
+            }
+            @description = "You have a new submission comment notification.
+<a href=\"#{comment[:profile]}\">#{comment[:name]}</a> has made a new comment #{comment[:is_reply] ? "in response to your comment " : ""}on
+#{comment[:your_submission] ? "your" : "their"} submission <a href=\"https://furaffinity.net/view/#{comment[:submission_id]}/\">#{comment[:title]}</a>"
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
+    # GET /notifications/journal_comments.rss
+    get %r{/notifications/journal_comments\.(rss)} do |type|
+      ensure_login!
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications/journal_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'rss'
+          results = @fa.notifications(include_deleted)
+          journal_comments = results[:new_journal_comments]
+          @name = "New journal comment notifications"
+          @info = "New journal comment notifications for #{results[:current_user][:name]}. #{include_deleted ? "Including" : "Not including"} removed comments/journals."
+          @link = "https://www.furaffinity.net/msg/others/#comments"
+          @posts = journal_comments.map do |comment|
+            @post = {
+                title: "New journal comment by #{comment[:name]}",
+                link: "https://www.furaffinity.net/journal/#{comment[:journal_id]}/#cid:#{comment[:comment_id]}",
+                posted: comment[:posted]
+            }
+            @description = "You have a new journal comment notification.
+<a href=\"#{comment[:profile]}\">#{comment[:name]}</a> has made a new comment #{comment[:is_reply] ? "in response to your comment " : ""}on
+#{comment[:your_journal] ? "your" : "their"} journal <a href=\"https://furaffinity.net/journal/#{comment[:journal_id]}/\">#{comment[:title]}</a>"
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
+    # GET /notifications/shouts.rss
+    get %r{/notifications/shouts\.(rss)} do |type|
+      ensure_login!
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications/shouts:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'rss'
+          results = @fa.notifications(include_deleted)
+          shouts = results[:new_shouts]
+          @name = "New shout notifications"
+          @info = "New shout notifications for #{results[:current_user][:name]}. #{include_deleted ? "Including" : "Not including"} removed shouts."
+          @link = "https://www.furaffinity.net/msg/others/#shouts"
+          @posts = shouts.map do |shout|
+            @post = {
+                title: "New shout by #{shout[:name]}",
+                link: "#{results[:current_user][:profile]}#shout-#{shout[:shout_id]}",
+                posted: shout[:posted]
+            }
+            @description = "You have a new shout, from <a href=\"#{shout[:profile]}\">#{shout[:name]}</a>."
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
+    # GET /notifications/favorites.rss
+    get %r{/notifications/favorites\.(rss)} do |type|
+      ensure_login!
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications/favorites:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'rss'
+          results = @fa.notifications(include_deleted)
+          favorites = results[:new_favorites]
+          @name = "New favorite notifications"
+          @info = "New favorite notifications for #{results[:current_user][:name]}. #{include_deleted ? "Including" : "Not including"} removed favorites."
+          @link = "https://www.furaffinity.net/msg/others/#favorite"
+          @posts = favorites.map do |favorite|
+            @post = {
+                title: "#{favorite[:name]} has favorited \"#{favorite[:submission_name]}\"",
+                link: "https://furaffinity.net/view/#{favorite[:submission_id]}",
+                posted: favorite[:posted]
+            }
+            @description = "You have a new favorite notification. <a href=\"#{favorite[:profile]}\">#{favorite[:name]}</a> has favorited your submission
+\"<a href=\"https://furaffinity.net/view/#{favorite[:submission_id]}\">#{favorite[:submission_name]}</a>\"."
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
+    # GET /notifications/journals.rss
+    get %r{/notifications/journals\.(rss)} do |type|
+      ensure_login!
+      include_deleted = !!params[:include_deleted]
+      set_content_type(type)
+      cache("notifications/journals:#{@user_cookie}:#{include_deleted}.#{type}") do
+        case type
+        when 'rss'
+          results = @fa.notifications(include_deleted)
+          journals = results[:new_journals]
+          @name = "New journal notifications"
+          @info = "New journal notifications for #{results[:current_user][:name]}."
+          @link = "https://www.furaffinity.net/msg/others/#journals"
+          @posts = journals.map do |journal|
+            @post = {
+                title: "New journal from #{journal[:name]} \"#{journal[:title]}\".",
+                link: "https://furaffinity.net/journal/#{journal[:journal_id]}",
+                posted: journal[:posted]
+            }
+            @description = "A new journal has been posted by <a href=\"#{journal[:profile]}\">#{journal[:name]}</a>, titled: \"<a href=\"https://furaffinity.net/journal/#{journal[:journal_id]}\">#{journal[:name]}</a>\"."
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
     # POST /journal.json
     post %r{/journal(\.json|)} do |type|
       ensure_login!

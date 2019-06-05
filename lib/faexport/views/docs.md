@@ -643,9 +643,167 @@ If you want more information, pass `&full=1` to retrieve more fields.
 ]
 ~~~
 
+### GET /notifications/submissions
+
+*Formats:* `json`, `xml`, `rss`
+
+Login cookie required.
+
+Retrieves a list of new submission notifications.
+
+The way that FA handles paging in submission notifications is that you specify the ID of a submission in your notifications, and it will display that submission, and all the ones after it.
+You can specify the submission ID to start from with the `from=` parameter in the URL.
+Paging through submissions without overlap can be achieved by taking the last submission, adding 1 to the ID, and supplying that using the `from` parameter.
+
+~~~json
+{
+  "current_user": {
+    "name": "Fender",
+    "profile": "https://furaffinity.net/user/fender/",
+    "profile_name": "fender"
+  },
+  "new_submissions": [
+    {
+      "id": "31236893",
+      "title": "Lineless inf0xicated",
+      "thumbnail": "https://t.facdn.net/31236893@200-1555626711.jpg",
+      "link": "https://sfw.furaffinity.net/view/31236893/",
+      "name": "feve",
+      "profile": "https://sfw.furaffinity.net/user/feve/",
+      "profile_name": "feve"
+    },
+    {
+      "id": "31235658",
+      "title": "Lineless Rex",
+      "thumbnail": "https://t.facdn.net/31235658@200-1555619949.jpg",
+      "link": "https://sfw.furaffinity.net/view/31235658/",
+      "name": "feve",
+      "profile": "https://sfw.furaffinity.net/user/feve/",
+      "profile_name": "feve"
+    },
+    {
+      "id": "31235009",
+      "title": "Lineless Ripley",
+      "thumbnail": "https://t.facdn.net/31235009@200-1555616433.jpg",
+      "link": "https://sfw.furaffinity.net/view/31235009/",
+      "name": "feve",
+      "profile": "https://sfw.furaffinity.net/user/feve/",
+      "profile_name": "feve"
+    }
+    <snip>
+  ]
+]
+~~~
+### GET /notifications/others
+
+*Formats:* `json`, `xml`, `rss` (rss note below)
+
+Login cookie required.
+
+Retrieves a dictionary of all current (non-submission) notifications. RSS feeds are available for each individual notification type.
+
+While json and xml formats are available as a combined endpoint at /notifications/others, rss feeds are separated into 6 different endpoints:
+- /notifications/watches.rss
+- /notifications/submission_comments.rss
+- /notifications/journal_comments.rss
+- /notifications/shouts.rss
+- /notifications/favorites.rss
+- /notifications/journals.rss
+
+To include deleted notifications as well, pass `?include_deleted=1`.
+
+~~~json
+{
+  "current_user": {
+    "name": "Fender",
+    "profile": "https://furaffinity.net/user/fender/",
+    "profile_name": "fender"
+  },
+  "new_watches": [
+    {
+      "watch_id": "105721482",
+      "name": "FurredLeviathan",
+      "profile": "https://www.furaffinity.net/user/furredleviathan/",
+      "profile_name": "furredleviathan",
+      "avatar": "https://a.facdn.net/1548535440/furredleviathan.gif",
+      "posted": "Apr 16th, 2019 09:18 PM",
+      "posted_at": "2019-04-16T21:18:00Z"
+    },
+    <snip>
+  ],
+  "new_submission_comments": [
+    {
+      "comment_id": "138134657",
+      "name": "ScruffyTheDeer",
+      "profile": "https://www.furaffinity.net/user/scruffythedeer/",
+      "profile_name": "scruffythedeer",
+      "is_reply": true,
+      "your_submission": false,
+      "submission_id": "#cid:138134657",
+      "title": "[CM] Willow Shafted (internal)",
+      "posted": "on May 3rd, 2019 09:02 AM",
+      "posted_at": "2019-05-03T09:02:00Z"
+    },
+    <snip>
+  ],
+  "new_journal_comments": [
+    {
+      "comment_id": "56032607",
+      "name": "jeevestheroo",
+      "profile": "https://www.furaffinity.net/user/jeevestheroo/",
+      "profile_name": "jeevestheroo",
+      "is_reply": true,
+      "your_journal": false,
+      "journal_id": "9130470",
+      "title": "Confuzzled 2019!! Say hello to me if you're going!",
+      "posted": "on May 3rd, 2019 01:04 PM",
+      "posted_at": "2019-05-03T13:04:00Z"
+    }
+  ],
+  "new_shouts": [
+    {
+      "shout_id": "47007193",
+      "name": "ThatOneBirb",
+      "profile": "https://www.furaffinity.net/user/thatonebirb/",
+      "profile_name": "thatonebirb",
+      "posted": "on Apr 3rd, 2019 10:04 PM",
+      "posted_at": "2019-04-03T22:04:00Z"
+    },
+    <snip>
+  ],
+  "new_favorites": [
+    {
+      "favorite_notification_id": "784103396",
+      "name": "kaviki",
+      "profile": "https://www.furaffinity.net/user/kaviki/",
+      "profile_name": "kaviki",
+      "submission_id": "28092292",
+      "submission_name": "Cuddled up tight",
+      "posted": "May 3rd, 2019 06:31 PM",
+      "posted_at": "2019-05-03T18:31:00Z"
+    },
+    <snip>
+  ],
+  "new_journals": [
+    {
+      "journal_id": "9130470",
+      "title": "Confuzzled 2019!! Say hello to me if you're going!",
+      "name": "jeevestheroo",
+      "profile": "https://www.furaffinity.net/user/jeevestheroo/",
+      "profile_name": "jeevestheroo",
+      "posted": "on May 3rd, 2019 01:04 PM",
+      "posted_at": "2019-05-03T13:04:00Z"
+    },
+    <snip>
+  ]
+}
+~~~
+
 ### POST /journal
 
 *Formats:* `json`, `query`
+
+Login cookie required.
 
 Posts a new journal.
 The following parameters must be provided:

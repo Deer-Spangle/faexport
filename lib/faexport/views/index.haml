@@ -45,4 +45,17 @@
       - %w(json xml).each do |type|
         %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/#{resource}/{id}/comments.#{type}"}
         %br
-
+  %dt New submission notifications (login cookie required)
+  %dd
+    - %w(json xml rss).map do |type|
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notifications/submissions.#{type}"}
+      %br
+  %dt Notifications (login cookie required)
+  %dd
+    - %w(json xml).map do |type|
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notifications/others.#{type}"}
+      %br
+  - %w(watches submission_comments journal_comments shouts favorites journals).map do |notification_type|
+    %dd
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notifications/#{notification_type}.rss"}
+      %br
