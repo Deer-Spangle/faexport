@@ -583,7 +583,7 @@ class Furaffinity
     end
     # Parse new journal comments notifications
     new_journal_comments = []
-    journal_comments_elem = html.at_css("fieldset#messages-comments-journals")
+    journal_comments_elem = html.at_css("fieldset#messages-comments-journal")
     if journal_comments_elem
       journal_comments_elem.css("li:not(.section-controls)").each do |elem|
         if elem.at_css("input")['checked'] == "checked"
