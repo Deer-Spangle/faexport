@@ -810,9 +810,9 @@ Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox
 ~~~json
 [
   {
-    "note_id": 0123,
+    "note_id": 123,
     "subject": "No subject",
-    "is_read": False,
+    "is_read": false,
     "name": "John Oliver",
     "profile_name": "https://furaffinity.net/user/john_oliver/",
     "profile": "john_oliver",
@@ -833,16 +833,16 @@ Views a specific note.
 
 ~~~json
 {
-  "note_id": 0123,
+  "note_id": 125,
   "subject": "Re: No subject",
-  "is_inbound": True,
+  "is_inbound": true,
   "name": "John Oliver",
   "profile_name": "https://furaffinity.net/user/john_oliver/",
   "profile": "john_oliver",
   "posted": "on May 3rd, 2019 01:04 PM",
   "posted_at": "2019-05-03T13:04:00Z",
   "description": "Not really. How are you?",
-  "earlier_notes": [
+  "preceeding_notes": [
     {
       "name": "Fender",
       "profile_name": "https://furaffinity.net/user/fender/",
