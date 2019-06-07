@@ -799,6 +799,66 @@ To include deleted notifications as well, pass `?include_deleted=1`.
 }
 ~~~
 
+### GET /notes/{folder}
+
+*Formats:* `json`, `xml`, `rss`
+
+Login cookie required.
+
+Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox`, `unread`, `archive`, `trash`, `high`, `medium`, or `low`.
+
+~~~json
+[
+  {
+    "note_id": 0123,
+    "subject": "No subject",
+    "is_read": False,
+    "name": "John Oliver",
+    "profile_name": "https://furaffinity.net/user/john_oliver/",
+    "profile": "john_oliver",
+    "posted": "on May 3rd, 2019 01:04 PM",
+    "posted_at": "2019-05-03T13:04:00Z"
+  },
+  <snip>
+]
+~~~
+
+### GET /notes/{id}
+
+*Formats:* `json`, `xml`
+
+Login cookie required.
+
+Views a specific note.
+
+~~~json
+{
+  "note_id": 0123,
+  "subject": "Re: No subject",
+  "is_inbound": True,
+  "name": "John Oliver",
+  "profile_name": "https://furaffinity.net/user/john_oliver/",
+  "profile": "john_oliver",
+  "posted": "on May 3rd, 2019 01:04 PM",
+  "posted_at": "2019-05-03T13:04:00Z",
+  "description": "Not really. How are you?",
+  "earlier_notes": [
+    {
+      "name": "Fender",
+      "profile_name": "https://furaffinity.net/user/fender/",
+      "profile": "fender",
+      "description": "Hey, do u rp?"
+    },
+    {
+      "name": "John Oliver",
+      "profile_name": "https://furaffinity.net/user/john_oliver/",
+      "profile": "john_oliver",
+      "description": "Hello there!"
+    }
+  ]
+}
+~~~
+
 ### POST /journal
 
 *Formats:* `json`, `query`
