@@ -55,6 +55,7 @@ module FAExport
     USER_REGEX = /((?:[a-zA-Z0-9\-_~.]|%5B|%5D|%60)+)/
     ID_REGEX = /([0-9]+)/
     COOKIE_REGEX = /^b=[a-z0-9\-]+; a=[a-z0-9\-]+$/
+    NOTE_FOLDER_REGEX = /(inbox|outbox)/
 
     def initialize(app, config = {})
       FAExport.config = config.with_indifferent_access
@@ -609,6 +610,36 @@ module FAExport
                 posted: journal[:posted]
             }
             @description = "A new journal has been posted by <a href=\"#{journal[:profile]}\">#{journal[:name]}</a>, titled: \"<a href=\"https://furaffinity.net/journal/#{journal[:journal_id]}\">#{journal[:name]}</a>\"."
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
+    # GET /notes/{folder}.json
+    # GET /notes/{folder}.xml
+    # GET /notes/{folder}.rss
+    get %r{/notes/#{NOTE_FOLDER_REGEX}\.(json|xml|rss)} do |folder, type|
+      ensure_login!
+      cache("notes/#{folder}:#{@user_cookie}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.notes(folder)
+        when 'xml'
+          @fa.notes(folder).to_xml(root: 'results', skip_types: true)
+        when 'rss'
+          results = @fa.notes(folder)
+          @name = "Notes in folder: #{folder}"
+          @info = @name
+          @link = "https://www.furaffinity.net/msg/pms/"
+          @posts = results.map do |note|
+            @post = {
+                title: note[:subject],
+                link: note[:link],
+                posted: note[:posted]
+            }
+            @description = "A new note has been received, from <a href=\"#{note[:profile]}\">#{note[:name]}</a>, the subject is \"<a href=\"#{note[:link]}\">#{note[:subject]}</a>\"."
             builder :post
           end
           builder :feed
