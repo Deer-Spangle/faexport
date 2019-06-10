@@ -823,7 +823,7 @@ Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox
 ]
 ~~~
 
-### GET /notes/{id}
+### GET /note/{id}
 
 *Formats:* `json`, `xml`
 
