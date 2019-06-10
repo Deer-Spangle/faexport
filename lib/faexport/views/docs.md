@@ -841,7 +841,8 @@ Views a specific note.
   "profile": "john_oliver",
   "posted": "on May 3rd, 2019 01:04 PM",
   "posted_at": "2019-05-03T13:04:00Z",
-  "description": "Not really. How are you?",
+  "description": "Not really. How are you?\n\n______<snip>",
+  "description_body": "Not really. How are you?",
   "preceeding_notes": [
     {
       "name": "Fender",
