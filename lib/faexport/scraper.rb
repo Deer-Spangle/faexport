@@ -718,25 +718,6 @@ class Furaffinity
     html = fetch("msg/pms/1/#{id}/")
     current_user = get_current_user(html)
     note_table = html.at_css(".note-view-container table.maintable table.maintable")
-    # date = pick_date(html.at_css('td.cat .journal-title-box .popup_date'))
-    # profile_url = html.at_css('td.cat .journal-title-box a')['href'][1..-1]
-    # journal_header = html.at_css('.journal-header').children[0..-3].to_s.strip unless html.at_css('.journal-header').nil?
-    # journal_footer = html.at_css('.journal-footer').children[2..-1].to_s.strip unless html.at_css('.journal-footer').nil?
-    #
-    # {
-    #     title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
-    #     description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
-    #     journal_header: journal_header,
-    #     journal_body: html.at_css('.journal-body').children.to_s.strip,
-    #     journal_footer: journal_footer,
-    #     name: html.at_css('td.cat .journal-title-box a').content,
-    #     profile: fa_url(profile_url),
-    #     profile_name: last_path(profile_url),
-    #     avatar: "https:#{html.at_css("img.avatar")['src']}",
-    #     link: fa_url("journal/#{id}/"),
-    #     posted: date,
-    #     posted_at: to_iso8601(date)
-    # }
     note_header = note_table.at_css("td.head")
     note_from = note_header.css("em")[1].at_css("a")
     note_to = note_header.css("em")[2].at_css("a")
