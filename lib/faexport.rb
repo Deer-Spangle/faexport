@@ -55,7 +55,7 @@ module FAExport
     USER_REGEX = /((?:[a-zA-Z0-9\-_~.]|%5B|%5D|%60)+)/
     ID_REGEX = /([0-9]+)/
     COOKIE_REGEX = /^b=[a-z0-9\-]+; a=[a-z0-9\-]+$/
-    NOTE_FOLDER_REGEX = /(inbox|outbox)/
+    NOTE_FOLDER_REGEX = /(inbox|outbox|unread|archive|trash|high|medium|low)/
 
     def initialize(app, config = {})
       FAExport.config = config.with_indifferent_access

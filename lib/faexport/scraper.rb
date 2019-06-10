@@ -714,6 +714,21 @@ class Furaffinity
     }
   end
 
+  def notes(folder)
+    note_cookie = {
+        inbox: "inbox",
+        outbox: "outbox",
+        unread: "unread",
+        archive: "archive",
+        trash: "trash",
+        high: "high_prio",
+        medium: "medium_prio",
+        low: "low_prio"
+    }[folder]
+    html = fetch("msg/pms/", "folder=#{note_cookie}")
+    # TODO: parse
+  end
+
   def note(id)
     html = fetch("msg/pms/1/#{id}/")
     current_user = get_current_user(html)
@@ -842,10 +857,10 @@ private
     CGI::escape(name)
   end
 
-  def fetch(path)
+  def fetch(path, extra_cookie = nil)
     url = fa_url(path)
-    raw = @cache.add("url:#{url}") do
-      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie) do |response|
+    raw = @cache.add("url:#{url}:#{extra_cookie}") do
+      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "#{@login_cookie};#{extra_cookie}") do |response|
         if response.status[0] != '200'
           raise FAStatusError.new(url, response.status.join(' '))
         end
