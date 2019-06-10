@@ -647,6 +647,20 @@ module FAExport
       end
     end
 
+    # GET /note/{id}.json
+    # GET /note/{id}.xml
+    get %r{/note/#{ID_REGEX}\.(json|xml)} do |id, type|
+      ensure_login!
+      cache("note/#{id}:#{@user_cookie}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.note(id)
+        when 'xml'
+          @fa.note(id).to_xml(root: 'note', skip_types: true)
+        end
+      end
+    end
+
     # POST /journal.json
     post %r{/journal(\.json|)} do |type|
       ensure_login!
