@@ -714,6 +714,63 @@ class Furaffinity
     }
   end
 
+  def note(id)
+    html = fetch("msg/pms/1/#{id}/")
+    current_user = get_current_user(html)
+    note_table = html.at_css(".note-view-container table.maintable table.maintable")
+    # date = pick_date(html.at_css('td.cat .journal-title-box .popup_date'))
+    # profile_url = html.at_css('td.cat .journal-title-box a')['href'][1..-1]
+    # journal_header = html.at_css('.journal-header').children[0..-3].to_s.strip unless html.at_css('.journal-header').nil?
+    # journal_footer = html.at_css('.journal-footer').children[2..-1].to_s.strip unless html.at_css('.journal-footer').nil?
+    #
+    # {
+    #     title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
+    #     description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
+    #     journal_header: journal_header,
+    #     journal_body: html.at_css('.journal-body').children.to_s.strip,
+    #     journal_footer: journal_footer,
+    #     name: html.at_css('td.cat .journal-title-box a').content,
+    #     profile: fa_url(profile_url),
+    #     profile_name: last_path(profile_url),
+    #     avatar: "https:#{html.at_css("img.avatar")['src']}",
+    #     link: fa_url("journal/#{id}/"),
+    #     posted: date,
+    #     posted_at: to_iso8601(date)
+    # }
+    note_header = note_table.at_css("td.head")
+    note_from = note_header.css("em")[1].at_css("a")
+    note_to = note_header.css("em")[2].at_css("a")
+    is_inbound = current_user[:profile_name] == last_path(note_to['href'])
+    profile = is_inbound ? note_from : note_to
+    date = pick_date(note_table.at_css("span.popup_date"))
+    description = note_table.at_css("td.text")
+    desc_split = description.inner_html.split("—————————")
+    {
+        note_id: id,
+        subject: note_header.at_css("em.title").content,
+        is_inbound: is_inbound,
+        name: profile.content,
+        profile: fa_url(profile['href'][1..-1]),
+        profile_name: last_path(profile['href']),
+        posted: date,
+        posted_at: to_iso8601(date),
+        avatar: "https#{note_table.at_css("img.avatar")['src']}",
+        description: description.inner_html.strip,
+        description_body: html_strip(desc_split.first.strip),
+        preceeding_notes: desc_split[1..-1].map do |note|
+          note_html = Nokogiri::HTML(note)
+          profile = note_html.at_css("a.linkusername")
+          {
+              name: profile.content.to_s,
+              profile: fa_url(profile['href'][1..-1]),
+              profile_name: last_path(profile['href']),
+              description: note,
+              description_body: html_strip(note.to_s.split("</a>:")[1..-1].join("</a>:"))
+          }
+        end
+    }
+  end
+
   def fa_url(path)
     if path.to_s.start_with? "/"
       path = path[1..-1]
@@ -724,6 +781,10 @@ class Furaffinity
 private
   def fa_address
     "https://#{safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
+  end
+
+  def html_strip(html_s)
+    html_s.gsub(/^(<br ?\/?>|\\r|\\n|\s)+/, "").gsub(/(<br ?\/?>|\\r|\\n|\s)+$/,"")
   end
 
   def last_path(path)
