@@ -735,14 +735,12 @@ class Furaffinity
       if profile_to.nil?
         is_inbound = true
         profile = profile_from.at_css("a")
+      elsif profile_from.nil?
+        is_inbound = false
+        profile = profile_to.at_css("a")
       else
-        if profile_from.nil?
-          is_inbound = false
-          profile = profile_to.at_css("a")
-        else
-          is_inbound = profile_to.content.strip == "me"
-          profile = is_inbound ? profile_from.at_css("a") : profile_to.at_css("a")
-        end
+        is_inbound = profile_to.content.strip == "me"
+        profile = is_inbound ? profile_from.at_css("a") : profile_to.at_css("a")
       end
       {
           note_id: note.at_css("input")['value'],
