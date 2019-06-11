@@ -812,6 +812,7 @@ Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox
   {
     "note_id": 123,
     "subject": "No subject",
+    "is_inbound": true,
     "is_read": false,
     "name": "John Oliver",
     "profile_name": "https://furaffinity.net/user/john_oliver/",
