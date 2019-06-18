@@ -136,6 +136,8 @@ module FAExport
       end
     end
 
+    # GET /home.json
+    # GET /home.xml
     get %r{/home\.(json|xml)} do |type|
       set_content_type(type)
       cache("home:#{type}") do
