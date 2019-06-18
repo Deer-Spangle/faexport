@@ -520,7 +520,7 @@ Retrieves information about the journal with the specified id.
 
 ### GET /submission/*{id}*/comments <br/> GET /journal/*{id}*/comments
 
-Retrivies a list of comments made on the submission or journal with the specified id.
+Retrieves a list of comments made on the submission or journal with the specified id.
 
 *Formats:* `json`, `xml`
 
