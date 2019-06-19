@@ -6,7 +6,7 @@ require 'rspec'
 describe 'FA parsing' do
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
-    @app = FAExport::Application.new(config)
+    @app = FAExport::Application.new(config).instance_variable_get(:@instance)
     @fa = @app.instance_variable_get(:@fa)
   end
 
@@ -38,15 +38,15 @@ describe 'FA parsing' do
           expect(submission[:thumbnail]).to start_with "https://"
           expect(submission[:thumbnail]).to end_with ".jpg"
           expect(submission[:thumbnail]).to include("t.facdn.net")
-          expect(submission[:thumbnail]).to match(/https:\/\/t.facdn.net\/#{submission[:id]}@[1-9]00-[0-9]+.jpg/)
+          expect(submission[:thumbnail]).to match(/https:\/\/t.facdn.net\/#{submission[:id]}@[0-9]{2,3}-[0-9]+.jpg/)
           # Check link
-          expect(submission[:link]).to equal "https://www.furaffinity.net/view/#{submission[:id]}/"
+          expect(submission[:link]).to eql "https://www.furaffinity.net/view/#{submission[:id]}/"
           # Check name
           expect(submission[:name]).not_to be("")
           # Check profile link
-          expect(submission[:profile]).to equal "https://www.furaffinity.net/user/#{submission[:profile_name]}/"
+          expect(submission[:profile]).to eql "https://www.furaffinity.net/user/#{submission[:profile_name]}/"
           # Check profile name
-          expect(submission[:profile_name]).to match(@app.USER_REGEX)
+          expect(submission[:profile_name]).to match(FAExport::Application::USER_REGEX)
         end
       end
     end
