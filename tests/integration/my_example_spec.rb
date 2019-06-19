@@ -6,7 +6,7 @@ require 'rspec'
 describe 'FA parsing' do
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
-    @app = FAExport::Application, config
+    @app = FAExport::Application.new(config)
     @fa = @app.instance_variable_get(:@fa)
   end
 
