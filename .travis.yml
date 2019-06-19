@@ -1,0 +1,8 @@
+language: ruby
+rvm:
+  - 2.5.3
+services:
+  - redis-server
+script:
+  - bundle install
+  - bundle exec rspec spec '**/*_spec.rb'
