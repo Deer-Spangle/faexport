@@ -155,4 +155,22 @@ describe 'Home endpoint' do
     it 'handles 2 replies to the same comment'
     it 'handles deleted replies to deleted comments'
   end
+
+  context 'when searching submissions' do
+    it 'returns a list of submission IDs'
+    it 'returns a list of submission data when full=1'
+    it 'handles search queries with a space in them'
+    it 'displays a different page 1 to page 2'
+    it 'returns a specific set of test submissions when using a rare test keyword'
+    it 'displays a number of results equal to the perpage setting'
+    it 'defaults to ordering by date desc'
+    it 'can search by relevancy and popularity, which give a different order to date'
+    it 'can specify order direction as ascending'
+    it 'can specify shorter range, which delivers fewer results'
+    it 'can specify search mode for the terms in the query'
+    it 'can specify ratings to display, and honours that selection'
+    it 'displays nothing when only adult is selected, and sfw mode is on'
+    it 'can specify a content type for results, only returns that content type'
+    it 'can specify multiple content types for results, and only displays those types'
+  end
 end
