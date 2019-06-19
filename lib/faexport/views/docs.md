@@ -711,6 +711,7 @@ While json and xml formats are available as a combined endpoint at /notification
 - /notifications/journals.rss
 
 To include deleted notifications as well, pass `?include_deleted=1`.
+As deleted journal notifications are hidden on FA now, you cannot display these using the `include_deleted` parameter.
 
 ~~~json
 {
@@ -758,7 +759,8 @@ To include deleted notifications as well, pass `?include_deleted=1`.
       "title": "Confuzzled 2019!! Say hello to me if you're going!",
       "posted": "on May 3rd, 2019 01:04 PM",
       "posted_at": "2019-05-03T13:04:00Z"
-    }
+    },
+    <snip>
   ],
   "new_shouts": [
     {
