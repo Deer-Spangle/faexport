@@ -10,6 +10,7 @@ GEM
     builder (3.2.3)
     concurrent-ruby (1.1.3)
     daemons (1.2.6)
+    diff-lcs (1.3)
     eventmachine (1.2.7)
     haml (5.0.4)
       temple (>= 0.8.0)
@@ -27,6 +28,19 @@ GEM
       rack
     redcarpet (3.4.0)
     redis (4.0.3)
+    rspec (3.8.0)
+      rspec-core (~> 3.8.0)
+      rspec-expectations (~> 3.8.0)
+      rspec-mocks (~> 3.8.0)
+    rspec-core (3.8.1)
+      rspec-support (~> 3.8.0)
+    rspec-expectations (3.8.4)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.8.0)
+    rspec-mocks (3.8.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.8.0)
+    rspec-support (3.8.2)
     sinatra (2.0.4)
       mustermann (~> 1.0)
       rack (~> 2.0)
@@ -60,6 +74,7 @@ DEPENDENCIES
   nokogiri
   redcarpet
   redis
+  rspec
   sinatra
   sinatra-contrib
   thin

@@ -1,6 +1,9 @@
+
+require './lib/faexport'
+
 require 'rspec'
 
-describe 'Home endpoint' do
+describe 'FA parsing' do
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
     @app = FAExport::Application, config
