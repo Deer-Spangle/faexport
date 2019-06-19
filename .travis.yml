@@ -5,4 +5,4 @@ services:
   - redis-server
 script:
   - bundle install
-  - bundle exec rspec spec '**/*_spec.rb'
+  - rspec '**/*_spec.rb'
