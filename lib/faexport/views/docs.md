@@ -384,7 +384,7 @@ If this is `gallery` or `scraps`, you can pass a parameter `?page=2` to load mor
 **BREAKING CHANGE**
 
 Due to FA changing the way it handles pagination on favorites using `page` will no longer work.
-Instead, all favorites all now come with a `fav_id` field (assuing `?full=1` is used) that can be used with `next` and `prev`.
+Instead, all favorites all now come with a `fav_id` field (assuming `?full=1` is used) that can be used with `next` and `prev`.
 For instance if the last favorite fetched has an `fav_id` of `29980`, we can set `?next=29980` to
 load the next set of favorites that come after it.
 Likewise we can also use `?prev=29980` to load the set of favorites directly before it.
