@@ -179,6 +179,7 @@ describe 'FA parsing' do
 
   context 'when reading new submission notifications' do
     it 'will correctly parse current user'
+    it 'should not return anything unless login cookie is given'
     it 'should handle zero notifications'
     it 'should handle deleted notifications'
     it 'should hide nsfw submissions if sfw=1 is specified'
@@ -241,5 +242,13 @@ describe 'FA parsing' do
       it 'should handle zero new journals'
       it 'returns a list of new journal notifications'
     end
+  end
+
+  context 'when posting a new journal' do
+    it 'requires a login cookie'
+    it 'fails if not given title'
+    it 'fails if not given description'
+    it 'can post a new journal entry using json'
+    it 'can post a new journal entry using query params'
   end
 end
