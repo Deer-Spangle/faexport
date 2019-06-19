@@ -176,4 +176,70 @@ describe 'FA parsing' do
     it 'can specify a content type for results, only returns that content type'
     it 'can specify multiple content types for results, and only displays those types'
   end
+
+  context 'when reading new submission notifications' do
+    it 'will correctly parse current user'
+    it 'should handle zero notifications'
+    it 'should handle deleted notifications'
+    it 'should hide nsfw submissions if sfw=1 is specified'
+    it 'returns a valid list of new submission notifications'
+  end
+
+  context 'when reading notifications' do
+    it 'will correctly parse current user'
+    it 'should not return anything unless login cookie is given'
+    it 'should contain all 6 types of notifications'
+
+    context 'watcher notifications' do
+      it 'should handle zero new watchers'
+      it 'returns a list of new watcher notifications'
+      it 'should hide deleted watcher notifications by default'
+      it 'should display deleted watcher notifications when specified'
+    end
+
+    context 'submission comment notifications' do
+      it 'should handle zero submission comment notifications'
+      it 'returns a list of new submission comment notifications'
+      it 'correctly parses base level comments to your submissions'
+      it 'correctly parses replies to your comments on your submissions'
+      it 'correctly parses replies to your comments on their submissions'
+      it 'correctly parses replies to your comments on someone else\'s submissions'
+      it 'hides deleted comments by default'
+      it 'displays deleted comment notifications when specified'
+      it 'hides comments on deleted submissions by default'
+      it 'displays comments on deleted submissions when specified'
+    end
+
+    context 'journal comment notifications' do
+      it 'should handle zero journal comment notifications'
+      it 'returns a list of new journal comment notifications'
+      it 'correctly parses base level comments to your journals'
+      it 'correctly parses replies to your comments on your journals'
+      it 'correctly parses replies to your comments on their journals'
+      it 'correctly parses replies to your comments on someone else\'s journals'
+      it 'hides deleted comments by default'
+      it 'displays deleted comment notifications when specified'
+      it 'hides comments on deleted journals by default'
+      it 'displays comments on deleted journals when specified'
+    end
+
+    context 'shout notifications' do
+      it 'should handle zero shout notifications'
+      it 'returns a list of new shout notifications'
+      it 'hides deleted shouts by default'
+      it 'displays deleted shout notifications when specified'
+    end
+
+    context 'favourite notifications' do
+      it 'should handle zero favourite notifications'
+      it 'returns a list of new favourite notifications'
+      it 'hides deleted favourites by default'
+      it 'displays deleted favourite notifications when specified'
+    end
+
+    context 'journal notifications' do
+      it 'should handle zero new journals'
+      it 'returns a list of new journal notifications'
+    end
+  end
 end
