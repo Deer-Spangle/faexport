@@ -17,7 +17,7 @@ document.cookie.split('; ').filter(function(x){return/^[ab]=/.test(x)}).sort().r
 
 The output should look something like this:
 
-~~~javascript
+~~~
 "b=3a485360-d203-4a38-97e8-4ff7cdfa244c; a=b1b985c4-d73e-492a-a830-ad238a3693ef"
 ~~~
 
@@ -399,7 +399,7 @@ By default, this only returns the id of each submission.
   "11157906",
   "10796676",
   <snip>
-}
+]
 ~~~
 
 If you want more information, pass `?full=1` to retrieve more fields.
@@ -432,7 +432,7 @@ If you want more information, pass `?full=1` to retrieve more fields.
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
     "profile_name": "fender"
-  }
+  },
   <snip>
 ]
 ~~~
@@ -605,7 +605,7 @@ By default, this only returns the id of each submission.
   "11157906",
   "10796676",
   <snip>
-}
+]
 ~~~
 
 If you want more information, pass `&full=1` to retrieve more fields.
@@ -638,7 +638,7 @@ If you want more information, pass `&full=1` to retrieve more fields.
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
     "profile_name": "fender"
-  }
+  },
   <snip>
 ]
 ~~~
@@ -689,10 +689,10 @@ Paging through submissions without overlap can be achieved by taking the last su
       "name": "feve",
       "profile": "https://sfw.furaffinity.net/user/feve/",
       "profile_name": "feve"
-    }
+    },
     <snip>
   ]
-]
+}
 ~~~
 ### GET /notifications/others
 
