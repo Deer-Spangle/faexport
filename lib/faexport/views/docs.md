@@ -582,7 +582,7 @@ Hidden comments are displayed in the following format:
 
 ### GET /search
 
-Perfoms a site wide search of Furaffinity.
+Performs a site wide search of Furaffinity.
 The following parameters can be provided:
 
 * **q**: Words to search for.
