@@ -3,7 +3,7 @@ require './lib/faexport'
 
 require 'rspec'
 
-describe 'FA parsing' do
+describe 'FA parser' do
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
     @app = FAExport::Application.new(config).instance_variable_get(:@instance)
@@ -35,9 +35,6 @@ describe 'FA parsing' do
           # Check title
           expect(submission[:title]).not_to be("")
           # Check thumbnail
-          expect(submission[:thumbnail]).to start_with "https://"
-          expect(submission[:thumbnail]).to end_with ".jpg"
-          expect(submission[:thumbnail]).to include("t.facdn.net")
           expect(submission[:thumbnail]).to match(/https:\/\/t.facdn.net\/#{submission[:id]}@[0-9]{2,3}-[0-9]+.jpg/)
           # Check link
           expect(submission[:link]).to eql "https://www.furaffinity.net/view/#{submission[:id]}/"
@@ -51,7 +48,17 @@ describe 'FA parsing' do
       end
     end
 
-    it 'only returns SFW results, if specified'
+    it 'only returns SFW results, if specified' do
+      @fa.safe_for_work = true
+      home = @fa.home
+      home.map do |_, submissions|
+        expect(submissions).not_to be_empty
+        submissions.map do |submission|
+          full_submission = @fa.submission(submission[:id])
+          expect(full_submission[:rating]).to be("General")
+        end
+      end
+    end
   end
 
   context 'when getting user profile' do
