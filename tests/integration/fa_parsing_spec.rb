@@ -10,6 +10,7 @@ describe 'FA parser' do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
     @app = FAExport::Application.new(config).instance_variable_get(:@instance)
     @fa = @app.instance_variable_get(:@fa)
+    @fa.login_cookie = ENV['test_cookie']
   end
 
   after do
