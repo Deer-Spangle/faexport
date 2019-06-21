@@ -92,7 +92,10 @@ describe 'FA parser' do
       end
     end
 
-    it 'fails when given a non-existent profile'
+    it 'fails when given a non-existent profile' do
+      expect { @fa.user("fafeed-does-not-exist") }.to raise_error(FASystemError)
+    end
+
     it 'handles square brackets in profile name'
     it 'shows featured submission'
     it 'handles featured submission not being set'
