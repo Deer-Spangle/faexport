@@ -4,6 +4,8 @@ require './lib/faexport'
 require 'rspec'
 
 describe 'FA parser' do
+  TEST_USER = "fafeed"
+
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
     @app = FAExport::Application.new(config).instance_variable_get(:@instance)
@@ -62,7 +64,20 @@ describe 'FA parser' do
   end
 
   context 'when getting user profile' do
-    it 'gives valid basic profile information'
+    it 'gives valid basic profile information' do
+      profile = @fa.user(TEST_USER)
+
+      expect(profile[:id]).to be_nil
+      expect(profile[:name]).to be(TEST_USER)
+      expect(profile[:profile]).to be("https://www.furaffinity.net/user/#{TEST_USER}/")
+      expect(profile[:account_type]).to be("Member")
+      expect(profile[:avatar]).to match(/https:\/\/a.facdn.net\/[0-9]+\/#{TEST_USER}.gif/)
+      expect(profile[:full_name]).not_to be_blank
+      expect(profile[:artist_type]).not_to be_blank
+      expect(profile[:user_title]).not_to be_blank
+      # TODO: Check registration date, onwards
+    end
+
     it 'fails when given a non-existent profile'
     it 'handles square brackets in profile name'
     it 'shows featured submission'
