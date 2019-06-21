@@ -244,12 +244,12 @@ class Furaffinity
       profile: fa_url(profile),
       account_type: html.at_css('.addpad.lead').content[/\((.+?)\)/,1].strip,
       avatar: "https:#{html.at_css('td.addpad img')['src']}",
-      full_name: html_field(info, 'Full Name'),
-      artist_type: user_title, # Backwards compatability
+      full_name: html.at_css("title").content[/Userpage of(.+?)--/,1].strip,
+      artist_type: user_title, # Backwards compatibility
       user_title: user_title,
       registered_since: date,
       registered_at: to_iso8601(date),
-      current_mood: html_field(info, 'Current mood'),
+      current_mood: html_field(info, 'Current Mood'),
       artist_profile: html_long_field(info, 'Artist Profile'),
       pageviews: html_field(stats, 'Page Visits'),
       submissions: html_field(stats, 'Submissions'),

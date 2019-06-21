@@ -76,7 +76,7 @@ describe 'FA parser' do
       expect(profile[:full_name]).not_to be_blank
       expect(profile[:artist_type]).not_to be_blank
       expect(profile[:user_title]).not_to be_blank
-      expect(profile[:user_title]).to be eql(profile[:artist_type])
+      expect(profile[:user_title]).to eql(profile[:artist_type])
       expect(profile[:current_mood]).to eql("accomplished")
       # Check registration date
       expect(profile[:registered_since]).not_to be_blank
