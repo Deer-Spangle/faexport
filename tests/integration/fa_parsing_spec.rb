@@ -57,8 +57,8 @@ describe 'FA parser' do
       home.map do |_, submissions|
         expect(submissions).not_to be_empty
         submissions.map do |submission|
-          full_submission = @fa.submission(submission[:id])
-          expect(full_submission[:rating]).to be("General")
+          full_submission = @fa.submission(p submission[:id])
+          expect(full_submission[:rating]).to eql("General")
         end
       end
     end
@@ -67,16 +67,29 @@ describe 'FA parser' do
   context 'when getting user profile' do
     it 'gives valid basic profile information' do
       profile = @fa.user(TEST_USER)
-
+      # Check initial values
       expect(profile[:id]).to be_nil
-      expect(profile[:name]).to be(TEST_USER)
-      expect(profile[:profile]).to be("https://www.furaffinity.net/user/#{TEST_USER}/")
-      expect(profile[:account_type]).to be("Member")
+      expect(profile[:name]).to eql(TEST_USER)
+      expect(profile[:profile]).to eql("https://www.furaffinity.net/user/#{TEST_USER}/")
+      expect(profile[:account_type]).to eql("Member")
       expect(profile[:avatar]).to match(/https:\/\/a.facdn.net\/[0-9]+\/#{TEST_USER}.gif/)
       expect(profile[:full_name]).not_to be_blank
       expect(profile[:artist_type]).not_to be_blank
       expect(profile[:user_title]).not_to be_blank
-      # TODO: Check registration date, onwards
+      expect(profile[:user_title]).to be eql(profile[:artist_type])
+      expect(profile[:current_mood]).to eql("accomplished")
+      # Check registration date
+      expect(profile[:registered_since]).not_to be_blank
+      expect(profile[:registered_since]).to match(/[A-Z][a-z]{2} [0-9]+[a-z]{2}, [0-9]{4} [0-9]{2}:[0-9]{2}/)
+      expect(profile[:registered_at]).not_to be_blank
+      expect(profile[:registered_at]).to eql(Time.parse(profile[:registered_since] + ' UTC').iso8601)
+      # Check description
+      expect(profile[:artist_profile]).not_to be_blank
+      # Check numeric values
+      [:pageviews, :submissions, :comments_received, :comments_given, :journals, :favorites].each do |key|
+        expect(profile[key]).not_to be_blank
+        expect(profile[key]).to match(/[0-9]+/)
+      end
     end
 
     it 'fails when given a non-existent profile'
