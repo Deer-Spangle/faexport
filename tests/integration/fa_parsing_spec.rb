@@ -251,9 +251,28 @@ describe 'FA parser' do
   end
 
   context 'when displaying commission information pages' do
-    it 'handles empty commission information'
-    it 'displays valid commission information data'
-    it 'fails when given a non-existent user'
+    it 'handles empty commission information' do
+      comms = @fa.commissions(TEST_USER)
+      expect(comms).to be_instance_of Array
+      expect(comms).to be_empty
+    end
+
+    it 'displays valid commission information data' do
+      comms = @fa.commissions(TEST_USER_2)
+      expect(comms).to be_instance_of Array
+      expect(comms).not_to be_empty
+      comms.each do |comm|
+        expect(comm[:title]).not_to be_empty
+        expect(comm[:price]).not_to be_empty
+        expect(comm[:description]).not_to be_empty
+        expect(comm[:submission]).to be_instance_of Hash
+        check_submission(comm[:submission], true, true)
+      end
+    end
+
+    it 'fails when given a non-existent user' do
+      expect { @fa.shouts(TEST_USER_NOT_EXIST) }.to raise_error(FASystemError)
+    end
   end
 
   context 'when listing a user\'s journals' do
@@ -432,7 +451,7 @@ describe 'FA parser' do
     # Check thumbnail
     expect(submission[:thumbnail]).to match(/^https:\/\/t.facdn.net\/#{submission[:id]}@[0-9]{2,3}-[0-9]+.jpg$/)
     # Check link
-    expect(submission[:link]).to eql "https://www.furaffinity.net/view/#{submission[:id]}/"
+    expect(submission[:link]).to match(/^https:\/\/www.furaffinity.net\/view\/#{submission[:id]}\/?$/)
     # Check profile
     if blank_profile
       expect(submission[:name]).to be_blank
