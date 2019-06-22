@@ -148,8 +148,33 @@ describe 'FA parser' do
       expect(profile[:profile_id]).to be_nil
     end
 
-    it 'lists watchers of specified account'
-    it 'lists accounts watched by specified account'
+    it 'lists watchers of specified account' do
+      profile = @fa.user(TEST_USER)
+      expect(profile[:watchers]).to be_instance_of Hash
+      expect(profile[:watchers][:count]).to be_instance_of Integer
+      expect(profile[:watchers][:count]).to be > 0
+      expect(profile[:watchers][:recent]).to be_instance_of Array
+      expect(profile[:watchers][:recent].length).to be <= profile[:watchers][:count]
+      profile[:watchers][:recent].each do |item|
+        check_profile_link(item, true)
+      end
+      list = profile[:watchers][:recent].map do |item|
+        item[:profile_name]
+      end
+      expect(list).to include(TEST_USER_2)
+    end
+
+    it 'lists accounts watched by specified account' do
+      profile = @fa.user(TEST_USER)
+      expect(profile[:watching]).to be_instance_of Hash
+      expect(profile[:watching][:count]).to be_instance_of Integer
+      expect(profile[:watching][:count]).to be > 0
+      expect(profile[:watching][:recent]).to be_instance_of Array
+      expect(profile[:watching][:recent].length).to be <= profile[:watching][:count]
+      profile[:watching][:recent].each do |item|
+        check_profile_link(item, true)
+      end
+    end
   end
 
   context 'when listing user\'s watchers/watchees' do
@@ -356,9 +381,13 @@ describe 'FA parser' do
       expect(submission[:profile]).to be_blank
       expect(submission[:profile_name]).to be_blank
     else
-      expect(submission[:name]).not_to be_blank
-      expect(submission[:profile]).to eql "https://www.furaffinity.net/user/#{submission[:profile_name]}/"
-      expect(submission[:profile_name]).to match(FAExport::Application::USER_REGEX)
+      check_profile_link submission
     end
+  end
+
+  def check_profile_link(item, watch_list=false)
+    expect(item[:name]).not_to be_blank
+    expect(item[watch_list ? :link : :profile]).to eql "https://www.furaffinity.net/user/#{item[:profile_name]}/"
+    expect(item[:profile_name]).to match(FAExport::Application::USER_REGEX)
   end
 end
