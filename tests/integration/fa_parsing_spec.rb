@@ -132,7 +132,17 @@ describe 'FA parser' do
       expect(profile[:artist_information]).to be_empty
     end
 
-    it 'shows contact information'
+    it 'shows contact information' do
+      profile = @fa.user(TEST_USER_2)
+      expect(profile[:contact_information]).to be_instance_of Array
+      expect(profile[:contact_information]).not_to be_empty
+      profile[:contact_information].each do |item|
+        expect(item[:title]).not_to be_blank
+        expect(item[:name]).not_to be_blank
+        expect(item).to have_key(:link)
+      end
+    end
+
     it 'handles no contact information being set'
     it 'lists watchers of specified account'
     it 'lists accounts watched by specified account'

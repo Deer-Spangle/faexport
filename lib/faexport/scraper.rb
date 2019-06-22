@@ -771,11 +771,11 @@ private
   def select_contact_info(elem)
     elem = elem.at_css('td.alt1') if elem
     return nil unless elem
-    elem.css('tr').map do |tr|
-      link_elem = tr.at_css('a')
+    elem.css('div.classic-contact-info-item').map do |item|
+      link_elem = item.at_css('a')
       {
-        title: tr.at_css('strong').content.gsub(/:\s*$/, ''),
-        name: (link_elem || tr.at_css('td')).content.strip,
+        title: item.at_css('strong').content.gsub(/:\s*$/, ''),
+        name: (link_elem || item.xpath('child::text()').to_s.squeeze(' ').strip),
         link: link_elem ? link_elem['href'] : ''
       }
     end
