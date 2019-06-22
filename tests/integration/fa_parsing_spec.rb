@@ -12,6 +12,7 @@ describe 'FA parser' do
   TEST_USER_NO_WATCHERS = "fafeed-no-watchers"
   TEST_USER_NO_JOURNALS = TEST_USER_NO_WATCHERS
   TEST_USER_OVER_25_JOURNALS = TEST_USER_OVER_200_WATCHERS
+  TEST_USER_EMPTY_GALLERIES = TEST_USER_NO_WATCHERS
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
@@ -314,28 +315,49 @@ describe 'FA parser' do
   end
 
   context 'when viewing user galleries' do
-    it 'returns a list of valid submission ids'
-    it 'fails when given a non-existent user'
-    it 'handles an empty gallery'
-    it 'displays full data correctly for the gallery'
-    it 'returns a list of valid submission ids in scraps'
-    it 'handles paging correctly'
-    it 'doesn\'t include deleted submissions by default'
-    it 'includes deleted submissions when specified'
-    it 'hides nsfw submissions if sfw is set'
-  end
+    %w(gallery scraps favorites).each do |folder|
+      it 'returns a list of valid submission' do
+        submissions = @fa.submissions(TEST_USER_2, folder, {})
+        expect(submissions).to be_instance_of Array
+        expect(submissions).not_to be_empty
+        submissions.each(&method(:check_submission))
+      end
 
-  context 'when viewing user favourites' do
-    it 'returns a list of valid favourite ids'
-    it 'fails when given a non-existent user'
-    it 'handles an empty (or hidden) favourites list'
-    it 'displays full data correctly for favourites'
-    it 'uses next parameter to display submissions after a specified fav id'
-    it 'uses prev parameter to display only submissions before a specified fav id'
-    it 'doesn\'t include deleted submissions by default'
-    it 'includes deleted submissions when specified'
-    it 'hides nsfw submissions if sfw is set'
-    it 'displays favourites of currently logged in user even if hidden'
+      it 'fails when given a non-existent user' do
+        expect { @fa.submissions(TEST_USER_NOT_EXIST, folder, {}) }.to raise_error(FASystemError)
+      end
+
+      it 'handles an empty gallery' do
+        submissions = @fa.submissions(TEST_USER_EMPTY_GALLERIES, folder, {})
+        expect(submissions).to be_instance_of Array
+        expect(submissions).to be_empty
+      end
+
+      it 'hides nsfw submissions if sfw is set' do
+        all_submissions = @fa.submissions(TEST_USER_2, folder, {})
+        @fa.safe_for_work = true
+        sfw_submissions = @fa.submissions(TEST_USER_2, folder, {})
+        expect(all_submissions).not_to eql(sfw_submissions)
+        expect(all_submissions.length).to be > sfw_submissions.length
+        sfw_submissions.each do |submission|
+          full_submission = @fa.submission(submission[:id])
+          expect(full_submission[:rating]).to eql("General")
+        end
+      end
+    end
+
+    context 'specifically gallery or scraps' do
+      %w(gallery scraps).each do |folder|
+        it 'handles paging correctly'
+      end
+    end
+
+    context 'specifically favourites' do
+      it 'handles a hidden favourites list'
+      it 'uses next parameter to display submissions after a specified fav id'
+      it 'uses prev parameter to display only submissions before a specified fav id'
+      it 'displays favourites of currently logged in user even if hidden'
+    end
   end
 
   context 'when viewing a submission' do
