@@ -6,6 +6,10 @@ require 'rspec'
 describe 'FA parser' do
   TEST_USER = "fafeed"
   TEST_USER_2 = "fafeed-2"
+  # Specific test user cases
+  TEST_USER_NOT_EXIST = "fafeed-does-not-exist"
+  TEST_USER_OVER_200_WATCHERS = "fender"
+  TEST_USER_NO_WATCHERS = "fafeed-no-watchers"
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
@@ -79,7 +83,7 @@ describe 'FA parser' do
     end
 
     it 'fails when given a non-existent profile' do
-      expect { @fa.user("fafeed-does-not-exist") }.to raise_error(FASystemError)
+      expect { @fa.user(TEST_USER_NOT_EXIST) }.to raise_error(FASystemError)
     end
 
     it 'handles square brackets in profile name' do
@@ -178,12 +182,50 @@ describe 'FA parser' do
   end
 
   context 'when listing user\'s watchers/watchees' do
-    it 'displays a valid list of profile names'
-    it 'fails when given a non-existent profile'
-    it 'displays a different list for is watching vs watched by'
-    it 'returns 200 users when more than one page exists'
-    it 'displays a second page, different than the first'
-    it 'handles an empty watchers list'
+    [true, false].each do |is_watchers|
+      it 'displays a valid list of profile names' do
+        list = @fa.budlist(TEST_USER, 1, is_watchers)
+        expect(list).to be_instance_of Array
+        expect(list).not_to be_empty
+        list.each do |bud|
+          expect(bud).to be_instance_of String
+          expect(bud).not_to be_blank
+        end
+      end
+
+      it 'fails when given a non-existent profile' do
+        expect { @fa.budlist(TEST_USER_NOT_EXIST, 1, is_watchers) }.to raise_error(FASystemError)
+      end
+
+      it 'handles an empty watchers list' do
+        bud_list = @fa.budlist(TEST_USER_NO_WATCHERS, 1, is_watchers)
+        expect(bud_list).to be_instance_of Array
+        expect(bud_list).to be_empty
+      end
+    end
+
+    it 'displays a different list for is watching vs watched by' do
+      expect(@fa.budlist(TEST_USER, 1, true)).not_to eql(@fa.budlist(TEST_USER, 1, false))
+    end
+
+    it 'returns 200 users when more than one page exists' do
+      bud_list = @fa.budlist(TEST_USER_OVER_200_WATCHERS, 1, true)
+      expect(bud_list).to be_instance_of Array
+      expect(bud_list.length).to eql(200)
+      bud_list.each do |bud|
+        expect(bud).to be_instance_of String
+        expect(bud).not_to be_blank
+      end
+    end
+
+    it 'displays a second page, different than the first' do
+      bud_list1 = @fa.budlist(TEST_USER_OVER_200_WATCHERS, 1, true)
+      bud_list2 = @fa.budlist(TEST_USER_OVER_200_WATCHERS, 2, true)
+      expect(bud_list1).to be_instance_of Array
+      expect(bud_list1.length).to eql(200)
+      expect(bud_list2).to be_instance_of Array
+      expect(bud_list1).not_to eql(bud_list2)
+    end
   end
 
   context 'when listing a user\'s shouts' do
