@@ -268,7 +268,13 @@ class Furaffinity
 
   def budlist(name, page, is_watchers)
     mode = is_watchers ? 'to' : 'by'
-    html = fetch("watchlist/#{mode}/#{escape(name)}/#{page}/")
+    url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
+    html = fetch(url)
+    error_msg = html.at_css("table.maintable td.alt1 b")
+    if !error_msg.nil? && error_msg.content == "Provided username not found in the database."
+      raise FASystemError.new(url)
+    end
+
     html.css('.artist_name').map{|elem| elem.content}
   end
 
