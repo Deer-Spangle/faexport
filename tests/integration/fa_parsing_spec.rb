@@ -143,7 +143,11 @@ describe 'FA parser' do
       end
     end
 
-    it 'handles no contact information being set'
+    it 'handles no contact information being set' do
+      profile = @fa.user(TEST_USER)
+      expect(profile[:profile_id]).to be_nil
+    end
+
     it 'lists watchers of specified account'
     it 'lists accounts watched by specified account'
   end
