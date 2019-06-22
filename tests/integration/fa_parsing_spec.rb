@@ -5,6 +5,7 @@ require 'rspec'
 
 describe 'FA parser' do
   TEST_USER = "fafeed"
+  TEST_USER_2 = "fafeed-2"
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
@@ -32,22 +33,7 @@ describe 'FA parser' do
       home.map do |type, submissions|
         expect(keys).to include(type)
         expect(submissions).not_to be_empty
-        submissions.map do |submission|
-          # Check ID
-          expect(submission[:id]).to match(/[0-9]+/)
-          # Check title
-          expect(submission[:title]).not_to be("")
-          # Check thumbnail
-          expect(submission[:thumbnail]).to match(/https:\/\/t.facdn.net\/#{submission[:id]}@[0-9]{2,3}-[0-9]+.jpg/)
-          # Check link
-          expect(submission[:link]).to eql "https://www.furaffinity.net/view/#{submission[:id]}/"
-          # Check name
-          expect(submission[:name]).not_to be("")
-          # Check profile link
-          expect(submission[:profile]).to eql "https://www.furaffinity.net/user/#{submission[:profile_name]}/"
-          # Check profile name
-          expect(submission[:profile_name]).to match(FAExport::Application::USER_REGEX)
-        end
+        submissions.map(&method(:check_submission))
       end
     end
 
@@ -102,10 +88,28 @@ describe 'FA parser' do
       expect(profile[:name].downcase).to eql(profile_with_underscores)
     end
 
-    it 'shows featured submission'
-    it 'handles featured submission not being set'
-    it 'shows profile id'
-    it 'handles profile id not being set'
+    it 'shows featured submission' do
+      profile = @fa.user(TEST_USER_2)
+      expect(profile[:featured_submission]).not_to be_nil
+      check_submission profile[:featured_submission], true
+    end
+
+    it 'handles featured submission not being set' do
+      profile = @fa.user(TEST_USER)
+      expect(profile[:featured_submission]).to be_nil
+    end
+
+    it 'shows profile id' do
+      profile = @fa.user(TEST_USER_2)
+      expect(profile[:profile_id]).not_to be_nil
+      check_submission profile[:profile_id], true, true
+    end
+
+    it 'handles profile id not being set' do
+      profile = @fa.user(TEST_USER)
+      expect(profile[:profile_id]).to be_nil
+    end
+
     it 'shows artist information'
     it 'handles blank artist information box'
     it 'shows contact information'
@@ -294,5 +298,33 @@ describe 'FA parser' do
     it 'fails if not given description'
     it 'can post a new journal entry using json'
     it 'can post a new journal entry using query params'
+  end
+
+  private
+
+  # noinspection RubyResolve
+  def check_submission(submission, blank_profile=false, blank_title=false)
+    # Check ID
+    expect(submission[:id]).to match(/[0-9]+/)
+    # Check title
+    if blank_title
+      expect(submission[:title]).to be_blank
+    else
+      expect(submission[:title]).not_to be_blank
+    end
+    # Check thumbnail
+    expect(submission[:thumbnail]).to match(/https:\/\/t.facdn.net\/#{submission[:id]}@[0-9]{2,3}-[0-9]+.jpg/)
+    # Check link
+    expect(submission[:link]).to eql "https://www.furaffinity.net/view/#{submission[:id]}/"
+    # Check profile
+    if blank_profile
+      expect(submission[:name]).to be_blank
+      expect(submission[:profile]).to be_blank
+      expect(submission[:profile_name]).to be_blank
+    else
+      expect(submission[:name]).not_to be_blank
+      expect(submission[:profile]).to eql "https://www.furaffinity.net/user/#{submission[:profile_name]}/"
+      expect(submission[:profile_name]).to match(FAExport::Application::USER_REGEX)
+    end
   end
 end
