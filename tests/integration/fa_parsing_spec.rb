@@ -62,23 +62,20 @@ describe 'FA parser' do
       expect(profile[:name]).to eql(TEST_USER)
       expect(profile[:profile]).to eql("https://www.furaffinity.net/user/#{TEST_USER}/")
       expect(profile[:account_type]).to eql("Member")
-      expect(profile[:avatar]).to match(/https:\/\/a.facdn.net\/[0-9]+\/#{TEST_USER}.gif/)
+      expect(profile[:avatar]).to match(/^https:\/\/a.facdn.net\/[0-9]+\/#{TEST_USER}.gif$/)
       expect(profile[:full_name]).not_to be_blank
       expect(profile[:artist_type]).not_to be_blank
       expect(profile[:user_title]).not_to be_blank
       expect(profile[:user_title]).to eql(profile[:artist_type])
       expect(profile[:current_mood]).to eql("accomplished")
       # Check registration date
-      expect(profile[:registered_since]).not_to be_blank
-      expect(profile[:registered_since]).to match(/[A-Z][a-z]{2} [0-9]+[a-z]{2}, [0-9]{4} [0-9]{2}:[0-9]{2}/)
-      expect(profile[:registered_at]).not_to be_blank
-      expect(profile[:registered_at]).to eql(Time.parse(profile[:registered_since] + ' UTC').iso8601)
+      check_date(profile[:registered_since], profile[:registered_at])
       # Check description
       expect(profile[:artist_profile]).not_to be_blank
       # Check numeric values
       [:pageviews, :submissions, :comments_received, :comments_given, :journals, :favorites].each do |key|
         expect(profile[key]).not_to be_blank
-        expect(profile[key]).to match(/[0-9]+/)
+        expect(profile[key]).to match(/^[0-9]+$/)
       end
     end
 
@@ -229,9 +226,28 @@ describe 'FA parser' do
   end
 
   context 'when listing a user\'s shouts' do
-    it 'displays a valid list of shouts'
-    it 'fails when given a non-existent user'
-    it 'handles an empty shouts list'
+    it 'displays a valid list of shouts' do
+      shouts = @fa.shouts(TEST_USER)
+      expect(shouts).to be_instance_of Array
+      shouts.each do |shout|
+        expect(shout[:id]).to match(/^shout-[0-9]+$/)
+        check_profile_link shout
+        expect(shout[:avatar]).to match(/^https:\/\/a.facdn.net\/[0-9]+\/#{shout[:profile_name]}.gif$/)
+        check_date(shout[:posted], shout[:posted_at])
+        expect(shout[:text]).to be_instance_of String
+        expect(shout[:text]).not_to be_blank
+      end
+    end
+
+    it 'fails when given a non-existent user' do
+      expect { @fa.shouts(TEST_USER_NOT_EXIST) }.to raise_error(FASystemError)
+    end
+
+    it 'handles an empty shouts list' do
+      shouts = @fa.shouts(TEST_USER_2)
+      expect(shouts).to be_instance_of Array
+      expect(shouts).to be_empty
+    end
   end
 
   context 'when displaying commission information pages' do
@@ -406,7 +422,7 @@ describe 'FA parser' do
   # noinspection RubyResolve
   def check_submission(submission, blank_profile=false, blank_title=false)
     # Check ID
-    expect(submission[:id]).to match(/[0-9]+/)
+    expect(submission[:id]).to match(/^[0-9]+$/)
     # Check title
     if blank_title
       expect(submission[:title]).to be_blank
@@ -414,7 +430,7 @@ describe 'FA parser' do
       expect(submission[:title]).not_to be_blank
     end
     # Check thumbnail
-    expect(submission[:thumbnail]).to match(/https:\/\/t.facdn.net\/#{submission[:id]}@[0-9]{2,3}-[0-9]+.jpg/)
+    expect(submission[:thumbnail]).to match(/^https:\/\/t.facdn.net\/#{submission[:id]}@[0-9]{2,3}-[0-9]+.jpg$/)
     # Check link
     expect(submission[:link]).to eql "https://www.furaffinity.net/view/#{submission[:id]}/"
     # Check profile
@@ -431,5 +447,12 @@ describe 'FA parser' do
     expect(item[:name]).not_to be_blank
     expect(item[watch_list ? :link : :profile]).to eql "https://www.furaffinity.net/user/#{item[:profile_name]}/"
     expect(item[:profile_name]).to match(FAExport::Application::USER_REGEX)
+  end
+
+  def check_date(date_string, iso_string)
+    expect(date_string).not_to be_blank
+    expect(date_string).to match(/[A-Z][a-z]{2} [0-9]+[a-z]{2}, [0-9]{4} [0-9]{2}:[0-9]{2}/)
+    expect(iso_string).not_to be_blank
+    expect(iso_string).to eql(Time.parse(date_string + ' UTC').iso8601)
   end
 end
