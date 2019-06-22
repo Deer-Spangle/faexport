@@ -126,7 +126,12 @@ describe 'FA parser' do
       expect(profile[:artist_information]).not_to have_key("Personal quote")
     end
 
-    it 'handles blank artist information box'
+    it 'handles blank artist information box' do
+      profile = @fa.user(TEST_USER)
+      expect(profile[:artist_information]).to be_instance_of Hash
+      expect(profile[:artist_information]).to be_empty
+    end
+
     it 'shows contact information'
     it 'handles no contact information being set'
     it 'lists watchers of specified account'
