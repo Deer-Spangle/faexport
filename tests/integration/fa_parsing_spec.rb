@@ -43,7 +43,7 @@ describe 'FA parser' do
       home.map do |_, submissions|
         expect(submissions).not_to be_empty
         submissions.map do |submission|
-          full_submission = @fa.submission(p submission[:id])
+          full_submission = @fa.submission(submission[:id])
           expect(full_submission[:rating]).to eql("General")
         end
       end
