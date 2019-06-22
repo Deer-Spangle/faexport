@@ -96,7 +96,12 @@ describe 'FA parser' do
       expect { @fa.user("fafeed-does-not-exist") }.to raise_error(FASystemError)
     end
 
-    it 'handles square brackets in profile name'
+    it 'handles square brackets in profile name' do
+      profile_with_underscores = "l[i]s"
+      profile = @fa.user(profile_with_underscores)
+      expect(profile[:name].downcase).to eql(profile_with_underscores)
+    end
+
     it 'shows featured submission'
     it 'handles featured submission not being set'
     it 'shows profile id'
