@@ -110,7 +110,22 @@ describe 'FA parser' do
       expect(profile[:profile_id]).to be_nil
     end
 
-    it 'shows artist information'
+    it 'shows artist information' do
+      profile = @fa.user(TEST_USER_2)
+      expect(profile[:artist_information]).to be_instance_of Hash
+      expect(profile[:artist_information]).to have_key("Age")
+      expect(profile[:artist_information]["Age"]).to eql("70")
+      expect(profile[:artist_information]).to have_key("Species")
+      expect(profile[:artist_information]["Species"]).to eql("Robot")
+      expect(profile[:artist_information]).to have_key("Shell of Choice")
+      expect(profile[:artist_information]["Shell of Choice"]).to eql("irb")
+      expect(profile[:artist_information]).to have_key("Favorite Website")
+      expect(profile[:artist_information]["Favorite Website"]).to start_with("<a href=")
+      expect(profile[:artist_information]["Favorite Website"]).to include("https://www.ruby-lang.org")
+      expect(profile[:artist_information]["Favorite Website"]).to end_with("</a>")
+      expect(profile[:artist_information]).not_to have_key("Personal quote")
+    end
+
     it 'handles blank artist information box'
     it 'shows contact information'
     it 'handles no contact information being set'

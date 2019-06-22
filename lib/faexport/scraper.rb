@@ -762,7 +762,7 @@ private
     elem = elem.at_css('td.alt1') if elem
     return nil unless elem
     info = {}
-    elem.children.to_s.scan(/<span>\s*(.*?)\s*<\/span>\s*:\s*(.*?)\s*<br\/?>/).each do |match|
+    elem.children.to_s.scan(/<strong>\s*(.*?)\s*<\/strong>\s*:\s*(.*?)\s*<\/div>/).each do |match|
       info[match[0]] = match[1]
     end
     info
