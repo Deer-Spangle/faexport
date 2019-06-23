@@ -814,7 +814,7 @@ private
 
   def fetch(path)
     url = fa_url(path)
-    raw = @cache.add("url:#{url}") do
+    raw = @cache.add("url:#{url}:#{@login_cookie}") do
       open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie) do |response|
         if response.status[0] != '200'
           raise FAStatusError.new(url, response.status.join(' '))
