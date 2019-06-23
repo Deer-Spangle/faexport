@@ -293,8 +293,8 @@ class Furaffinity
     {
       title: submission_title.at_css('h2').content,
       description: submission.css('td.alt1')[2].children.to_s.strip,
-      description_body: submission.css('td.alt1')[2].children[5..-1].to_s.strip,
-      name: html.at_css('td.cat a').content,
+      description_body: submission.css('td.alt1')[2].children.to_s.strip,
+      name: html.css('td.cat a')[1].content,
       profile: fa_url(profile_url),
       profile_name: last_path(profile_url),
       avatar: "https:#{submission_title.at_css("img.avatar")['src']}",
