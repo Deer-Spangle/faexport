@@ -14,6 +14,8 @@ describe 'FA parser' do
   TEST_USER_OVER_25_JOURNALS = TEST_USER_OVER_200_WATCHERS
   TEST_USER_EMPTY_GALLERIES = TEST_USER_NO_WATCHERS
   TEST_USER_2_PAGES_GALLERY_AND_SCRAPS = "rajii"
+  TEST_USER_HIDDEN_FAVS = TEST_USER_NO_WATCHERS
+  TEST_USER_HIDDEN_FAVS_COOKIE = ENV['test_cookie_hidden_favs']
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
@@ -360,10 +362,21 @@ describe 'FA parser' do
     end
 
     context 'specifically favourites' do
-      it 'handles a hidden favourites list'
+      it 'handles a hidden favourites list' do
+        favs = @fa.submissions(TEST_USER_HIDDEN_FAVS, "favorites", {})
+        expect(favs).to be_instance_of Array
+        expect(favs).to be_empty
+      end
+
+      it 'displays favourites of currently logged in user even if hidden' do
+        @fa.login_cookie = TEST_USER_HIDDEN_FAVS_COOKIE
+        favs = @fa.submissions(TEST_USER_HIDDEN_FAVS, "favorites", {})
+        expect(favs).to be_instance_of Array
+        expect(favs).not_to be_empty
+      end
+
       it 'uses next parameter to display submissions after a specified fav id'
       it 'uses prev parameter to display only submissions before a specified fav id'
-      it 'displays favourites of currently logged in user even if hidden'
     end
   end
 
