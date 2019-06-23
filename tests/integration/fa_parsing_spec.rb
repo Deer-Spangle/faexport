@@ -13,10 +13,10 @@ describe 'FA parser' do
   TEST_USER_NO_JOURNALS = TEST_USER_NO_WATCHERS
   TEST_USER_OVER_25_JOURNALS = TEST_USER_OVER_200_WATCHERS
   TEST_USER_EMPTY_GALLERIES = TEST_USER_NO_WATCHERS
-  TEST_USER_2_PAGES_GALLERY_AND_SCRAPS = "rajii"
+  TEST_USER_2_PAGES_GALLERY = "rajii"
   TEST_USER_HIDDEN_FAVS = TEST_USER_NO_WATCHERS
   TEST_USER_HIDDEN_FAVS_COOKIE = ENV['test_cookie_hidden_favs']
-  TEST_USER_2_PAGES_FAVS = TEST_USER_2_PAGES_GALLERY_AND_SCRAPS
+  TEST_USER_2_PAGES_FAVS = TEST_USER_2_PAGES_GALLERY
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
@@ -69,7 +69,7 @@ describe 'FA parser' do
       expect(profile[:name]).to eql(TEST_USER)
       expect(profile[:profile]).to eql("https://www.furaffinity.net/user/#{TEST_USER}/")
       expect(profile[:account_type]).to eql("Member")
-      expect(profile[:avatar]).to match(/^https:\/\/a.facdn.net\/[0-9]+\/#{TEST_USER}.gif$/)
+      check_avatar(profile[:avatar], TEST_USER)
       expect(profile[:full_name]).not_to be_blank
       expect(profile[:artist_type]).not_to be_blank
       expect(profile[:user_title]).not_to be_blank
@@ -239,7 +239,7 @@ describe 'FA parser' do
       shouts.each do |shout|
         expect(shout[:id]).to match(/^shout-[0-9]+$/)
         check_profile_link shout
-        expect(shout[:avatar]).to match(/^https:\/\/a.facdn.net\/[0-9]+\/#{shout[:profile_name]}.gif$/)
+        check_avatar(shout[:avatar], shout[:profile_name])
         check_date(shout[:posted], shout[:posted_at])
         expect(shout[:text]).to be_instance_of String
         expect(shout[:text]).not_to be_blank
@@ -353,8 +353,8 @@ describe 'FA parser' do
     context 'specifically gallery or scraps' do
       %w(gallery scraps).each do |folder|
         it 'handles paging correctly' do
-          gallery1 = @fa.submissions(TEST_USER_2_PAGES_GALLERY_AND_SCRAPS, folder, {})
-          gallery2 = @fa.submissions(TEST_USER_2_PAGES_GALLERY_AND_SCRAPS, folder, {page: 2})
+          gallery1 = @fa.submissions(TEST_USER_2_PAGES_GALLERY, folder, {})
+          gallery2 = @fa.submissions(TEST_USER_2_PAGES_GALLERY, folder, {page: 2})
           expect(gallery1).to be_instance_of Array
           expect(gallery2).to be_instance_of Array
           expect(gallery1).not_to eql(gallery2)
@@ -411,7 +411,37 @@ describe 'FA parser' do
   end
 
   context 'when viewing a submission' do
-    it 'displays basic data correctly'
+    it 'displays basic data correctly' do
+      sub_id = "16437648"
+      sub = @fa.submission(sub_id)
+      expect(sub[:title]).not_to be_blank
+      expect(sub[:description]).not_to be_blank
+      expect(sub[:description_body]).to eql(sub[:description])
+      check_profile_link(sub)
+      check_avatar(sub[:avatar], sub[:profile_name])
+      check_submission_link(sub[:link], sub_id)
+      check_date(sub[:posted], sub[:posted_at])
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
+      # For an image submission, full == download
+      expect(sub[:full]).to eql(sub[:download])
+      check_thumbnail_link(sub[:thumbnail], sub_id)
+      # Info box
+      expect(sub[:category]).not_to be_blank
+      expect(sub[:theme]).not_to be_blank
+      expect(sub[:species]).not_to be_blank
+      expect(sub[:gender]).not_to be_blank
+      expect(sub[:favorites]).to match(/[0-9]+/)
+      expect(sub[:favorites].to_i).to be > 0
+      expect(sub[:comments]).to match(/[0-9]+/)
+      expect(sub[:comments].to_i).to be > 0
+      expect(sub[:views]).to match(/[0-9]+/)
+      expect(sub[:views].to_i).to be > 0
+      expect(sub[:resolution]).not_to be_blank
+      expect(sub[:rating]).not_to be_blank
+      expect(sub[:keywords]).to be_instance_of Array
+      expect(sub[:keywords]).to eql(%w(keyword1 keyword2 keyword3))
+    end
+
     it 'fails when given non-existent submissions'
     it 'parses keywords'
     it 'has identical description and description_body'
@@ -550,9 +580,9 @@ describe 'FA parser' do
       expect(submission[:title]).not_to be_blank
     end
     # Check thumbnail
-    expect(submission[:thumbnail]).to match(/^https:\/\/t.facdn.net\/#{submission[:id]}@[0-9]{2,3}-[0-9]+.jpg$/)
+    check_thumbnail_link(submission[:thumbnail], submission[:id])
     # Check link
-    expect(submission[:link]).to match(/^https:\/\/www.furaffinity.net\/view\/#{submission[:id]}\/?$/)
+    check_submission_link(submission[:link], submission[:id])
     # Check profile
     if blank_profile
       expect(submission[:name]).to be_blank
@@ -574,5 +604,17 @@ describe 'FA parser' do
     expect(date_string).to match(/[A-Z][a-z]{2} [0-9]+[a-z]{2}, [0-9]{4} [0-9]{2}:[0-9]{2}/)
     expect(iso_string).not_to be_blank
     expect(iso_string).to eql(Time.parse(date_string + ' UTC').iso8601)
+  end
+
+  def check_avatar(avatar_link, username)
+    expect(avatar_link).to match(/^https:\/\/a.facdn.net\/[0-9]+\/#{username}.gif$/)
+  end
+
+  def check_submission_link(link, id)
+    expect(link).to match(/^https:\/\/www.furaffinity.net\/view\/#{id}\/?$/)
+  end
+
+  def check_thumbnail_link(link, id)
+    expect(link).to match(/^https:\/\/t.facdn.net\/#{id}@[0-9]{2,3}-[0-9]+.jpg$/)
   end
 end
