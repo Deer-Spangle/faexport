@@ -13,6 +13,7 @@ describe 'FA parser' do
   TEST_USER_NO_JOURNALS = TEST_USER_NO_WATCHERS
   TEST_USER_OVER_25_JOURNALS = TEST_USER_OVER_200_WATCHERS
   TEST_USER_EMPTY_GALLERIES = TEST_USER_NO_WATCHERS
+  TEST_USER_2_PAGES_GALLERY_AND_SCRAPS = "rajii"
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
@@ -348,7 +349,13 @@ describe 'FA parser' do
 
     context 'specifically gallery or scraps' do
       %w(gallery scraps).each do |folder|
-        it 'handles paging correctly'
+        it 'handles paging correctly' do
+          gallery1 = @fa.submissions(TEST_USER_2_PAGES_GALLERY_AND_SCRAPS, folder, {})
+          gallery2 = @fa.submissions(TEST_USER_2_PAGES_GALLERY_AND_SCRAPS, folder, {page: 2})
+          expect(gallery1).to be_instance_of Array
+          expect(gallery2).to be_instance_of Array
+          expect(gallery1).not_to eql(gallery2)
+        end
       end
     end
 
