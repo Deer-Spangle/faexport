@@ -377,7 +377,7 @@ If you want more information, pass `?full=1` to retrieve more fields.
 
 Gets the the first few submissions from the specified folder.
 Options for `{folder}` are `gallery`, `scraps` and `favorites`.
-By default, the first 60 submissions are returned.
+By default, the first 72 submissions are returned.
 
 If this is `gallery` or `scraps`, you can pass a parameter `?page=2` to load more.
 

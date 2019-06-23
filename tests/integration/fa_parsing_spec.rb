@@ -16,6 +16,7 @@ describe 'FA parser' do
   TEST_USER_2_PAGES_GALLERY_AND_SCRAPS = "rajii"
   TEST_USER_HIDDEN_FAVS = TEST_USER_NO_WATCHERS
   TEST_USER_HIDDEN_FAVS_COOKIE = ENV['test_cookie_hidden_favs']
+  TEST_USER_2_PAGES_FAVS = TEST_USER_2_PAGES_GALLERY_AND_SCRAPS
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
@@ -375,8 +376,37 @@ describe 'FA parser' do
         expect(favs).not_to be_empty
       end
 
-      it 'uses next parameter to display submissions after a specified fav id'
-      it 'uses prev parameter to display only submissions before a specified fav id'
+      it 'uses next parameter to display submissions after a specified fav id' do
+        favs = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", {})
+        expect(favs).to be_instance_of Array
+        expect(favs.length).to be 72
+        # Get fav ID partially down
+        fav_id = favs[58][:fav_id]
+        fav_id_next = favs[59][:fav_id]
+        # Get favs after that ID
+        favs_next = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", {next: fav_id})
+        expect(favs_next.length).to be > (72 - 58)
+        expect(favs_next[0][:fav_id]).to eql(fav_id_next)
+        favs_next.each do |fav|
+          expect(fav[:fav_id]).to be < fav_id
+        end
+      end
+
+      it 'uses prev parameter to display only submissions before a specified fav id' do
+        favs1 = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", {})
+        expect(favs1).to be_instance_of Array
+        expect(favs1.length).to be 72
+        last_fav_id = favs1[71][:fav_id]
+        favs2 = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", {next: last_fav_id})
+        # Get fav ID partially through
+        overlap_fav_id = favs2[5][:fav_id]
+        favs_overlap = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", {prev: overlap_fav_id})
+        expect(favs1).to be_instance_of Array
+        expect(favs1.length).to be 72
+        favs_overlap.each do |fav|
+          expect(fav[:fav_id]).to be > overlap_fav_id
+        end
+      end
     end
   end
 
