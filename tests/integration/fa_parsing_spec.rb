@@ -618,7 +618,11 @@ describe 'FA parser' do
       expect(sub[:keywords]).to be_instance_of Array
       expect(sub[:keywords]).to be_empty
     end
-    it 'hides nsfw submission if sfw is set'
+
+    it 'hides nsfw submission if sfw is set' do
+      @fa.safe_for_work = true
+      expect { @fa.submission("32011278") }.to raise_error
+    end
   end
 
   context 'when viewing a journal post' do
