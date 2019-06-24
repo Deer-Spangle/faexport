@@ -4,8 +4,10 @@ require './lib/faexport'
 require 'rspec'
 
 describe 'FA parser' do
+  COOKIE_DEFAULT = ENV['test_cookie']
   TEST_USER = "fafeed"
   TEST_USER_2 = "fafeed-2"
+  COOKIE_TEST_USER_2 = ENV['test_cookie_user_2']
   # Specific test user cases
   TEST_USER_NOT_EXIST = "fafeed-does-not-exist"
   TEST_USER_OVER_200_WATCHERS = "fender"
@@ -15,14 +17,14 @@ describe 'FA parser' do
   TEST_USER_EMPTY_GALLERIES = TEST_USER_NO_WATCHERS
   TEST_USER_2_PAGES_GALLERY = "rajii"
   TEST_USER_HIDDEN_FAVS = TEST_USER_NO_WATCHERS
-  TEST_USER_HIDDEN_FAVS_COOKIE = ENV['test_cookie_hidden_favs']
+  COOKIE_TEST_USER_HIDDEN_FAVS = ENV['test_cookie_hidden_favs']
   TEST_USER_2_PAGES_FAVS = TEST_USER_2_PAGES_GALLERY
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
     @app = FAExport::Application.new(config).instance_variable_get(:@instance)
     @fa = @app.instance_variable_get(:@fa)
-    @fa.login_cookie = ENV['test_cookie']
+    @fa.login_cookie = COOKIE_DEFAULT
   end
 
   after do
@@ -370,7 +372,7 @@ describe 'FA parser' do
       end
 
       it 'displays favourites of currently logged in user even if hidden' do
-        @fa.login_cookie = TEST_USER_HIDDEN_FAVS_COOKIE
+        @fa.login_cookie = COOKIE_TEST_USER_HIDDEN_FAVS
         favs = @fa.submissions(TEST_USER_HIDDEN_FAVS, "favorites", {})
         expect(favs).to be_instance_of Array
         expect(favs).not_to be_empty
