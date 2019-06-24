@@ -10,6 +10,7 @@ describe 'FA parser' do
   COOKIE_TEST_USER_2 = ENV['test_cookie_user_2']
   # Specific test user cases
   TEST_USER_NOT_EXIST = "fafeed-does-not-exist"
+  TEST_USER_WITH_BRACKETS = "l[i]s"
   TEST_USER_OVER_200_WATCHERS = "fender"
   TEST_USER_NO_WATCHERS = "fafeed-no-watchers"
   TEST_USER_NO_JOURNALS = TEST_USER_NO_WATCHERS
@@ -93,7 +94,7 @@ describe 'FA parser' do
     end
 
     it 'handles square brackets in profile name' do
-      profile_with_underscores = "l[i]s"
+      profile_with_underscores = TEST_USER_WITH_BRACKETS
       profile = @fa.user(profile_with_underscores)
       expect(profile[:name].downcase).to eql(profile_with_underscores)
     end
