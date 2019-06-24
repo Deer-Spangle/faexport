@@ -626,7 +626,22 @@ describe 'FA parser' do
   end
 
   context 'when viewing a journal post' do
-    it 'displays basic data correctly'
+    it 'displays basic data correctly' do
+      journal_id = "6894930"
+      journal = @fa.journal(journal_id)
+      expect(journal[:title]).to eql("From Curl")
+      expect(journal[:description]).to start_with("<div class=\"journal-body\">")
+      expect(journal[:description]).to include("Curl Test")
+      expect(journal[:description]).to end_with("</div>")
+      expect(journal[:journal_header]).to be_nil
+      expect(journal[:journal_body]).to eql("Curl Test")
+      expect(journal[:journal_footer]).to be_nil
+      check_profile_link(journal)
+      check_avatar(journal[:avatar], journal[:profile_name])
+      expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
+      check_date(journal[:posted], journal[:posted_at])
+    end
+
     it 'fails when given non-existent journal'
     it 'parses journal header, body and footer'
     it 'handles non existent journal header'
