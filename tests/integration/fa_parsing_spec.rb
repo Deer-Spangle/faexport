@@ -689,8 +689,64 @@ describe 'FA parser' do
   end
 
   context 'when listing comments on a submission' do
-    it 'displays a valid list of comments'
-    it 'handles empty comments section'
+    it 'displays a valid list of top level comments' do
+      sub_id = "16437648"
+      comments = @fa.submission_comments(sub_id, false)
+      expect(comments).to be_instance_of Array
+      expect(comments).not_to be_empty
+      comments.each do |comment|
+        expect(comment[:id]).to match(/[0-9]+/)
+        check_profile_link(comment)
+        check_avatar(comment[:avatar], comment[:profile_name])
+        check_date(comment[:posted], comment[:posted_at])
+        expect(comment[:text]).not_to be_blank
+        expect(comment[:reply_to]).to be_blank
+        expect(comment[:reply_level]).to be 0
+      end
+    end
+
+    it 'handles empty comments section' do
+      sub_id = "16437663"
+      comments = @fa.submission_comments(sub_id, false)
+      expect(comments).to be_instance_of Array
+      expect(comments).to be_empty
+    end
+
+    it 'hides deleted comments by default'
+    it 'handles comments deleted by author when specified'
+    it 'handles comments deleted by submission owner when specified'
+    it 'fails when given non-existent submission'
+    it 'correctly parses base level comments which are not replies'
+    it 'correctly parses replies and reply levels'
+    it 'handles replies to deleted comments'
+    it 'handles 2 replies to the same comment'
+    it 'handles deleted replies to deleted comments'
+  end
+
+  context 'when listing comments on a journal' do
+    it 'displays a valid list of top level comments' do
+      journal_id = "6704315"
+      comments = @fa.journal_comments(journal_id, false)
+      expect(comments).to be_instance_of Array
+      expect(comments).not_to be_empty
+      comments.each do |comment|
+        expect(comment[:id]).to match(/[0-9]+/)
+        check_profile_link(comment)
+        check_avatar(comment[:avatar], comment[:profile_name])
+        check_date(comment[:posted], comment[:posted_at])
+        expect(comment[:text]).not_to be_blank
+        expect(comment[:reply_to]).to be_blank
+        expect(comment[:reply_level]).to be 0
+      end
+    end
+
+    it 'handles empty comments section' do
+      journal_id = "6704317"
+      comments = @fa.journal_comments(journal_id, false)
+      expect(comments).to be_instance_of Array
+      expect(comments).to be_empty
+    end
+
     it 'hides deleted comments by default'
     it 'handles comments deleted by author when specified'
     it 'handles comments deleted by submission owner when specified'
