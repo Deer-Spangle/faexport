@@ -289,6 +289,12 @@ class Furaffinity
     img = html.at_css('img#submissionImg')
     download_url = "https:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
     profile_url = html.at_css('td.cat a')['href'][1..-1]
+    og_thumb = html.at_css('meta[property="og:image"]')
+    thumb_img = if og_thumb.nil? || og_thumb['content'].include?("/banners/fa_logo.png")
+                  img ? "https:" + img['data-preview-src'] : nil
+                else
+                  og_thumb['content'].sub! "http:", "https:"
+                end
 
     {
       title: submission_title.at_css('h2').content,
@@ -303,7 +309,7 @@ class Furaffinity
       posted_at: to_iso8601(date),
       download: download_url,
       full: img ? "https:" + img['data-fullview-src'] : nil,
-      thumbnail: img ? "https:" + img['data-preview-src'] : nil,
+      thumbnail: thumb_img,
       category: field(info, 'Category'),
       theme: field(info, 'Theme'),
       species: field(info, 'Species'),
