@@ -373,6 +373,7 @@ describe 'FA parser' do
 
       it 'displays favourites of currently logged in user even if hidden' do
         @fa.login_cookie = COOKIE_TEST_USER_HIDDEN_FAVS
+        expect(@fa.login_cookie).not_to be_nil
         favs = @fa.submissions(TEST_USER_HIDDEN_FAVS, "favorites", {})
         expect(favs).to be_instance_of Array
         expect(favs).not_to be_empty
@@ -589,6 +590,7 @@ describe 'FA parser' do
 
     it 'still displays correctly when logged in as submission owner' do
       @fa.login_cookie = COOKIE_TEST_USER_2
+      expect(@fa.login_cookie).not_to be_nil
       sub_id = "32006442"
       sub = @fa.submission(sub_id)
       expect(sub[:title]).not_to be_blank
@@ -646,7 +648,26 @@ describe 'FA parser' do
       expect { @fa.journal("6894929") }.to raise_error(FASystemError)
     end
 
-    it 'parses journal header, body and footer'
+    it 'parses journal header, body and footer' do
+      journal_id = "9185920"
+      journal = @fa.journal(journal_id)
+      expect(journal[:title]).to eql("Test journal")
+      expect(journal[:description]).to start_with("<div class=\"journal-header\">")
+      expect(journal[:description]).to include("Example test header")
+      expect(journal[:description]).to include("<div class=\"journal-header\">")
+      expect(journal[:description]).to include("This is an example test journal, with header and footer")
+      expect(journal[:description]).to include("<div class=\"journal-header\">")
+      expect(journal[:description]).to include("Example test footer")
+      expect(journal[:description]).to end_with("</div>")
+      expect(journal[:journal_header]).to eql("Example test header")
+      expect(journal[:journal_body]).to eql("This is an example test journal, with header and footer")
+      expect(journal[:journal_footer]).to eql("Example test footer")
+      check_profile_link(journal)
+      check_avatar(journal[:avatar], journal[:profile_name])
+      expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
+      check_date(journal[:posted], journal[:posted_at])
+    end
+
     it 'handles non existent journal header'
     it 'handles non existent journal footer'
   end
