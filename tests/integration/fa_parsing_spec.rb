@@ -4,8 +4,10 @@ require './lib/faexport'
 require 'rspec'
 
 describe 'FA parser' do
+  COOKIE_DEFAULT = ENV['test_cookie']
   TEST_USER = "fafeed"
   TEST_USER_2 = "fafeed-2"
+  COOKIE_TEST_USER_2 = ENV['test_cookie_user_2']
   # Specific test user cases
   TEST_USER_NOT_EXIST = "fafeed-does-not-exist"
   TEST_USER_OVER_200_WATCHERS = "fender"
@@ -15,14 +17,14 @@ describe 'FA parser' do
   TEST_USER_EMPTY_GALLERIES = TEST_USER_NO_WATCHERS
   TEST_USER_2_PAGES_GALLERY = "rajii"
   TEST_USER_HIDDEN_FAVS = TEST_USER_NO_WATCHERS
-  TEST_USER_HIDDEN_FAVS_COOKIE = ENV['test_cookie_hidden_favs']
+  COOKIE_TEST_USER_HIDDEN_FAVS = ENV['test_cookie_hidden_favs']
   TEST_USER_2_PAGES_FAVS = TEST_USER_2_PAGES_GALLERY
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
     @app = FAExport::Application.new(config).instance_variable_get(:@instance)
     @fa = @app.instance_variable_get(:@fa)
-    @fa.login_cookie = ENV['test_cookie']
+    @fa.login_cookie = COOKIE_DEFAULT
   end
 
   after do
@@ -370,7 +372,7 @@ describe 'FA parser' do
       end
 
       it 'displays favourites of currently logged in user even if hidden' do
-        @fa.login_cookie = TEST_USER_HIDDEN_FAVS_COOKIE
+        @fa.login_cookie = COOKIE_TEST_USER_HIDDEN_FAVS
         favs = @fa.submissions(TEST_USER_HIDDEN_FAVS, "favorites", {})
         expect(favs).to be_instance_of Array
         expect(favs).not_to be_empty
@@ -491,8 +493,70 @@ describe 'FA parser' do
       expect(sub[:keywords]).to include("puma")
     end
 
-    it 'displays music correctly'
-    it 'handles flash files correctly'
+    it 'displays music correctly' do
+      sub_id = "7009837"
+      sub = @fa.submission(sub_id)
+      expect(sub[:title]).not_to be_blank
+      expect(sub[:description]).not_to be_blank
+      expect(sub[:description_body]).to eql(sub[:description])
+      check_profile_link(sub)
+      check_avatar(sub[:avatar], sub[:profile_name])
+      check_submission_link(sub[:link], sub_id)
+      check_date(sub[:posted], sub[:posted_at])
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/music\/[0-9]+\/[0-9]+\..+\.(mp3|mid|wav|mpeg)/)
+      # For a music submission, full != download
+      expect(sub[:full]).not_to be_blank
+      expect(sub[:full]).not_to eql(sub[:download])
+      check_thumbnail_link(sub[:thumbnail], sub_id)
+      # Info box
+      expect(sub[:category]).not_to be_blank
+      expect(sub[:theme]).not_to be_blank
+      expect(sub[:favorites]).to match(/[0-9]+/)
+      expect(sub[:favorites].to_i).to be > 0
+      expect(sub[:comments]).to match(/[0-9]+/)
+      expect(sub[:comments].to_i).to be > 0
+      expect(sub[:views]).to match(/[0-9]+/)
+      expect(sub[:views].to_i).to be > 0
+      expect(sub[:resolution]).to be_nil
+      expect(sub[:rating]).not_to be_blank
+      expect(sub[:keywords]).to be_instance_of Array
+      expect(sub[:keywords]).not_to be_empty
+      expect(sub[:keywords]).to include("BLEEP")
+      expect(sub[:keywords]).to include("BLORP")
+    end
+
+    it 'handles flash files correctly' do
+      sub_id = "1586623"
+      sub = @fa.submission(sub_id)
+      expect(sub[:title]).not_to be_blank
+      expect(sub[:description]).not_to be_blank
+      expect(sub[:description_body]).to eql(sub[:description])
+      check_profile_link(sub)
+      check_avatar(sub[:avatar], sub[:profile_name])
+      check_submission_link(sub[:link], sub_id)
+      check_date(sub[:posted], sub[:posted_at])
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.swf/)
+      # For a flash submission, full is nil
+      expect(sub[:full]).to be_nil
+      check_thumbnail_link(sub[:thumbnail], sub_id)
+      # Info box
+      expect(sub[:category]).not_to be_blank
+      expect(sub[:theme]).not_to be_blank
+      expect(sub[:favorites]).to match(/[0-9]+/)
+      expect(sub[:favorites].to_i).to be > 0
+      expect(sub[:comments]).to match(/[0-9]+/)
+      expect(sub[:comments].to_i).to be > 0
+      expect(sub[:views]).to match(/[0-9]+/)
+      expect(sub[:views].to_i).to be > 0
+      expect(sub[:resolution]).to be_nil
+      expect(sub[:rating]).not_to be_blank
+      expect(sub[:keywords]).to be_instance_of Array
+      expect(sub[:keywords]).not_to be_empty
+      expect(sub[:keywords]).to include("dog")
+      expect(sub[:keywords]).to include("DDR")
+    end
+
+    it 'handles poetry submissions correctly'
     it 'still displays correctly when logged in as submission owner'
     it 'hides nsfw submission if sfw is set'
   end
