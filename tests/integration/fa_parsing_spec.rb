@@ -621,7 +621,7 @@ describe 'FA parser' do
 
     it 'hides nsfw submission if sfw is set' do
       @fa.safe_for_work = true
-      expect { @fa.submission("32011278") }.to raise_error
+      expect { @fa.submission("32011278") }.to raise_error(FASystemError)
     end
   end
 
@@ -642,7 +642,10 @@ describe 'FA parser' do
       check_date(journal[:posted], journal[:posted_at])
     end
 
-    it 'fails when given non-existent journal'
+    it 'fails when given non-existent journal' do
+      expect { @fa.journal("6894929") }.to raise_error(FASystemError)
+    end
+
     it 'parses journal header, body and footer'
     it 'handles non existent journal header'
     it 'handles non existent journal footer'
