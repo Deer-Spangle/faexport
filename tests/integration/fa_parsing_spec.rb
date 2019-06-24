@@ -548,7 +548,7 @@ describe 'FA parser' do
       expect(sub[:comments].to_i).to be > 0
       expect(sub[:views]).to match(/[0-9]+/)
       expect(sub[:views].to_i).to be > 0
-      expect(sub[:resolution]).to be_nil
+      expect(sub[:resolution]).not_to be_blank
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
       expect(sub[:keywords]).not_to be_empty
