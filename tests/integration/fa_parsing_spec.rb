@@ -442,9 +442,23 @@ describe 'FA parser' do
       expect(sub[:keywords]).to eql(%w(keyword1 keyword2 keyword3))
     end
 
-    it 'fails when given non-existent submissions'
-    it 'parses keywords'
-    it 'has identical description and description_body'
+    it 'fails when given non-existent submissions' do
+      expect { @fa.submission("16437650") }.to raise_error FASystemError
+    end
+
+    it 'parses keywords' do
+      sub_id = "16437648"
+      sub = @fa.submission(sub_id)
+      expect(sub[:keywords]).to be_instance_of Array
+      expect(sub[:keywords]).to eql(%w(keyword1 keyword2 keyword3))
+    end
+
+    it 'has identical description and description_body' do
+      sub = @fa.submission("32006442")
+      expect(sub[:description]).not_to be_blank
+      expect(sub[:description]).to eql(sub[:description_body])
+    end
+
     it 'displays stories correctly'
     it 'displays music correctly'
     it 'handles flash files correctly'
