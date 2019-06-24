@@ -654,9 +654,9 @@ describe 'FA parser' do
       expect(journal[:title]).to eql("Test journal")
       expect(journal[:description]).to start_with("<div class=\"journal-header\">")
       expect(journal[:description]).to include("Example test header")
-      expect(journal[:description]).to include("<div class=\"journal-header\">")
+      expect(journal[:description]).to include("<div class=\"journal-body\">")
       expect(journal[:description]).to include("This is an example test journal, with header and footer")
-      expect(journal[:description]).to include("<div class=\"journal-header\">")
+      expect(journal[:description]).to include("<div class=\"journal-footer\">")
       expect(journal[:description]).to include("Example test footer")
       expect(journal[:description]).to end_with("</div>")
       expect(journal[:journal_header]).to eql("Example test header")
@@ -668,8 +668,41 @@ describe 'FA parser' do
       check_date(journal[:posted], journal[:posted_at])
     end
 
-    it 'handles non existent journal header'
-    it 'handles non existent journal footer'
+    it 'handles non existent journal header' do
+      journal_id = "9185944"
+      journal = @fa.journal(journal_id)
+      expect(journal[:title]).to eql("Testing journals")
+      expect(journal[:description]).to start_with("<div class=\"journal-body\">")
+      expect(journal[:description]).to include("Another test of journals, this one is for footer only")
+      expect(journal[:description]).to include("<div class=\"journal-footer\">")
+      expect(journal[:description]).to include("Footer, no header though")
+      expect(journal[:description]).to end_with("</div>")
+      expect(journal[:journal_header]).to be_nil
+      expect(journal[:journal_body]).to eql("Another test of journals, this one is for footer only")
+      expect(journal[:journal_footer]).to eql("Footer, no header though")
+      check_profile_link(journal)
+      check_avatar(journal[:avatar], journal[:profile_name])
+      expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
+      check_date(journal[:posted], journal[:posted_at])
+    end
+
+    it 'handles non existent journal footer' do
+      journal_id = "9185921"
+      journal = @fa.journal(journal_id)
+      expect(journal[:title]).to eql("Example journal")
+      expect(journal[:description]).to start_with("<div class=\"journal-header\">")
+      expect(journal[:description]).to include("Example header, no footer ")
+      expect(journal[:description]).to include("<div class=\"journal-body\">")
+      expect(journal[:description]).to include("Should have a header, no footer ")
+      expect(journal[:description]).to end_with("</div>")
+      expect(journal[:journal_header]).to eql("Example header, no footer")
+      expect(journal[:journal_body]).to eql("Should have a header, no footer")
+      expect(journal[:journal_footer]).to be_nil
+      check_profile_link(journal)
+      check_avatar(journal[:avatar], journal[:profile_name])
+      expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
+      check_date(journal[:posted], journal[:posted_at])
+    end
   end
 
   context 'when listing comments on a submission' do
