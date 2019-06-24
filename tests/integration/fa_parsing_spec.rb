@@ -706,7 +706,7 @@ describe 'FA parser' do
     end
 
     it 'handles empty comments section' do
-      sub_id = "16437663"
+      sub_id = "16437675"
       comments = @fa.submission_comments(sub_id, false)
       expect(comments).to be_instance_of Array
       expect(comments).to be_empty
@@ -725,7 +725,7 @@ describe 'FA parser' do
       comments = @fa.submission_comments(submission_id, true)
       expect(comments).to be_instance_of Array
       expect(comments.length).to be 2
-      expect(comment[0]).to have_key(:id)
+      expect(comments[0]).to have_key(:id)
       expect(comments[0][:text]).to eql("Non-deleted comment")
       expect(comments[1]).not_to have_key(:id)
       expect(comments[1][:text]).to eql("Comment hidden by its owner")
@@ -741,7 +741,7 @@ describe 'FA parser' do
       expect(comments).to be_instance_of Array
       expect(comments.length).to be 1
       expect(comments[0]).not_to have_key(:id)
-      expect(comments[0][:text]).to eql("Comment hidden by the page owner")
+      expect(comments[0][:text]).to eql("Comment hidden by  the page owner")
     end
 
     it 'fails when given non-existent submission'
@@ -789,7 +789,7 @@ describe 'FA parser' do
       comments = @fa.journal_comments(journal_id, true)
       expect(comments).to be_instance_of Array
       expect(comments.length).to be 2
-      expect(comment[0]).to have_key(:id)
+      expect(comments[0]).to have_key(:id)
       expect(comments[0][:text]).to eql("Non-deleted comment")
       expect(comments[1]).not_to have_key(:id)
       expect(comments[1][:text]).to eql("Comment hidden by its owner")
@@ -805,7 +805,7 @@ describe 'FA parser' do
       expect(comments).to be_instance_of Array
       expect(comments.length).to be 1
       expect(comments[0]).not_to have_key(:id)
-      expect(comments[0][:text]).to eql("Comment hidden by the page owner")
+      expect(comments[0][:text]).to eql("Comment hidden by  the page owner")
     end
 
     it 'fails when given non-existent journal'
