@@ -556,6 +556,7 @@ describe 'FA parser' do
       expect(sub[:keywords]).to include("DDR")
     end
 
+    it 'handles poetry submissions correctly'
     it 'still displays correctly when logged in as submission owner'
     it 'hides nsfw submission if sfw is set'
   end
