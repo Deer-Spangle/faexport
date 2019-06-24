@@ -556,7 +556,37 @@ describe 'FA parser' do
       expect(sub[:keywords]).to include("DDR")
     end
 
-    it 'handles poetry submissions correctly'
+    it 'handles poetry submissions correctly' do
+      sub_id = "5325854"
+      sub = @fa.submission(sub_id)
+      expect(sub[:title]).not_to be_blank
+      expect(sub[:description]).not_to be_blank
+      expect(sub[:description_body]).to eql(sub[:description])
+      check_profile_link(sub)
+      check_avatar(sub[:avatar], sub[:profile_name])
+      check_submission_link(sub[:link], sub_id)
+      check_date(sub[:posted], sub[:posted_at])
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/poetry\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
+      # For a potery submission, full is nil
+      expect(sub[:full]).not_to be_nil
+      check_thumbnail_link(sub[:thumbnail], sub_id)
+      # Info box
+      expect(sub[:category]).not_to be_blank
+      expect(sub[:theme]).not_to be_blank
+      expect(sub[:favorites]).to match(/[0-9]+/)
+      expect(sub[:favorites].to_i).to be > 0
+      expect(sub[:comments]).to match(/[0-9]+/)
+      expect(sub[:comments].to_i).to be > 0
+      expect(sub[:views]).to match(/[0-9]+/)
+      expect(sub[:views].to_i).to be > 0
+      expect(sub[:resolution]).to be_blank
+      expect(sub[:rating]).not_to be_blank
+      expect(sub[:keywords]).to be_instance_of Array
+      expect(sub[:keywords]).not_to be_empty
+      expect(sub[:keywords]).to include("Love")
+      expect(sub[:keywords]).to include("mind")
+    end
+
     it 'still displays correctly when logged in as submission owner'
     it 'hides nsfw submission if sfw is set'
   end
