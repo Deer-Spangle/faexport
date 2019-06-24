@@ -686,24 +686,6 @@ describe 'FA parser' do
       expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
       check_date(journal[:posted], journal[:posted_at])
     end
-
-    it 'handles non existent journal footer' do
-      journal_id = "9185921"
-      journal = @fa.journal(journal_id)
-      expect(journal[:title]).to eql("Example journal")
-      expect(journal[:description]).to start_with("<div class=\"journal-header\">")
-      expect(journal[:description]).to include("Example header, no footer ")
-      expect(journal[:description]).to include("<div class=\"journal-body\">")
-      expect(journal[:description]).to include("Should have a header, no footer ")
-      expect(journal[:description]).to end_with("</div>")
-      expect(journal[:journal_header]).to eql("Example header, no footer")
-      expect(journal[:journal_body]).to eql("Should have a header, no footer")
-      expect(journal[:journal_footer]).to be_nil
-      check_profile_link(journal)
-      check_avatar(journal[:avatar], journal[:profile_name])
-      expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
-      check_date(journal[:posted], journal[:posted_at])
-    end
   end
 
   context 'when listing comments on a submission' do
