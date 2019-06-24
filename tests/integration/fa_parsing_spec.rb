@@ -747,10 +747,39 @@ describe 'FA parser' do
       expect(comments).to be_empty
     end
 
-    it 'hides deleted comments by default'
-    it 'handles comments deleted by author when specified'
-    it 'handles comments deleted by submission owner when specified'
-    it 'fails when given non-existent submission'
+    it 'hides deleted comments by default' do
+      journal_id = "6704520"
+      comments = @fa.journal_comments(journal_id, false)
+      expect(comments).to be_instance_of Array
+      expect(comments.length).to be 1
+      expect(comments[0][:text]).to eql("Non-deleted comment")
+    end
+
+    it 'handles comments deleted by author when specified' do
+      journal_id = "6704520"
+      comments = @fa.journal_comments(journal_id, true)
+      expect(comments).to be_instance_of Array
+      expect(comments.length).to be 2
+      expect(comment[0]).to have_key(:id)
+      expect(comments[0][:text]).to eql("Non-deleted comment")
+      expect(comments[1]).not_to have_key(:id)
+      expect(comments[1][:text]).to eql("Comment hidden by its owner")
+    end
+
+    it 'handles comments deleted by journal owner when specified' do
+      journal_id = "9185920"
+      comments_not_deleted = @fa.journal_comments(journal_id, false)
+      expect(comments_not_deleted).to be_instance_of Array
+      expect(comments_not_deleted).to be_empty
+      # Ensure comments appear when viewing deleted
+      comments = @fa.journal_comments(journal_id, true)
+      expect(comments).to be_instance_of Array
+      expect(comments.length).to be 1
+      expect(comments[0]).not_to have_key(:id)
+      expect(comments[0][:text]).to eql("Comment hidden by the page owner")
+    end
+
+    it 'fails when given non-existent journal'
     it 'correctly parses base level comments which are not replies'
     it 'correctly parses replies and reply levels'
     it 'handles replies to deleted comments'
