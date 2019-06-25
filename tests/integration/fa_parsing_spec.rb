@@ -688,132 +688,140 @@ describe 'FA parser' do
     end
   end
 
-  context 'when listing comments on a submission' do
-    it 'displays a valid list of top level comments' do
-      sub_id = "16437648"
-      comments = @fa.submission_comments(sub_id, false)
-      expect(comments).to be_instance_of Array
-      expect(comments).not_to be_empty
-      comments.each do |comment|
-        expect(comment[:id]).to match(/[0-9]+/)
-        check_profile_link(comment)
-        check_avatar(comment[:avatar], comment[:profile_name])
-        check_date(comment[:posted], comment[:posted_at])
-        expect(comment[:text]).not_to be_blank
-        expect(comment[:reply_to]).to be_blank
-        expect(comment[:reply_level]).to be 0
+  context 'when listing comments' do
+    context 'on a submission' do
+      it 'displays a valid list of top level comments' do
+        sub_id = "16437648"
+        comments = @fa.submission_comments(sub_id, false)
+        expect(comments).to be_instance_of Array
+        expect(comments).not_to be_empty
+        comments.each do |comment|
+          expect(comment[:id]).to match(/[0-9]+/)
+          check_profile_link(comment)
+          check_avatar(comment[:avatar], comment[:profile_name])
+          check_date(comment[:posted], comment[:posted_at])
+          expect(comment[:text]).not_to be_blank
+          expect(comment[:reply_to]).to be_blank
+          expect(comment[:reply_level]).to be 0
+        end
       end
-    end
 
-    it 'handles empty comments section' do
-      sub_id = "16437675"
-      comments = @fa.submission_comments(sub_id, false)
-      expect(comments).to be_instance_of Array
-      expect(comments).to be_empty
-    end
-
-    it 'hides deleted comments by default' do
-      submission_id = "16437663"
-      comments = @fa.submission_comments(submission_id, false)
-      expect(comments).to be_instance_of Array
-      expect(comments.length).to be 1
-      expect(comments[0][:text]).to eql("Non-deleted comment")
-    end
-
-    it 'handles comments deleted by author when specified' do
-      submission_id = "16437663"
-      comments = @fa.submission_comments(submission_id, true)
-      expect(comments).to be_instance_of Array
-      expect(comments.length).to be 2
-      expect(comments[0]).to have_key(:id)
-      expect(comments[0][:text]).to eql("Non-deleted comment")
-      expect(comments[1]).not_to have_key(:id)
-      expect(comments[1][:text]).to eql("Comment hidden by its owner")
-    end
-
-    it 'handles comments deleted by submission owner when specified' do
-      submission_id = "32006442"
-      comments_not_deleted = @fa.submission_comments(submission_id, false)
-      expect(comments_not_deleted).to be_instance_of Array
-      expect(comments_not_deleted).to be_empty
-      # Ensure comments appear when viewing deleted
-      comments = @fa.submission_comments(submission_id, true)
-      expect(comments).to be_instance_of Array
-      expect(comments.length).to be 1
-      expect(comments[0]).not_to have_key(:id)
-      expect(comments[0][:text]).to eql("Comment hidden by  the page owner")
-    end
-
-    it 'fails when given non-existent submission'
-    it 'correctly parses base level comments which are not replies'
-    it 'correctly parses replies and reply levels'
-    it 'handles replies to deleted comments'
-    it 'handles 2 replies to the same comment'
-    it 'handles deleted replies to deleted comments'
-  end
-
-  context 'when listing comments on a journal' do
-    it 'displays a valid list of top level comments' do
-      journal_id = "6704315"
-      comments = @fa.journal_comments(journal_id, false)
-      expect(comments).to be_instance_of Array
-      expect(comments).not_to be_empty
-      comments.each do |comment|
-        expect(comment[:id]).to match(/[0-9]+/)
-        check_profile_link(comment)
-        check_avatar(comment[:avatar], comment[:profile_name])
-        check_date(comment[:posted], comment[:posted_at])
-        expect(comment[:text]).not_to be_blank
-        expect(comment[:reply_to]).to be_blank
-        expect(comment[:reply_level]).to be 0
+      it 'handles empty comments section' do
+        sub_id = "16437675"
+        comments = @fa.submission_comments(sub_id, false)
+        expect(comments).to be_instance_of Array
+        expect(comments).to be_empty
       end
+
+      it 'hides deleted comments by default' do
+        submission_id = "16437663"
+        comments = @fa.submission_comments(submission_id, false)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 1
+        expect(comments[0][:text]).to eql("Non-deleted comment")
+      end
+
+      it 'handles comments deleted by author when specified' do
+        submission_id = "16437663"
+        comments = @fa.submission_comments(submission_id, true)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 2
+        expect(comments[0]).to have_key(:id)
+        expect(comments[0][:text]).to eql("Non-deleted comment")
+        expect(comments[1]).not_to have_key(:id)
+        expect(comments[1][:text]).to eql("Comment hidden by its owner")
+      end
+
+      it 'handles comments deleted by submission owner when specified' do
+        submission_id = "32006442"
+        comments_not_deleted = @fa.submission_comments(submission_id, false)
+        expect(comments_not_deleted).to be_instance_of Array
+        expect(comments_not_deleted).to be_empty
+        # Ensure comments appear when viewing deleted
+        comments = @fa.submission_comments(submission_id, true)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 1
+        expect(comments[0]).not_to have_key(:id)
+        expect(comments[0][:text]).to eql("Comment hidden by  the page owner")
+      end
+
+      it 'fails when given non-existent submission' do
+        expect { @fa.submission_comments("16437650", false) }.to raise_error FASystemError
+      end
+      
+      it 'correctly parses replies and reply levels'
+      it 'handles replies to deleted comments'
+      it 'handles 2 replies to the same comment'
+      it 'handles deleted replies to deleted comments'
+      it 'handles comments to max depth'
     end
 
-    it 'handles empty comments section' do
-      journal_id = "6704317"
-      comments = @fa.journal_comments(journal_id, false)
-      expect(comments).to be_instance_of Array
-      expect(comments).to be_empty
-    end
+    context 'on a journal' do
+      it 'displays a valid list of top level comments' do
+        journal_id = "6704315"
+        comments = @fa.journal_comments(journal_id, false)
+        expect(comments).to be_instance_of Array
+        expect(comments).not_to be_empty
+        comments.each do |comment|
+          expect(comment[:id]).to match(/[0-9]+/)
+          check_profile_link(comment)
+          check_avatar(comment[:avatar], comment[:profile_name])
+          check_date(comment[:posted], comment[:posted_at])
+          expect(comment[:text]).not_to be_blank
+          expect(comment[:reply_to]).to be_blank
+          expect(comment[:reply_level]).to be 0
+        end
+      end
 
-    it 'hides deleted comments by default' do
-      journal_id = "6704520"
-      comments = @fa.journal_comments(journal_id, false)
-      expect(comments).to be_instance_of Array
-      expect(comments.length).to be 1
-      expect(comments[0][:text]).to eql("Non-deleted comment")
-    end
+      it 'handles empty comments section' do
+        journal_id = "6704317"
+        comments = @fa.journal_comments(journal_id, false)
+        expect(comments).to be_instance_of Array
+        expect(comments).to be_empty
+      end
 
-    it 'handles comments deleted by author when specified' do
-      journal_id = "6704520"
-      comments = @fa.journal_comments(journal_id, true)
-      expect(comments).to be_instance_of Array
-      expect(comments.length).to be 2
-      expect(comments[0]).to have_key(:id)
-      expect(comments[0][:text]).to eql("Non-deleted comment")
-      expect(comments[1]).not_to have_key(:id)
-      expect(comments[1][:text]).to eql("Comment hidden by its owner")
-    end
+      it 'hides deleted comments by default' do
+        journal_id = "6704520"
+        comments = @fa.journal_comments(journal_id, false)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 1
+        expect(comments[0][:text]).to eql("Non-deleted comment")
+      end
 
-    it 'handles comments deleted by journal owner when specified' do
-      journal_id = "9185920"
-      comments_not_deleted = @fa.journal_comments(journal_id, false)
-      expect(comments_not_deleted).to be_instance_of Array
-      expect(comments_not_deleted).to be_empty
-      # Ensure comments appear when viewing deleted
-      comments = @fa.journal_comments(journal_id, true)
-      expect(comments).to be_instance_of Array
-      expect(comments.length).to be 1
-      expect(comments[0]).not_to have_key(:id)
-      expect(comments[0][:text]).to eql("Comment hidden by  the page owner")
-    end
+      it 'handles comments deleted by author when specified' do
+        journal_id = "6704520"
+        comments = @fa.journal_comments(journal_id, true)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 2
+        expect(comments[0]).to have_key(:id)
+        expect(comments[0][:text]).to eql("Non-deleted comment")
+        expect(comments[1]).not_to have_key(:id)
+        expect(comments[1][:text]).to eql("Comment hidden by its owner")
+      end
 
-    it 'fails when given non-existent journal'
-    it 'correctly parses base level comments which are not replies'
-    it 'correctly parses replies and reply levels'
-    it 'handles replies to deleted comments'
-    it 'handles 2 replies to the same comment'
-    it 'handles deleted replies to deleted comments'
+      it 'handles comments deleted by journal owner when specified' do
+        journal_id = "9185920"
+        comments_not_deleted = @fa.journal_comments(journal_id, false)
+        expect(comments_not_deleted).to be_instance_of Array
+        expect(comments_not_deleted).to be_empty
+        # Ensure comments appear when viewing deleted
+        comments = @fa.journal_comments(journal_id, true)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 1
+        expect(comments[0]).not_to have_key(:id)
+        expect(comments[0][:text]).to eql("Comment hidden by  the page owner")
+      end
+
+      it 'fails when given non-existent journal' do
+        expect { @fa.journal_comments("6894929", false) }.to raise_error(FASystemError)
+      end
+
+      it 'correctly parses replies and reply levels'
+      it 'handles replies to deleted comments'
+      it 'handles 2 replies to the same comment'
+      it 'handles deleted replies to deleted comments'
+      it 'handles comments to max depth'
+    end
   end
 
   context 'when searching submissions' do
