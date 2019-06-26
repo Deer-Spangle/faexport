@@ -458,6 +458,7 @@ class Furaffinity
     options = SEARCH_DEFAULTS.merge(options)
     params = {}
 
+    # Handle page specification
     page = options['page']
     if page !~ /[0-9]+/ || page.to_i <= 1
       options['page'] = 1
@@ -467,6 +468,7 @@ class Furaffinity
       params['next_page'] = ">>> #{options['perpage']} more >>>"
     end
 
+    # Construct params, to send in POST request
     options.each do |key, value|
       name = key.gsub('_','-')
       if SEARCH_MULTIPLE.include? key
@@ -481,6 +483,7 @@ class Furaffinity
       end
     end
 
+    # Get search response
     raw, uri = @cache.add("url:search:#{params.to_s}") do
       response, uri = post('/search/', params)
       unless response.is_a?(Net::HTTPSuccess)
@@ -488,6 +491,7 @@ class Furaffinity
       end
       [response.body, uri]
     end
+    # Parse search results
     html = Nokogiri::HTML(raw)
     [html.css('.gallery > figure').map{|art| build_submission(art)}, uri]
   end
