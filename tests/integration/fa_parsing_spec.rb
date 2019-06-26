@@ -882,7 +882,9 @@ describe 'FA parser' do
         expect(comments[2][:reply_level]).to be 2
       end
 
-      it 'handles replies to deleted comments'
+      it 'handles replies to deleted comments' do
+        comments = @fa.submission_comments("32052941", false)
+      end
       it 'handles 2 replies to the same comment'
       it 'handles deleted replies to deleted comments'
       it 'handles comments to max depth'
