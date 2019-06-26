@@ -1165,7 +1165,16 @@ describe 'FA parser' do
     end
 
     it 'returns a search link as well as results'
-    it 'handles search queries with a space in them'
+
+    it 'handles search queries with a space in them' do
+      it 'returns a list of submission data' do
+        results, _ = @fa.search({"q" => "YCH deer"})
+        expect(results).to be_instance_of Array
+        expect(results).not_to be_empty
+        results.each(&method(:check_submission))
+      end
+    end
+
     it 'displays a different page 1 to page 2'
     it 'returns a specific set of test submissions when using a rare test keyword'
     it 'displays a number of results equal to the perpage setting'
