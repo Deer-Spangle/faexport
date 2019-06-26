@@ -891,7 +891,32 @@ describe 'FA parser' do
         expect(comments[1][:reply_to]).to be_blank
         expect(comments[1][:reply_level]).to be 0
       end
-      it 'handles reply chain, followed by reply to base comment'
+
+      it 'handles reply chain, followed by reply to base comment' do
+        comments = @fa.submission_comments("32058026", false)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 4
+        # Check base comment
+        expect(comments[0][:id]).to match(/[0-9]+/)
+        expect(comments[0][:text]).to eql("Base comment")
+        expect(comments[0][:reply_to]).to eql("")
+        expect(comments[0][:reply_level]).to be 0
+        # Check first reply
+        expect(comments[1][:id]).to match(/[0-9]+/)
+        expect(comments[1][:text]).to eql("First reply")
+        expect(comments[1][:reply_to]).to eql(comments[0][:id])
+        expect(comments[1][:reply_level]).to be 1
+        # Check deep reply
+        expect(comments[2][:id]).to match(/[0-9]+/)
+        expect(comments[2][:text]).to eql("Deep reply")
+        expect(comments[2][:reply_to]).to eql(comments[1][:id])
+        expect(comments[2][:reply_level]).to be 2
+        # Check second reply
+        expect(comments[3][:id]).to match(/[0-9]+/)
+        expect(comments[3][:text]).to eql("Second base reply")
+        expect(comments[3][:reply_to]).to eql(comments[0][:id])
+        expect(comments[3][:reply_level]).to be 1
+      end
     end
 
     context 'on a journal' do
