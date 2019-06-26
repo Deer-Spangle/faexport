@@ -1152,7 +1152,7 @@ describe 'FA parser' do
 
   context 'when searching submissions' do
     it 'returns a list of submission data' do
-      results, _ = @fa.search({"q" => "YCH"})
+      results = @fa.search({"q" => "YCH"})
       expect(results).to be_instance_of Array
       expect(results).not_to be_empty
       results.each(&method(:check_submission))
@@ -1167,15 +1167,43 @@ describe 'FA parser' do
     it 'returns a search link as well as results'
 
     it 'handles search queries with a space in them' do
-      it 'returns a list of submission data' do
-        results, _ = @fa.search({"q" => "YCH deer"})
-        expect(results).to be_instance_of Array
-        expect(results).not_to be_empty
-        results.each(&method(:check_submission))
-      end
+      results = @fa.search({"q" => "YCH deer"})
+      expect(results).to be_instance_of Array
+      expect(results).not_to be_empty
+      results.each(&method(:check_submission))
     end
 
-    it 'displays a different page 1 to page 2'
+    it 'displays a different page 1 to page 2' do
+      # Get page 1
+      results1 = @fa.search({"q" => "YCH"})
+      expect(results1).to be_instance_of Array
+      expect(results1).not_to be_empty
+      expect(results1.length).to be 72
+      # Get page 2
+      results2 = @fa.search({"q" => "YCH", "page" => "2"})
+      expect(results2).to be_instance_of Array
+      expect(results2).not_to be_empty
+      expect(results2.length).to be 72
+      # Check they're different enough
+      results1_ids = results1.map{|result| result[:id]}
+      results2_ids = results2.map{|result| result[:id]}
+      intersection = results1_ids & results2_ids
+      expect(intersection.length).to be <= 5
+    end
+
+    it 'works when making the same search twice' do
+      # There was an awkward caching issue breaking this, hence this test.
+      results1 = @fa.search({"q" => "YCH"})
+      expect(results1).to be_instance_of Array
+      expect(results1).not_to be_empty
+      expect(results1.length).to be 72
+      # Get page 2
+      results2 = @fa.search({"q" => "YCH"})
+      expect(results2).to be_instance_of Array
+      expect(results2).not_to be_empty
+      expect(results2.length).to be 72
+    end
+
     it 'returns a specific set of test submissions when using a rare test keyword'
     it 'displays a number of results equal to the perpage setting'
     it 'defaults to ordering by date desc'

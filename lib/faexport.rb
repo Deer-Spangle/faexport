@@ -376,19 +376,19 @@ module FAExport
       cache("search_results:#{params.to_s}.#{type}") do
         case type
         when 'json'
-          results, _ = @fa.search(params)
+          results = @fa.search(params)
           results = results.map{|result| result[:id]} unless full
           JSON.pretty_generate results
         when 'xml'
-          results, _ = @fa.search(params)
+          results = @fa.search(params)
           results = results.map{|result| result[:id]} unless full
           results.to_xml(root: 'results', skip_types: true)
         when 'rss'
-          results, uri = @fa.search(params)
+          results = @fa.search(params)
 
           @name = params['q']
           @info = "Search for '#{params['q']}'"
-          @link = uri.to_s
+          @link = "https://www.furaffinity.net/search/?q=#{params['q']}"
           @posts = results.take(FAExport.config[:rss_limit]).map do |sub|
             cache "submission:#{sub[:id]}.rss" do
               @post = @fa.submission(sub[:id])

@@ -200,7 +200,7 @@ class Furaffinity
   end
 
   def login(username, password)
-    response, _ = post('/login/', {
+    response = post('/login/', {
       'action' => 'login',
       'retard_protection' => '1',
       'name' => username,
@@ -484,16 +484,16 @@ class Furaffinity
     end
 
     # Get search response
-    raw, uri = @cache.add("url:search:#{params.to_s}") do
-      response, uri = post('/search/', params)
+    raw = @cache.add("url:search:#{params.to_s}") do
+      response = post('/search/', params)
       unless response.is_a?(Net::HTTPSuccess)
         raise FAStatusError.new(fa_url('search/'), response.message)
       end
-      [response.body, uri]
+      response.body
     end
     # Parse search results
     html = Nokogiri::HTML(raw)
-    [html.css('.gallery > figure').map{|art| build_submission(art)}, uri]
+    html.css('.gallery > figure').map{|art| build_submission(art)}
   end
 
   def submit_journal(title, description)
@@ -502,7 +502,7 @@ class Furaffinity
 
     html = fetch("controls/journal/")
     key = html.at_css('input[name="key"]')['value']
-    response, _ = post('/controls/journal/', {
+    response = post('/controls/journal/', {
       'id' => '',
       'key' => key,
       'do' => 'update',
@@ -870,7 +870,7 @@ private
     request.add_field('User-Agent', USER_AGENT)
     request.add_field('Cookie', @login_cookie)
     request.form_data = params
-    [http.request(request), request.uri]
+    http.request(request)
   end
 
   def build_submission(elem)
