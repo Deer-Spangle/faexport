@@ -782,11 +782,94 @@ describe 'FA parser' do
         expect(comments[2][:reply_level]).to be 2
       end
 
-      it 'handles replies to deleted comments'
-      it 'handles 2 replies to the same comment'
-      it 'handles deleted replies to deleted comments'
+      it 'handles replies to deleted comments' do
+        comments = @fa.submission_comments("32052941", true)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 2
+        # Check hidden comment
+        expect(comments[0]).not_to have_key(:id)
+        expect(comments[0][:text]).to start_with("Comment hidden by")
+        expect(comments[0][:reply_to]).to eql("")
+        expect(comments[0][:reply_level]).to be 0
+        # Check reply comment
+        expect(comments[1][:id]).not_to be_blank
+        expect(comments[1][:text]).not_to start_with("Comment hidden by")
+        expect(comments[1]).to have_key(:profile_name)
+        expect(comments[1][:reply_level]).to be 1
+        expect(comments[1][:reply_to]).to eql("hidden")
+      end
+
+      it 'handles replies to hidden deleted comments' do
+        comments = @fa.submission_comments("32052941", false)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 1
+        # Reply comment should be only comment
+        expect(comments[0][:id]).not_to be_blank
+        expect(comments[0][:text]).not_to start_with("Comment hidden by")
+        expect(comments[0]).to have_key(:profile_name)
+        expect(comments[0][:reply_level]).to be 1
+        expect(comments[0][:reply_to]).to eql("hidden")
+      end
+
+      it 'handles 2 replies to the same comment' do
+        comments = @fa.submission_comments(nil, false)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 3
+        # Base comment
+        expect(comments[0][:id]).not_to be_blank
+        expect(comments[0][:text]).to eql("Base level comment")
+        expect(comments[0][:reply_level]).to be 0
+        expect(comments[0][:reply_to]).to eql("")
+        # First reply
+        expect(comments[1][:id]).not_to be_blank
+        expect(comments[1][:text]).to eql("First reply comment")
+        expect(comments[1][:reply_level]).to be 1
+        expect(comments[1][:reply_to]).to eql(comments[0][:id])
+        # Second reply
+        expect(comments[2][:id]).not_to be_blank
+        expect(comments[2][:text]).to eql("Second reply comment")
+        expect(comments[2][:reply_level]).to be 1
+        expect(comments[2][:reply_to]).to eql(comments[0][:id])
+      end
+
+      it 'handles deleted replies to deleted comments' do
+        comments = @fa.submission_comments(nil, true)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 2
+        # Check hidden comment
+        expect(comments[0]).not_to have_key(:id)
+        expect(comments[0][:text]).to start_with("Comment hidden by")
+        expect(comments[0][:reply_level]).to be 0
+        expect(comments[0][:reply_to]).to eql("")
+        # Check reply comment
+        expect(comments[1]).not_to have_key(:id)
+        expect(comments[1][:text]).to start_with("Comment hidden by")
+        expect(comments[1][:reply_level]).to be 1
+        expect(comments[1][:reply_to]).to eql("hidden")
+      end
+
       it 'handles comments to max depth'
-      it 'handles edited comments'
+      it 'handles edited comments' do
+        comments = @fa.submission_comments(nil, false)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 2
+        # Check edited comment
+        expect(comments[0][:id]).to match(/[0-9]+/)
+        check_profile_link(comments[0])
+        check_avatar(comments[0][:avatar], comments[0][:profile_name])
+        check_date(comments[0][:posted], comments[0][:posted_at])
+        expect(comments[0][:text]).not_to be_blank
+        expect(comments[0][:reply_to]).to be_blank
+        expect(comments[0][:reply_level]).to be 0
+        # Check non-edited comment
+        expect(comments[1][:id]).to match(/[0-9]+/)
+        check_profile_link(comments[1])
+        check_avatar(comments[1][:avatar], comments[1][:profile_name])
+        check_date(comments[1][:posted], comments[1][:posted_at])
+        expect(comments[1][:text]).not_to be_blank
+        expect(comments[1][:reply_to]).to be_blank
+        expect(comments[1][:reply_level]).to be 0
+      end
       it 'handles reply chain, followed by reply to base comment'
     end
 
@@ -883,9 +966,8 @@ describe 'FA parser' do
         expect(comments[2][:reply_level]).to be 2
       end
 
-      it 'handles replies to deleted comments' do
-        comments = @fa.submission_comments("32052941", false)
-      end
+      it 'handles replies to deleted comments'
+      it 'handles replies to hidden deleted comments'
       it 'handles 2 replies to the same comment'
       it 'handles deleted replies to deleted comments'
       it 'handles comments to max depth'
