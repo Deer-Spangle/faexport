@@ -848,7 +848,28 @@ describe 'FA parser' do
         expect(comments[1][:reply_to]).to eql("hidden")
       end
 
-      it 'handles comments to max depth'
+      it 'handles comments to max depth' do
+        comments = @fa.submission_comments("32057717", false)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 22
+        last_comment_id = ""
+        level = 0
+        comments.each do |comment|
+          expect(comment[:id]).to match(/[0-9]+/)
+          check_profile_link(comment)
+          check_avatar(comment[:avatar], comment[:profile_name])
+          check_date(comment[:posted], comment[:posted_at])
+          expect(comment[:text]).not_to be_blank
+          expect(comment[:reply_to]).to eql(last_comment_id)
+          expect(comment[:reply_level]).to be level
+
+          if level <= 19
+            last_comment_id = comment[:id]
+            level += 1
+          end
+        end
+      end
+
       it 'handles edited comments' do
         comments = @fa.submission_comments("32057705", false)
         expect(comments).to be_instance_of Array
