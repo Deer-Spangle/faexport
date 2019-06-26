@@ -1151,8 +1151,20 @@ describe 'FA parser' do
   end
 
   context 'when searching submissions' do
-    it 'returns a list of submission IDs'
-    it 'returns a list of submission data when full=1'
+    it 'returns a list of submission data' do
+      results, _ = @fa.search({"q" => "YCH"})
+      expect(results).to be_instance_of Array
+      expect(results).not_to be_empty
+      results.each(&method(:check_submission))
+    end
+
+    it 'handles blank search cleanly' do
+      results = @fa.search({q: ""})
+      expect(results).to be_instance_of Array
+      expect(results).to be_empty
+    end
+
+    it 'returns a search link as well as results'
     it 'handles search queries with a space in them'
     it 'displays a different page 1 to page 2'
     it 'returns a specific set of test submissions when using a rare test keyword'
@@ -1166,6 +1178,9 @@ describe 'FA parser' do
     it 'displays nothing when only adult is selected, and sfw mode is on'
     it 'can specify a content type for results, only returns that content type'
     it 'can specify multiple content types for results, and only displays those types'
+    it 'ignores other unused parameters'
+    it 'raises an error if given invalid option for a parameter'
+    it 'raises an error if given an invalid option for a multi-value parameter'
   end
 
   context 'when reading new submission notifications' do
