@@ -812,7 +812,7 @@ describe 'FA parser' do
       end
 
       it 'handles 2 replies to the same comment' do
-        comments = @fa.submission_comments(nil, false)
+        comments = @fa.submission_comments("32057670", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 3
         # Base comment
@@ -833,7 +833,7 @@ describe 'FA parser' do
       end
 
       it 'handles deleted replies to deleted comments' do
-        comments = @fa.submission_comments(nil, true)
+        comments = @fa.submission_comments("32057697", true)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
         # Check hidden comment
@@ -850,7 +850,7 @@ describe 'FA parser' do
 
       it 'handles comments to max depth'
       it 'handles edited comments' do
-        comments = @fa.submission_comments(nil, false)
+        comments = @fa.submission_comments("32057705", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
         # Check edited comment
