@@ -787,6 +787,7 @@ describe 'FA parser' do
       it 'handles deleted replies to deleted comments'
       it 'handles comments to max depth'
       it 'handles edited comments'
+      it 'handles reply chain, followed by reply to base comment'
     end
 
     context 'on a journal' do
@@ -889,6 +890,7 @@ describe 'FA parser' do
       it 'handles deleted replies to deleted comments'
       it 'handles comments to max depth'
       it 'handles edited comments'
+      it 'handles reply chain, followed by reply to base comment'
     end
   end
 
