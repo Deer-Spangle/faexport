@@ -1164,8 +1164,6 @@ describe 'FA parser' do
       expect(results).to be_empty
     end
 
-    it 'returns a search link as well as results'
-
     it 'handles search queries with a space in them' do
       results = @fa.search({"q" => "YCH deer"})
       expect(results).to be_instance_of Array
