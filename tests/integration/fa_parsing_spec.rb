@@ -749,11 +749,44 @@ describe 'FA parser' do
         expect { @fa.submission_comments("16437650", false) }.to raise_error FASystemError
       end
       
-      it 'correctly parses replies and reply levels'
+      it 'correctly parses replies and reply levels' do
+        comments = @fa.submission_comments("32006460", false)
+        # Check first comment
+        expect(comments[0][:id]).not_to be_blank
+        expect(comments[0][:profile_name]).to eql("fafeed-3")
+        check_profile_link(comments[0])
+        check_avatar(comments[0][:avatar], comments[0][:profile_name])
+        check_date(comments[0][:posted], comments[0][:posted_at])
+        expect(comments[0][:text]).to eql("Base comment")
+        expect(comments[0][:reply_to]).to be_blank
+        expect(comments[0][:reply_level]).to be 0
+        # Check second comment
+        expect(comments[1][:id]).not_to be_blank
+        expect(comments[1][:profile_name]).to eql("fafeed-3")
+        check_profile_link(comments[1])
+        check_avatar(comments[1][:avatar], comments[1][:profile_name])
+        check_date(comments[1][:posted], comments[1][:posted_at])
+        expect(comments[1][:text]).to eql("First reply")
+        expect(comments[1][:reply_to]).not_to be_blank
+        expect(comments[1][:reply_to]).to eql(comments[0][:id])
+        expect(comments[1][:reply_level]).to be 1
+        # Check third comment
+        expect(comments[2][:id]).not_to be_blank
+        expect(comments[2][:profile_name]).to eql("fafeed-no-watchers")
+        check_profile_link(comments[2])
+        check_avatar(comments[2][:avatar], comments[2][:profile_name])
+        check_date(comments[2][:posted], comments[2][:posted_at])
+        expect(comments[2][:text]).to eql("Another reply")
+        expect(comments[2][:reply_to]).not_to be_blank
+        expect(comments[2][:reply_to]).to eql(comments[1][:id])
+        expect(comments[2][:reply_level]).to be 2
+      end
+
       it 'handles replies to deleted comments'
       it 'handles 2 replies to the same comment'
       it 'handles deleted replies to deleted comments'
       it 'handles comments to max depth'
+      it 'handles edited comments'
     end
 
     context 'on a journal' do
@@ -816,11 +849,44 @@ describe 'FA parser' do
         expect { @fa.journal_comments("6894929", false) }.to raise_error(FASystemError)
       end
 
-      it 'correctly parses replies and reply levels'
+      it 'correctly parses replies and reply levels' do
+        comments = @fa.journal_comments("6894788", false)
+        # Check first comment
+        expect(comments[0][:id]).not_to be_blank
+        expect(comments[0][:profile_name]).to eql("fafeed-3")
+        check_profile_link(comments[0])
+        check_avatar(comments[0][:avatar], comments[0][:profile_name])
+        check_date(comments[0][:posted], comments[0][:posted_at])
+        expect(comments[0][:text]).to eql("Base journal comment")
+        expect(comments[0][:reply_to]).to be_blank
+        expect(comments[0][:reply_level]).to be 0
+        # Check second comments
+        expect(comments[1][:id]).not_to be_blank
+        expect(comments[1][:profile_name]).to eql("fafeed-3")
+        check_profile_link(comments[1])
+        check_avatar(comments[1][:avatar], comments[1][:profile_name])
+        check_date(comments[1][:posted], comments[1][:posted_at])
+        expect(comments[1][:text]).to eql("Reply to journal comment")
+        expect(comments[1][:reply_to]).not_to be_blank
+        expect(comments[1][:reply_to]).to eql(comments[0][:id])
+        expect(comments[1][:reply_level]).to be 1
+        # Check third comments
+        expect(comments[2][:id]).not_to be_blank
+        expect(comments[2][:profile_name]).to eql("fafeed-no-watchers")
+        check_profile_link(comments[2])
+        check_avatar(comments[2][:avatar], comments[2][:profile_name])
+        check_date(comments[2][:posted], comments[2][:posted_at])
+        expect(comments[2][:text]).to eql("Another reply on this journal")
+        expect(comments[2][:reply_to]).not_to be_blank
+        expect(comments[2][:reply_to]).to eql(comments[1][:id])
+        expect(comments[2][:reply_level]).to be 2
+      end
+
       it 'handles replies to deleted comments'
       it 'handles 2 replies to the same comment'
       it 'handles deleted replies to deleted comments'
       it 'handles comments to max depth'
+      it 'handles edited comments'
     end
   end
 
