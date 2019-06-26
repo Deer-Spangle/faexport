@@ -782,7 +782,35 @@ describe 'FA parser' do
         expect(comments[2][:reply_level]).to be 2
       end
 
-      it 'handles replies to deleted comments'
+      it 'handles replies to deleted comments' do
+        comments = @fa.submission_comments("32052941", true)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 2
+        # Check hidden comment
+        expect(comments[0]).not_to have_key(:id)
+        expect(comments[0][:text]).to start_with("Comment hidden by")
+        expect(comments[0][:reply_to]).to eql("")
+        expect(comments[0][:reply_level]).to be 0
+        # Check reply comment
+        expect(comments[1][:id]).not_to be_blank
+        expect(comments[1][:text]).not_to start_with("Comment hidden by")
+        expect(comments[1]).to have_key(:profile_name)
+        expect(comments[1][:reply_level]).to be 1
+        expect(comments[1][:reply_to]).to eql("hidden")
+      end
+
+      it 'handles replies to hidden deleted comments' do
+        comments = @fa.submission_comments("32052941", false)
+        expect(comments).to be_instance_of Array
+        expect(comments.length).to be 1
+        # Reply comment should be only comment
+        expect(comments[0][:id]).not_to be_blank
+        expect(comments[0][:text]).not_to start_with("Comment hidden by")
+        expect(comments[0]).to have_key(:profile_name)
+        expect(comments[0][:reply_level]).to be 1
+        expect(comments[0][:reply_to]).to eql("hidden")
+      end
+
       it 'handles 2 replies to the same comment'
       it 'handles deleted replies to deleted comments'
       it 'handles comments to max depth'
@@ -882,9 +910,8 @@ describe 'FA parser' do
         expect(comments[2][:reply_level]).to be 2
       end
 
-      it 'handles replies to deleted comments' do
-        comments = @fa.submission_comments("32052941", false)
-      end
+      it 'handles replies to deleted comments'
+      it 'handles replies to hidden deleted comments'
       it 'handles 2 replies to the same comment'
       it 'handles deleted replies to deleted comments'
       it 'handles comments to max depth'
