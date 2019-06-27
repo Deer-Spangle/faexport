@@ -1234,6 +1234,16 @@ describe 'FA parser' do
       results = @fa.search({"q" => "YCH", "perpage" => "24"})
       expect(results).to be_instance_of Array
       expect(results).not_to be_empty
+      results_date = @fa.search({"q" => "YCH", "perpage" => "24", "order_by" => "date"})
+      expect(results).to be_instance_of Array
+      expect(results).not_to be_empty
+      # Check they're similar enough
+      results_ids = results.map{|result| result[:id]}
+      results_date_ids = results_date.map{|result| result[:id]}
+      intersection = results_ids & results_date_ids
+      expect(intersection.length).to be >= 20
+
+      # Check it's actually date ordered
       last_datetime = Time.parse(results[0][:posted] + ' UTC')
       results.each do |result|
         next_datetime = Time.parse(result[:posted] + ' UTC')
