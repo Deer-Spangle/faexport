@@ -1202,7 +1202,17 @@ describe 'FA parser' do
       expect(results2.length).to be 72
     end
 
-    it 'returns a specific set of test submissions when using a rare test keyword'
+    it 'returns a specific set of test submissions when using a rare test keyword' do
+      results = @fa.search({"q" => "rare_test_keyword"})
+      expect(results).to be_instance_of Array
+      expect(results).not_to be_empty
+      expect(results.length).to be 3
+      result_id_list = results.map{|result| result[:id]}
+      expect(result_id_list).to include("32052941")
+      expect(result_id_list).to include("32057670")
+      expect(result_id_list).to include("32057697")
+    end
+
     it 'displays a number of results equal to the perpage setting'
     it 'defaults to ordering by date desc'
     it 'can search by relevancy and popularity, which give a different order to date'
