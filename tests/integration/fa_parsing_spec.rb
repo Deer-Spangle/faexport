@@ -1237,6 +1237,7 @@ describe 'FA parser' do
       results_date = @fa.search({"q" => "YCH", "perpage" => "24", "order_by" => "date"})
       expect(results).to be_instance_of Array
       expect(results).not_to be_empty
+
       # Check they're similar enough
       results_ids = results.map{|result| result[:id]}
       results_date_ids = results_date.map{|result| result[:id]}
@@ -1252,7 +1253,18 @@ describe 'FA parser' do
       end
     end
 
-    it 'can search by relevancy and popularity, which give a different order to date'
+    it 'can search by relevancy and popularity, which give a different order to date' do
+      results_date = @fa.search({"q" => "YCH", "perpage" => "24", "order_by" => "date"})
+      results_rele = @fa.search({"q" => "YCH", "perpage" => "24", "order_by" => "relevancy"})
+      results_popu = @fa.search({"q" => "YCH", "perpage" => "24", "order_by" => "popularity"})
+      results_date_ids = results_date.map{|result| result[:id]}
+      results_rele_ids = results_rele.map{|result| result[:id]}
+      results_popu_ids = results_popu.map{|result| result[:id]}
+      expect((results_date_ids & results_rele_ids).length).to be <= 5
+      expect((results_rele_ids & results_popu_ids).length).to be <= 5
+      expect((results_popu_ids & results_date_ids).length).to be <= 5
+    end
+
     it 'can specify order direction as ascending'
     it 'can specify shorter range, which delivers fewer results'
     it 'can specify search mode for the terms in the query'
