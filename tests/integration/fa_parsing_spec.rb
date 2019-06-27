@@ -1265,7 +1265,13 @@ describe 'FA parser' do
       expect((results_popu_ids & results_date_ids).length).to be <= 5
     end
 
-    it 'can specify order direction as ascending'
+    it 'can specify order direction as ascending' do
+      results_asc = @fa.search({"q" => "YCH", "perpage" => "24", "order_direction" => "asc"})
+      results_desc = @fa.search({"q" => "YCH", "perpage" => "24", "order_direction" => "desc"})
+      intersection = results_asc & results_desc
+      expect(intersection.length).to be 0
+    end
+
     it 'can specify shorter range, which delivers fewer results'
     it 'can specify search mode for the terms in the query'
     it 'can specify ratings to display, and honours that selection'
