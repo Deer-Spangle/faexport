@@ -1230,7 +1230,18 @@ describe 'FA parser' do
       expect(results_short.length).to be 24
     end
 
-    it 'defaults to ordering by date desc'
+    it 'defaults to ordering by date desc' do
+      results = @fa.search({"q" => "YCH", "perpage" => "24"})
+      expect(results).to be_instance_of Array
+      expect(results).not_to be_empty
+      last_datetime = Time.parse(results[0][:posted] + ' UTC')
+      results.each do |result|
+        next_datetime = Time.parse(result[:posted] + ' UTC')
+        expect(next_datetime).to be <= last_datetime
+        last_datetime = next_datetime
+      end
+    end
+
     it 'can search by relevancy and popularity, which give a different order to date'
     it 'can specify order direction as ascending'
     it 'can specify shorter range, which delivers fewer results'
