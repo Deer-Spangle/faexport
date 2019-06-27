@@ -1213,7 +1213,23 @@ describe 'FA parser' do
       expect(result_id_list).to include("32057697")
     end
 
-    it 'displays a number of results equal to the perpage setting'
+    it 'displays a number of results equal to the perpage setting' do
+      results_long = @fa.search({"q" => "YCH", "perpage" => "72"})
+      expect(results_long).to be_instance_of Array
+      expect(results_long).not_to be_empty
+      expect(results_long.length).to be 72
+
+      results_med = @fa.search({"q" => "YCH", "perpage" => "48"})
+      expect(results_med).to be_instance_of Array
+      expect(results_med).not_to be_empty
+      expect(results_med.length).to be 48
+
+      results_short = @fa.search({"q" => "YCH", "perpage" => "24"})
+      expect(results_short).to be_instance_of Array
+      expect(results_short).not_to be_empty
+      expect(results_short.length).to be 24
+    end
+
     it 'defaults to ordering by date desc'
     it 'can search by relevancy and popularity, which give a different order to date'
     it 'can specify order direction as ascending'
