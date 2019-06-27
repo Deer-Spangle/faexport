@@ -1245,10 +1245,13 @@ describe 'FA parser' do
       expect(intersection.length).to be >= 20
 
       # Check it's actually date ordered
-      last_datetime = Time.parse(results[0][:posted] + ' UTC')
+      last_datetime = nil
       results.each do |result|
-        next_datetime = Time.parse(result[:posted] + ' UTC')
-        expect(next_datetime).to be <= last_datetime
+        full_result = @fa.submission(result[:id])
+        next_datetime = Time.parse(full_result[:posted] + ' UTC')
+        unless last_datetime.nil?
+          expect(next_datetime).to be <= last_datetime
+        end
         last_datetime = next_datetime
       end
     end
