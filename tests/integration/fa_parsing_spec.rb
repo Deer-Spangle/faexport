@@ -1231,10 +1231,10 @@ describe 'FA parser' do
     end
 
     it 'defaults to ordering by date desc' do
-      results = @fa.search({"q" => "YCH", "perpage" => "24"})
+      results = @fa.search({"q" => "YCH", "perpage" => "72"})
       expect(results).to be_instance_of Array
       expect(results).not_to be_empty
-      results_date = @fa.search({"q" => "YCH", "perpage" => "24", "order_by" => "date"})
+      results_date = @fa.search({"q" => "YCH", "perpage" => "72", "order_by" => "date"})
       expect(results).to be_instance_of Array
       expect(results).not_to be_empty
 
@@ -1242,18 +1242,14 @@ describe 'FA parser' do
       results_ids = results.map{|result| result[:id]}
       results_date_ids = results_date.map{|result| result[:id]}
       intersection = results_ids & results_date_ids
-      expect(intersection.length).to be >= 20
+      expect(intersection.length).to be >= 60
 
-      # Check it's actually date ordered
-      last_datetime = nil
-      results.each do |result|
-        full_result = @fa.submission(result[:id])
-        next_datetime = Time.parse(full_result[:posted] + ' UTC')
-        unless last_datetime.nil?
-          expect(next_datetime).to be <= last_datetime
-        end
-        last_datetime = next_datetime
-      end
+      # Check it's roughly date ordered. FA results are not exactly date ordered.
+      first_submission = @fa.submission(results[0][:id])
+      first_datetime = Time.parse(first_submission[:posted] + ' UTC')
+      last_submission = @fa.submission(results[-1][:id])
+      last_datetime = Time.parse(last_submission[:posted] + ' UTC')
+      expect(last_datetime).to be < first_datetime
     end
 
     it 'can search by relevancy and popularity, which give a different order to date' do
