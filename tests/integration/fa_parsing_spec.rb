@@ -1176,17 +1176,12 @@ describe 'FA parser' do
       results1 = @fa.search({"q" => "YCH"})
       expect(results1).to be_instance_of Array
       expect(results1).not_to be_empty
-      expect(results1.length).to be 72
       # Get page 2
       results2 = @fa.search({"q" => "YCH", "page" => "2"})
       expect(results2).to be_instance_of Array
       expect(results2).not_to be_empty
-      expect(results2.length).to be 72
       # Check they're different enough
-      results1_ids = results1.map{|result| result[:id]}
-      results2_ids = results2.map{|result| result[:id]}
-      intersection = results1_ids & results2_ids
-      expect(intersection.length).to be <= 5
+      check_results_lists_are_different(results1, results2)
     end
 
     it 'works when making the same search twice' do
@@ -1239,10 +1234,7 @@ describe 'FA parser' do
       expect(results).not_to be_empty
 
       # Check they're similar enough
-      results_ids = results.map{|result| result[:id]}
-      results_date_ids = results_date.map{|result| result[:id]}
-      intersection = results_ids & results_date_ids
-      expect(intersection.length).to be >= 60
+      check_results_lists_are_similar(results, results_date)
 
       # Check it's roughly date ordered. FA results are not exactly date ordered.
       first_submission = @fa.submission(results[0][:id])
@@ -1256,23 +1248,41 @@ describe 'FA parser' do
       results_date = @fa.search({"q" => "YCH", "perpage" => "24", "order_by" => "date"})
       results_rele = @fa.search({"q" => "YCH", "perpage" => "24", "order_by" => "relevancy"})
       results_popu = @fa.search({"q" => "YCH", "perpage" => "24", "order_by" => "popularity"})
-      results_date_ids = results_date.map{|result| result[:id]}
-      results_rele_ids = results_rele.map{|result| result[:id]}
-      results_popu_ids = results_popu.map{|result| result[:id]}
-      expect((results_date_ids & results_rele_ids).length).to be <= 5
-      expect((results_rele_ids & results_popu_ids).length).to be <= 5
-      expect((results_popu_ids & results_date_ids).length).to be <= 5
+      check_results_lists_are_different(results_date, results_rele)
+      check_results_lists_are_different(results_rele, results_popu)
+      check_results_lists_are_different(results_popu, results_date)
     end
 
     it 'can specify order direction as ascending' do
       results_asc = @fa.search({"q" => "YCH", "perpage" => "24", "order_direction" => "asc"})
       results_desc = @fa.search({"q" => "YCH", "perpage" => "24", "order_direction" => "desc"})
-      intersection = results_asc & results_desc
-      expect(intersection.length).to be 0
+      check_results_lists_are_different(results_asc, results_desc)
     end
 
-    it 'can specify shorter range, which delivers fewer results'
-    it 'can specify search mode for the terms in the query'
+    it 'can specify shorter range, which delivers fewer results' do
+      big_results = @fa.search({"q" => "garden", "perpage" => 72})
+      expect(big_results).to be_instance_of Array
+      expect(big_results).not_to be_empty
+      small_results = @fa.search({"q" => "garden", "perpage" => 72, "range" => "day"})
+      expect(small_results).to be_instance_of Array
+      expect(small_results).not_to be_empty
+
+      expect(big_results.length).to be > small_results.length
+    end
+
+    it 'can specify search mode for the terms in the query' do
+      extended_or_results = @fa.search({"q" => "deer | lion", "perpage" => 72})
+      extended_and_results = @fa.search({"q" => "deer & lion", "perpage" => 72})
+      or_results = @fa.search({"q" => "deer lion", "perpage" => 72, "mode" => "any"})
+      and_results = @fa.search({"q" => "deer lion", "perpage" => 72, "mode" => "all"})
+
+      check_results_lists_are_different(extended_and_results, extended_or_results)
+      check_results_lists_are_different(and_results, or_results)
+
+      check_results_lists_are_similar(extended_or_results, or_results)
+      check_results_lists_are_similar(extended_and_results, and_results)
+    end
+
     it 'can specify ratings to display, and honours that selection'
     it 'displays nothing when only adult is selected, and sfw mode is on'
     it 'can specify a content type for results, only returns that content type'
@@ -1406,5 +1416,23 @@ describe 'FA parser' do
 
   def check_thumbnail_link(link, id)
     expect(link).to match(/^https:\/\/t.facdn.net\/#{id}@[0-9]{2,3}-[0-9]+.jpg$/)
+  end
+
+  def check_results_lists_are_similar(results1, result2)
+    results1_ids = results1.map{|result| result[:id]}
+    results2_ids = result2.map{|result| result[:id]}
+    intersection = results1_ids & results2_ids
+
+    threshold = [results1_ids.length, results2_ids.length].max * 0.9
+    expect(intersection.length).to be >= threshold
+  end
+
+  def check_results_lists_are_different(results1, results2)
+    results1_ids = results1.map{|result| result[:id]}
+    results2_ids = result2.map{|result| result[:id]}
+    intersection = results1_ids & results2_ids
+
+    threshold = [results1_ids.length, results2_ids.length].max * 0.1
+    expect(intersection.length).to be <= threshold
   end
 end
