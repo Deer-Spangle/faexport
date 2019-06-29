@@ -1283,7 +1283,32 @@ describe 'FA parser' do
       check_results_lists_are_similar(extended_and_results, and_results)
     end
 
-    it 'can specify ratings to display, and honours that selection'
+    it 'can specify ratings to display, and honours that selection' do
+      only_adult = @fa.search({"q" => "ych", "perpage" => 24, "rating" => "adult"})
+      only_sfw_or_mature = @fa.search({"q" => "ych", "perpage" => 24, "rating" => "mature,general"})
+
+      check_results_lists_are_different(only_adult, only_sfw_or_mature)
+
+      only_adult.each do |submission|
+        full_submission = @fa.submission(submission[:id])
+        expect(full_submission[:rating]).to eql("Adult")
+      end
+
+      general_count = 0
+      mature_count = 0
+      only_sfw_or_mature.each do |submission|
+        full_submission = @fa.submission(submission[:id])
+        expect(full_submission[:rating]).not_to eql("Adult")
+        if full_submission[:rating] == "General"
+          general_count += 1
+        else
+          mature_count += 1
+        end
+      end
+      expect(general_count).to be > 0
+      expect(mature_count).to be > 0
+    end
+
     it 'displays nothing when only adult is selected, and sfw mode is on'
     it 'can specify a content type for results, only returns that content type'
     it 'can specify multiple content types for results, and only displays those types'
@@ -1429,7 +1454,7 @@ describe 'FA parser' do
 
   def check_results_lists_are_different(results1, results2)
     results1_ids = results1.map{|result| result[:id]}
-    results2_ids = result2.map{|result| result[:id]}
+    results2_ids = results2.map{|result| result[:id]}
     intersection = results1_ids & results2_ids
 
     threshold = [results1_ids.length, results2_ids.length].max * 0.1
