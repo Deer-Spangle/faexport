@@ -1309,17 +1309,40 @@ describe 'FA parser' do
       expect(mature_count).to be > 0
     end
 
-    it 'displays nothing when only adult is selected, and sfw mode is on' do
+    it 'displays only sfw results when only adult is selected, and sfw mode is on' do
       @fa.safe_for_work = true
-      results = @fa.search({"q" => "ych", "rating" => "adult"})
-      expect(results.length).to be 0
+      results = @fa.search({"q" => "ych", "perpage" => 24, "rating" => "adult"})
+      results.each do |submission|
+        full_submission = @fa.submission(submission[:id])
+        expect(full_submission[:rating]).to eql("General")
+      end
     end
 
-    it 'can specify a content type for results, only returns that content type'
-    it 'can specify multiple content types for results, and only displays those types'
-    it 'ignores other unused parameters'
-    it 'raises an error if given invalid option for a parameter'
-    it 'raises an error if given an invalid option for a multi-value parameter'
+    it 'can specify a content type for results, only returns that content type' do
+      results_poem = @fa.search({"q" => "deer", "perpage" => 72, "type" => "poetry"})
+      results_photo = @fa.search({"q" => "deer", "perpage" => 72, "type" => "photo"})
+      check_results_lists_are_different(results_photo, results_poem)
+    end
+
+    it 'can specify multiple content types for results, and only displays those types' do
+      results_image = @fa.search({"q" => "deer", "perpage" => 72, "type" => "photo,art"})
+      results_swf_music = @fa.search({"q" => "deer", "perpage" => 72, "type" => "flash,music"})
+      check_results_lists_are_different(results_image, results_swf_music)
+    end
+
+    it 'ignores other unused parameters' do
+      results = @fa.search({"q" => "ych", "foo" => "bar"})
+      expect(results).to be_instance_of Array
+      expect(results).not_to be_empty
+    end
+
+    it 'raises an error if given invalid option for a parameter' do
+      expect { @fa.search({"q" => "ych", "perpage" => 100}) }.to raise_error(FASearchError)
+    end
+
+    it 'raises an error if given an invalid option for a multi-value parameter' do
+      expect { @fa.search({"q" => "ych", "rating" => "adult,lewd"}) }.to raise_error(FASearchError)
+    end
   end
 
   context 'when reading new submission notifications' do
