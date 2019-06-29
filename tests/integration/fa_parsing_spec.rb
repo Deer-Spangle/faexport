@@ -1309,7 +1309,12 @@ describe 'FA parser' do
       expect(mature_count).to be > 0
     end
 
-    it 'displays nothing when only adult is selected, and sfw mode is on'
+    it 'displays nothing when only adult is selected, and sfw mode is on' do
+      @fa.safe_for_work = true
+      results = @fa.search({"q" => "ych", "rating" => "adult"})
+      expect(results.length).to be 0
+    end
+
     it 'can specify a content type for results, only returns that content type'
     it 'can specify multiple content types for results, and only displays those types'
     it 'ignores other unused parameters'
