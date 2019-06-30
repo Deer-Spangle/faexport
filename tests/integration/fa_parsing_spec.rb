@@ -1189,12 +1189,12 @@ describe 'FA parser' do
       results1 = @fa.search({"q" => "YCH"})
       expect(results1).to be_instance_of Array
       expect(results1).not_to be_empty
-      expect(results1.length).to be 72
+      expect(results1.length).to be > 20
       # Get page 2
       results2 = @fa.search({"q" => "YCH"})
       expect(results2).to be_instance_of Array
       expect(results2).not_to be_empty
-      expect(results2.length).to be 72
+      expect(results2.length).to be > 20
     end
 
     it 'returns a specific set of test submissions when using a rare test keyword' do
@@ -1212,17 +1212,19 @@ describe 'FA parser' do
       results_long = @fa.search({"q" => "YCH", "perpage" => "72"})
       expect(results_long).to be_instance_of Array
       expect(results_long).not_to be_empty
-      expect(results_long.length).to be 72
+      expect(results_long.length).to be >= 70
 
       results_med = @fa.search({"q" => "YCH", "perpage" => "48"})
       expect(results_med).to be_instance_of Array
       expect(results_med).not_to be_empty
-      expect(results_med.length).to be 48
+      expect(results_med.length).to be >= 46
+      expect(results_med.length).to be < 49
 
       results_short = @fa.search({"q" => "YCH", "perpage" => "24"})
       expect(results_short).to be_instance_of Array
       expect(results_short).not_to be_empty
-      expect(results_short.length).to be 24
+      expect(results_short.length).to be >= 22
+      expect(results_short.length).to be < 25
     end
 
     it 'defaults to ordering by date desc' do
@@ -1346,12 +1348,24 @@ describe 'FA parser' do
   end
 
   context 'when reading new submission notifications' do
-    it 'will correctly parse current user'
-    it 'should not return anything unless login cookie is given'
-    it 'should handle zero notifications'
+    it 'will correctly parse current user' do
+      @fa.login_cookie = COOKIE_TEST_USER_2
+      new_subs = @fa.new_submissions(nil)
+      expect(new_subs[:current_user][:name]).to eql(TEST_USER_2)
+      check_profile_link(new_subs[:current_user])
+    end
+
+    it 'should handle zero notifications' do
+      @fa.login_cookie = COOKIE_TEST_USER_2
+      new_subs = @fa.new_submissions(nil)
+      expect(new_subs[:new_submissions]).to be_instance_of Array
+      expect(new_subs[:new_submissions]).to be_empty
+    end
+
     it 'should handle deleted notifications'
     it 'should hide nsfw submissions if sfw=1 is specified'
     it 'returns a valid list of new submission notifications'
+    it 'handles paging correctly'
   end
 
   context 'when reading notifications' do
