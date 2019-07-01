@@ -8,6 +8,8 @@ describe 'FA parser' do
   TEST_USER = "fafeed"
   TEST_USER_2 = "fafeed-2"
   COOKIE_TEST_USER_2 = ENV['test_cookie_user_2']
+  TEST_USER_3 = "fafeed-3"
+  COOKIE_TEST_USER_3 = ENV['test_cookie_user_3']
   # Specific test user cases
   TEST_USER_NOT_EXIST = "fafeed-does-not-exist"
   TEST_USER_WITH_BRACKETS = "l[i]s"
@@ -1365,8 +1367,26 @@ describe 'FA parser' do
       expect(new_subs[:new_submissions]).to be_empty
     end
 
-    it 'should hide nsfw submissions if sfw=1 is specified'
-    it 'returns a valid list of new submission notifications'
+    it 'should hide nsfw submissions if sfw=1 is specified' do
+      @fa.login_cookie = COOKIE_TEST_USER_3
+      new_subs = @fa.new_submissions(nil)
+
+      @fa.safe_for_work = true
+      new_safe_subs = @fa.new_submissions(nil)
+
+      expect(new_safe_subs[:new_submissions].length).to be < new_subs[:new_submissions].length
+    end
+
+    it 'returns a valid list of new submission notifications' do
+      @fa.login_cookie = COOKIE_TEST_USER_3
+      new_subs = @fa.new_submissions(nil)
+      expect(new_subs[:new_submissions]).to be_instance_of Array
+      expect(new_subs[:new_submissions]).not_to be_empty
+      new_subs[:new_submissions].each do |submission|
+        check_submission(submission)
+      end
+    end
+
     it 'handles paging correctly'
   end
 
