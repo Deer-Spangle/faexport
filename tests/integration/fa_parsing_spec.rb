@@ -1315,8 +1315,11 @@ describe 'FA parser' do
       @fa.safe_for_work = true
       results = @fa.search({"q" => "ych", "perpage" => 24, "rating" => "adult"})
       results.each do |submission|
-        full_submission = @fa.submission(submission[:id])
-        expect(full_submission[:rating]).to eql("General")
+        begin
+          full_submission = @fa.submission(submission[:id])
+          expect(full_submission[:rating]).to eql("General")
+        rescue FASystemError
+        end
       end
     end
 
