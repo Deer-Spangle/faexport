@@ -1365,7 +1365,6 @@ describe 'FA parser' do
       expect(new_subs[:new_submissions]).to be_empty
     end
 
-    it 'should handle deleted notifications'
     it 'should hide nsfw submissions if sfw=1 is specified'
     it 'returns a valid list of new submission notifications'
     it 'handles paging correctly'
