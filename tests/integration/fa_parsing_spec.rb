@@ -1507,6 +1507,8 @@ describe 'FA parser' do
           expect(comment_notification[:is_reply]).to be_in([true, false])
           expect(comment_notification[:your_submission]).to be_in([true, false])
           expect(comment_notification[:their_submission]).to be_in([true, false])
+          # Can't be both yours and theirs
+          expect(comment_notification[:your_submission] && comment_notification[:their_submission]).to be false
           expect(comment_notification[:submission_id]).to match(/[0-9]+/)
           expect(comment_notification[:title]).not_to be_blank
           check_date(comment_notification[:posted], comment_notification[:posted_at])
@@ -1638,6 +1640,7 @@ describe 'FA parser' do
           expect(comment_notification[:is_reply]).to be_in([true, false])
           expect(comment_notification[:your_journal]).to be_in([true, false])
           expect(comment_notification[:their_journal]).to be_in([true, false])
+          expect(comment_notification[:your_journal] && comment_notification[:their_journal]).to be false
           expect(comment_notification[:journal_id]).to match(/[0-9]+/)
           expect(comment_notification[:title]).not_to be_blank
           check_date(comment_notification[:posted], comment_notification[:posted_at])
