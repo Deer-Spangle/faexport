@@ -587,6 +587,7 @@ class Furaffinity
                 profile_name: "",
                 is_reply: false,
                 your_submission: false,
+                their_submission: false,
                 submission_id: "",
                 title: "Comment or the submission it was left on has been deleted",
                 posted: "",
@@ -597,13 +598,15 @@ class Furaffinity
         end
         elem_links = elem.css("a")
         date = pick_date(elem.at_css('.popup_date'))
+        is_reply = elem.to_s.include?("<em>your</em> comment on")
         new_submission_comments << {
             comment_id: elem.at_css("input")['value'],
             name: elem_links[0].content,
             profile: fa_url(elem_links[0]['href']),
             profile_name: last_path(elem_links[0]['href']),
-            is_reply: elem.to_s.include?("<em>your</em> comment on"),
-            your_submission: elem.css('em').last.content == "your",
+            is_reply: is_reply,
+            your_submission: !is_reply || elem.css('em').length == 2 && elem.css('em').last.content == "your",
+            their_submission: elem.css('em').length == 2 && elem.css('em').last.content == "their",
             submission_id: elem_links[1]['href'].split("/")[-2],
             title: elem_links[1].content,
             posted: date,

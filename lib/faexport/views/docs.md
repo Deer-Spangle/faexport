@@ -740,6 +740,7 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
       "profile_name": "scruffythedeer",
       "is_reply": true,
       "your_submission": false,
+      "their_submission": true,
       "submission_id": "#cid:138134657",
       "title": "[CM] Willow Shafted (internal)",
       "posted": "on May 3rd, 2019 09:02 AM",
