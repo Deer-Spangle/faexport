@@ -653,7 +653,7 @@ Retrieves a list of new submission notifications.
 
 The way that FA handles paging in submission notifications is that you specify the ID of a submission in your notifications, and it will display that submission, and all the ones after it.
 You can specify the submission ID to start from with the `from=` parameter in the URL.
-Paging through submissions without overlap can be achieved by taking the last submission, adding 1 to the ID, and supplying that using the `from` parameter.
+Paging through submissions without overlap can be achieved by taking the last submission, subtracting 1 from the ID, and supplying that using the `from` parameter.
 
 ~~~json
 {
@@ -703,12 +703,12 @@ Login cookie required.
 Retrieves a dictionary of all current (non-submission) notifications. RSS feeds are available for each individual notification type.
 
 While json and xml formats are available as a combined endpoint at /notifications/others, rss feeds are separated into 6 different endpoints:
-- /notifications/watches.rss
-- /notifications/submission_comments.rss
-- /notifications/journal_comments.rss
-- /notifications/shouts.rss
-- /notifications/favorites.rss
-- /notifications/journals.rss
+* /notifications/watches.rss
+* /notifications/submission_comments.rss
+* /notifications/journal_comments.rss
+* /notifications/shouts.rss
+* /notifications/favorites.rss
+* /notifications/journals.rss
 
 To include deleted notifications as well, pass `?include_deleted=1`.
 As deleted journal notifications are hidden on FA now, you cannot display these using the `include_deleted` parameter.
