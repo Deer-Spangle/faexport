@@ -1368,7 +1368,25 @@ describe 'FA parser' do
     it 'should handle deleted notifications'
     it 'should hide nsfw submissions if sfw=1 is specified'
     it 'returns a valid list of new submission notifications'
-    it 'handles paging correctly'
+    it 'handles paging correctly' do
+      all_subs = @fa.new_submission(nil)
+      expect(all_subs).to be_instance_of Array
+      expect(all_subs).not_to be_empty
+
+      second_sub = all_subs[1]
+      all_from_second = @fa.new_submissions(second_sub[:id])
+      expect(all_from_second).to be_instance_of Array
+      expect(all_from_second).not_to be_empty
+
+      all_after_second = @fa.new_submission(second_sub[:id]-1)
+      expect(all_after_second).to be_instance_of Array
+      expect(all_after_second).not_to be_empty
+
+      expect(all_from_second.length).to be(all_subs.length - 1)
+      expect(all_from_second[0][:id]).to eql(all_subs[1][:id])
+      expect(all_after_second.length).to be(all_subs.length - 2)
+      expect(all_after_second[0][:id]).to eql(all_subs[2][:id])
+    end
   end
 
   context 'when reading notifications' do
