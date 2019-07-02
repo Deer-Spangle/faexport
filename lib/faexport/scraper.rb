@@ -528,7 +528,7 @@ class Furaffinity
     # Get page code
     html = fetch(url)
 
-    login_user = get_current_user(html)
+    login_user = get_current_user(html, url)
     submissions = html.css('.gallery > figure').map{|art| build_submission_notification(art)}
     {
         "current_user": login_user,
@@ -538,9 +538,10 @@ class Furaffinity
 
   def notifications(include_deleted)
     # Get page code
-    html = fetch("msg/others/")
+    url = "msg/others/"
+    html = fetch(url)
     # Parse page
-    login_user = get_current_user(html)
+    login_user = get_current_user(html, url)
     # Parse new watcher notifications
     new_watches = []
     watches_elem = html.at_css("ul#watches")
@@ -958,8 +959,11 @@ private
     end.compact
   end
 
-  def get_current_user(html)
+  def get_current_user(html, url)
     name_elem = html.at_css("a#my-username")
+    if name_elem.nil?
+      raise FALoginError.new(url)
+    end
     {
         "name": name_elem.content.gsub(/^~/, ''),
         "profile": fa_url(name_elem['href'][1..-1]),

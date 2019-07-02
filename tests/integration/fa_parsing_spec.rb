@@ -1418,7 +1418,11 @@ describe 'FA parser' do
       check_profile_link(notifications[:current_user])
     end
 
-    it 'should not return anything unless login cookie is given'
+    it 'should not return anything unless login cookie is given' do
+      @fa.login_cookie = nil
+      expect { @fa.notifications(false) }.to raise_error(FALoginError)
+    end
+
     it 'should contain all 6 types of notifications' do
       @fa.login_cookie = COOKIE_TEST_USER_2
       notifications = @fa.notifications(false)
