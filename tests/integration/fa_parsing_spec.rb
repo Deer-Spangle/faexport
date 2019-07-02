@@ -1620,16 +1620,134 @@ describe 'FA parser' do
     end
 
     context 'journal comment notifications' do
-      it 'should handle zero journal comment notifications'
-      it 'returns a list of new journal comment notifications'
-      it 'correctly parses base level comments to your journals'
-      it 'correctly parses replies to your comments on your journals'
-      it 'correctly parses replies to your comments on their journals'
-      it 'correctly parses replies to your comments on someone else\'s journals'
-      it 'hides deleted comments by default'
-      it 'displays deleted comment notifications when specified'
-      it 'hides comments on deleted journals by default'
-      it 'displays comments on deleted journals when specified'
+      it 'should handle zero journal comment notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
+        notifications = @fa.notifications(false)[:new_journal_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).to be_empty
+      end
+
+      it 'returns a list of new journal comment notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_journal_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+        notifications.each do |comment_notification|
+          expect(comment_notification[:comment_id]).to match(/[0-9]+/)
+          check_profile_link(comment_notification)
+          expect(comment_notification[:is_reply]).to be_in([true, false])
+          expect(comment_notification[:your_journal]).to be_in([true, false])
+          expect(comment_notification[:their_journal]).to be_in([true, false])
+          expect(comment_notification[:journal_id]).to match(/[0-9]+/)
+          expect(comment_notification[:title]).not_to be_blank
+          check_date(comment_notification[:posted], comment_notification[:posted_at])
+        end
+      end
+
+      it 'correctly parses base level comments to your journals' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_journal_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        found_comment = false
+
+        notifications.each do |comment_notification|
+          if !comment_notification[:is_reply] &&
+              comment_notification[:your_journal] &&
+              !comment_notification[:their_journal]
+            found_comment = true
+          end
+        end
+
+        expect(found_comment).to be true
+      end
+
+      it 'correctly parses replies to your comments on your journals' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_journal_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        found_comment = false
+
+        notifications.each do |comment_notification|
+          if comment_notification[:is_reply] &&
+              comment_notification[:your_journal] &&
+              !comment_notification[:their_journal]
+            found_comment = true
+          end
+        end
+
+        expect(found_comment).to be true
+      end
+
+      it 'correctly parses replies to your comments on their journals' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_journal_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        found_comment = false
+
+        notifications.each do |comment_notification|
+          if comment_notification[:is_reply] &&
+              !comment_notification[:your_journal] &&
+              comment_notification[:their_journal]
+            found_comment = true
+          end
+        end
+
+        expect(found_comment).to be true
+      end
+
+      it 'correctly parses replies to your comments on someone else\'s journals' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_journal_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        found_comment = false
+
+        notifications.each do |comment_notification|
+          if comment_notification[:is_reply] &&
+              !comment_notification[:your_journal] &&
+              !comment_notification[:their_journal]
+            found_comment = true
+          end
+        end
+
+        expect(found_comment).to be true
+      end
+
+      it 'displays deleted journal comment notifications when specified and hide otherwise' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_journal_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        notifications_include = @fa.notifications(true)[:new_journal_comments]
+        expect(notifications_include).to be_instance_of Array
+        expect(notifications_include).not_to be_empty
+
+        expect(notifications_include.length).to be > notifications.length
+
+        deleted = notifications_include - notifications
+
+        deleted.each do |deleted_comment|
+          expect(deleted_comment[:comment_id]).to eql("")
+          expect(deleted_comment[:name]).to eql("Comment or the journal it was left on has been deleted")
+          expect(deleted_comment[:profile]).to eql("")
+          expect(deleted_comment[:profile_name]).to eql("")
+          expect(deleted_comment[:is_reply]).to be false
+          expect(deleted_comment[:your_journal]).to be false
+          expect(deleted_comment[:their_journal]).to be false
+          expect(deleted_comment[:journal_id]).to eql("")
+          expect(deleted_comment[:title]).to eql("Comment or the journal it was left on has been deleted")
+          expect(deleted_comment[:posted]).to eql("")
+          expect(deleted_comment[:posted_at]).to eql("")
+        end
+      end
     end
 
     context 'shout notifications' do
