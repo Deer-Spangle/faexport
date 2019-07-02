@@ -1800,10 +1800,54 @@ describe 'FA parser' do
     end
 
     context 'favourite notifications' do
-      it 'should handle zero favourite notifications'
-      it 'returns a list of new favourite notifications'
-      it 'hides deleted favourites by default'
-      it 'displays deleted favourite notifications when specified'
+      it 'should handle zero favourite notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
+        notifications = @fa.notifications(false)[:new_favorites]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).to be_empty
+      end
+
+      it 'returns a list of new favourite notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_favorites]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        notifications.each do |new_fav|
+          expect(new_fav[:favorite_notification_id]).to match(/[0-9]+/)
+          check_profile_link(new_fav)
+          expect(new_fav[:submission_id]).to match(/[0-9]+/)
+          expect(new_fav[:submission_name]).not_to be_blank
+          check_date(new_fav[:posted], new_fav[:posted_at])
+        end
+      end
+
+      it 'displays deleted favourite notifications when specified and hides otherwise' do
+        skip "Skipped: Looks like deleted favourite notifications don't display anymore"
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_favorites]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        notifications_include = @fa.notifications(true)[:new_favorites]
+        expect(notifications_include).to be_instance_of Array
+        expect(notifications_include).not_to be_empty
+
+        expect(notifications_include.length).to be > notifications.length
+
+        deleted = notifications_include - notifications
+
+        deleted.each do |deleted_fav|
+          expect(deleted_fav[:favorite_notification_id]).to eql("")
+          expect(deleted_fav[:name]).to eql("The favorite this notification was for has since been removed by the user")
+          expect(deleted_fav[:profile]).to eql("")
+          expect(deleted_fav[:profile_name]).to eql("")
+          expect(deleted_fav[:submission_id]).to eql("")
+          expect(deleted_fav[:submission_name]).to eql("The favorite this notification was for has since been removed by the user")
+          expect(deleted_fav[:posted]).to eql("")
+          expect(deleted_fav[:posted_at]).to eql("")
+        end
+      end
     end
 
     context 'journal notifications' do
