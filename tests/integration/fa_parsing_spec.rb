@@ -1851,8 +1851,26 @@ describe 'FA parser' do
     end
 
     context 'journal notifications' do
-      it 'should handle zero new journals'
-      it 'returns a list of new journal notifications'
+      it 'should handle zero new journals' do
+        @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
+        notifications = @fa.notifications(false)[:new_journals]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).to be_empty
+      end
+
+      it 'returns a list of new journal notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_3
+        notifications = @fa.notifications(false)[:new_journals]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        notifications.each do |new_journal|
+          expect(new_journal[:journal_id]).to match(/[0-9]+/)
+          expect(new_journal[:title]).not_to be_blank
+          check_profile_link(new_journal)
+          check_date(new_journal[:posted], new_journal[:posted_at])
+        end
+      end
     end
   end
 
