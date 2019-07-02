@@ -1413,7 +1413,7 @@ describe 'FA parser' do
     context 'watcher notifications' do
       it 'should handle zero new watchers' do
         @fa.login_cookie = COOKIE_TEST_USER_3
-        watchers = @fa.notifications(false)[:new_watches])
+        watchers = @fa.notifications(false)[:new_watches]
         expect(watchers).to be_instance_of Array
         expect(watchers).to be_empty
       end
