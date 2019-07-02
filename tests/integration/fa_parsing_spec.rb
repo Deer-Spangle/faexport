@@ -22,6 +22,7 @@ describe 'FA parser' do
   TEST_USER_HIDDEN_FAVS = TEST_USER_NO_WATCHERS
   COOKIE_TEST_USER_HIDDEN_FAVS = ENV['test_cookie_hidden_favs']
   TEST_USER_2_PAGES_FAVS = TEST_USER_2_PAGES_GALLERY
+  COOKIE_TEST_USER_NO_NOTIFICATIONS = COOKIE_TEST_USER_HIDDEN_FAVS
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
@@ -758,7 +759,7 @@ describe 'FA parser' do
         comments = @fa.submission_comments("32006460", false)
         # Check first comment
         expect(comments[0][:id]).not_to be_blank
-        expect(comments[0][:profile_name]).to eql("fafeed-3")
+        expect(comments[0][:profile_name]).to eql(TEST_USER_3)
         check_profile_link(comments[0])
         check_avatar(comments[0][:avatar], comments[0][:profile_name])
         check_date(comments[0][:posted], comments[0][:posted_at])
@@ -767,7 +768,7 @@ describe 'FA parser' do
         expect(comments[0][:reply_level]).to be 0
         # Check second comment
         expect(comments[1][:id]).not_to be_blank
-        expect(comments[1][:profile_name]).to eql("fafeed-3")
+        expect(comments[1][:profile_name]).to eql(TEST_USER_3)
         check_profile_link(comments[1])
         check_avatar(comments[1][:avatar], comments[1][:profile_name])
         check_date(comments[1][:posted], comments[1][:posted_at])
@@ -988,7 +989,7 @@ describe 'FA parser' do
         comments = @fa.journal_comments("6894788", false)
         # Check first comment
         expect(comments[0][:id]).not_to be_blank
-        expect(comments[0][:profile_name]).to eql("fafeed-3")
+        expect(comments[0][:profile_name]).to eql(TEST_USER_3)
         check_profile_link(comments[0])
         check_avatar(comments[0][:avatar], comments[0][:profile_name])
         check_date(comments[0][:posted], comments[0][:posted_at])
@@ -997,7 +998,7 @@ describe 'FA parser' do
         expect(comments[0][:reply_level]).to be 0
         # Check second comments
         expect(comments[1][:id]).not_to be_blank
-        expect(comments[1][:profile_name]).to eql("fafeed-3")
+        expect(comments[1][:profile_name]).to eql(TEST_USER_3)
         check_profile_link(comments[1])
         check_avatar(comments[1][:avatar], comments[1][:profile_name])
         check_date(comments[1][:posted], comments[1][:posted_at])
@@ -1488,16 +1489,134 @@ describe 'FA parser' do
     end
 
     context 'submission comment notifications' do
-      it 'should handle zero submission comment notifications'
-      it 'returns a list of new submission comment notifications'
-      it 'correctly parses base level comments to your submissions'
-      it 'correctly parses replies to your comments on your submissions'
-      it 'correctly parses replies to your comments on their submissions'
-      it 'correctly parses replies to your comments on someone else\'s submissions'
-      it 'hides deleted comments by default'
-      it 'displays deleted comment notifications when specified'
-      it 'hides comments on deleted submissions by default'
-      it 'displays comments on deleted submissions when specified'
+      it 'should handle zero submission comment notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
+        notifications = @fa.notifications(false)[:new_submission_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).to be_empty
+      end
+
+      it 'returns a list of new submission comment notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_submission_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+        notifications.each do |comment_notification|
+          expect(comment_notification[:comment_id]).to match(/[0-9]+/)
+          check_profile_link(comment_notification)
+          expect(comment_notification[:is_reply]).to be_in([true, false])
+          expect(comment_notification[:your_submission]).to be_in([true, false])
+          expect(comment_notification[:their_submission]).to be_in([true, false])
+          expect(comment_notification[:submission_id]).to match(/[0-9]+/)
+          expect(comment_notification[:title]).not_to be_blank
+          check_date(comment_notification[:posted], comment_notification[:posted_at])
+        end
+      end
+
+      it 'correctly parses base level comments to your submissions' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_submission_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        found_comment = false
+
+        notifications.each do |comment_notification|
+          if !comment_notification[:is_reply] &&
+              comment_notification[:your_submission] &&
+              !comment_notification[:their_submission]
+            found_comment = true
+          end
+        end
+
+        expect(found_comment).to be true
+      end
+
+      it 'correctly parses replies to your comments on your submissions' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_submission_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        found_comment = false
+
+        notifications.each do |comment_notification|
+          if comment_notification[:is_reply] &&
+              comment_notification[:your_submission] &&
+              !comment_notification[:their_submission]
+            found_comment = true
+          end
+        end
+
+        expect(found_comment).to be true
+      end
+
+      it 'correctly parses replies to your comments on their submissions' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_submission_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        found_comment = false
+
+        notifications.each do |comment_notification|
+          if comment_notification[:is_reply] &&
+              !comment_notification[:your_submission] &&
+              comment_notification[:their_submission]
+            found_comment = true
+          end
+        end
+
+        expect(found_comment).to be true
+      end
+
+      it 'correctly parses replies to your comments on someone else\'s submissions' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_submission_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        found_comment = false
+
+        notifications.each do |comment_notification|
+          if comment_notification[:is_reply] &&
+              !comment_notification[:your_submission] &&
+              !comment_notification[:their_submission]
+            found_comment = true
+          end
+        end
+
+        expect(found_comment).to be true
+      end
+
+      it 'displays deleted submission comment notifications when specified and hide otherwise' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_submission_comments]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        notifications_include = @fa.notifications(true)[:new_submission_comments]
+        expect(notifications_include).to be_instance_of Array
+        expect(notifications_include).not_to be_empty
+
+        expect(notifications_include.length).to be > notifications.length
+
+        deleted = notifications_include - notifications
+
+        deleted.each do |deleted_comment|
+          expect(deleted_comment[:comment_id]).to eql("")
+          expect(deleted_comment[:name]).to eql("Comment or the submission it was left on has been deleted")
+          expect(deleted_comment[:profile]).to eql("")
+          expect(deleted_comment[:profile_name]).to eql("")
+          expect(deleted_comment[:is_reply]).to be false
+          expect(deleted_comment[:your_submission]).to be false
+          expect(deleted_comment[:their_submission]).to be false
+          expect(deleted_comment[:submission_id]).to eql("")
+          expect(deleted_comment[:title]).to eql("Comment or the submission it was left on has been deleted")
+          expect(deleted_comment[:posted]).to eql("")
+          expect(deleted_comment[:posted_at]).to eql("")
+        end
+      end
     end
 
     context 'journal comment notifications' do
