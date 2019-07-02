@@ -1391,9 +1391,24 @@ describe 'FA parser' do
   end
 
   context 'when reading notifications' do
-    it 'will correctly parse current user'
+    it 'will correctly parse current user' do
+      @fa.login_cookie = COOKIE_TEST_USER_2
+      notifications = @fa.notifications(false)
+      expect(notifications[:current_user][:name]).to eql(TEST_USER_2)
+      check_profile_link(notifications[:current_user])
+    end
+
     it 'should not return anything unless login cookie is given'
-    it 'should contain all 6 types of notifications'
+    it 'should contain all 6 types of notifications' do
+      @fa.login_cookie = COOKIE_TEST_USER_2
+      notifications = @fa.notifications(false)
+      expect(notifications).to have_key(:new_watches)
+      expect(notifications).to have_key(:new_submission_comments)
+      expect(notifications).to have_key(:new_journal_comments)
+      expect(notifications).to have_key(:new_shouts)
+      expect(notifications).to have_key(:new_favorites)
+      expect(notifications).to have_key(:new_journals)
+    end
 
     context 'watcher notifications' do
       it 'should handle zero new watchers'
