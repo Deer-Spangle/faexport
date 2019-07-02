@@ -1382,14 +1382,12 @@ describe 'FA parser' do
       new_subs = @fa.new_submissions(nil)
       expect(new_subs[:new_submissions]).to be_instance_of Array
       expect(new_subs[:new_submissions]).not_to be_empty
-      new_subs[:new_submissions].each do |submission|
-        check_submission(submission)
-      end
+      new_subs[:new_submissions].each(&method(:check_submission))
     end
 
     it 'handles paging correctly' do
       @fa.login_cookie = COOKIE_TEST_USER_3
-      all_subs = @fa.new_submission(nil)
+      all_subs = @fa.new_submissions(nil)
       expect(all_subs).to be_instance_of Array
       expect(all_subs).not_to be_empty
 
@@ -1398,7 +1396,7 @@ describe 'FA parser' do
       expect(all_from_second).to be_instance_of Array
       expect(all_from_second).not_to be_empty
 
-      all_after_second = @fa.new_submission(second_sub[:id]-1)
+      all_after_second = @fa.new_submissions(second_sub[:id]-1)
       expect(all_after_second).to be_instance_of Array
       expect(all_after_second).not_to be_empty
 
