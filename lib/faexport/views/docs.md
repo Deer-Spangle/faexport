@@ -756,6 +756,7 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
       "profile_name": "jeevestheroo",
       "is_reply": true,
       "your_journal": false,
+      "their_journal": true,
       "journal_id": "9130470",
       "title": "Confuzzled 2019!! Say hello to me if you're going!",
       "posted": "on May 3rd, 2019 01:04 PM",
