@@ -1754,10 +1754,49 @@ describe 'FA parser' do
     end
 
     context 'shout notifications' do
-      it 'should handle zero shout notifications'
-      it 'returns a list of new shout notifications'
-      it 'hides deleted shouts by default'
-      it 'displays deleted shout notifications when specified'
+      it 'should handle zero shout notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
+        notifications = @fa.notifications(false)[:new_shouts]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).to be_empty
+      end
+
+      it 'returns a list of new shout notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_shouts]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        notifications.each do |new_shout|
+          expect(new_shout[:shout_id]).to match(/[0-9]+/)
+          check_profile_link(new_shout)
+          check_date(new_shout[:posted], new_shout[:posted_at])
+        end
+      end
+
+      it 'displays deleted shout notifications when specified and hides otherwise' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        notifications = @fa.notifications(false)[:new_shouts]
+        expect(notifications).to be_instance_of Array
+        expect(notifications).not_to be_empty
+
+        notifications_include = @fa.notifications(true)[:new_shouts]
+        expect(notifications_include).to be_instance_of Array
+        expect(notifications_include).not_to be_empty
+
+        expect(notifications_include.length).to be > notifications.length
+
+        deleted = notifications_include - notifications
+
+        deleted.each do |deleted_shout|
+          expect(deleted_shout[:shout_id]).to eql("")
+          expect(deleted_shout[:name]).to eql("Shout has been removed from your page")
+          expect(deleted_shout[:profile]).to eql("")
+          expect(deleted_shout[:profile_name]).to eql("")
+          expect(deleted_shout[:posted]).to eql("")
+          expect(deleted_shout[:posted_at]).to eql("")
+        end
+      end
     end
 
     context 'favourite notifications' do
