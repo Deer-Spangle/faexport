@@ -1524,7 +1524,7 @@ describe 'FA parser' do
     expect(submission[:id]).to match(/^[0-9]+$/)
     # Check title
     if blank_title
-      expect(submission[:title]).to be_blank
+      expect(submission[:title]).to be_blank, "Title of submission #{submission[:id]} was not meant to be blank"
     else
       expect(submission[:title]).not_to be_blank
     end
