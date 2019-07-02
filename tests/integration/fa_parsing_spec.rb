@@ -1411,10 +1411,55 @@ describe 'FA parser' do
     end
 
     context 'watcher notifications' do
-      it 'should handle zero new watchers'
-      it 'returns a list of new watcher notifications'
-      it 'should hide deleted watcher notifications by default'
-      it 'should display deleted watcher notifications when specified'
+      it 'should handle zero new watchers' do
+        @fa.login_cookie = COOKIE_TEST_USER_3
+        watchers = @fa.notifications(false)[:new_watches])
+        expect(watchers).to be_instance_of Array
+        expect(watchers).to be_empty
+      end
+
+      it 'returns a list of new watcher notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        watchers = @fa.notifications(false)[:new_watches]
+        expect(watchers).to be_instance_of Array
+        expect(watchers).not_to be_empty
+        watchers.each do |watcher|
+          expect(watcher[:watch_id]).to match(/[0-9]+/)
+          check_profile_link(watcher)
+          check_avatar(watcher[:avatar], watcher[:profile_name])
+          check_date(watcher[:posted], watcher[:posted_at])
+        end
+      end
+
+      it 'should hide deleted watcher notifications by default' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        watchers = @fa.notifications(false)[:new_watches]
+        expect(watchers).to be_instance_of Array
+        expect(watchers).not_to be_empty
+        expect(watchers.length).to be 1
+      end
+
+      it 'should display deleted watcher notifications when specified and hide otherwise' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        watchers = @fa.notifications(false)[:new_watches]
+        expect(watchers).to be_instance_of Array
+        expect(watchers).not_to be_empty
+
+        watchers_deleted = @fa.notifications(true)[:new_watches]
+        expect(watchers_deleted).to be_instance_of Array
+        expect(watchers_deleted).not_to be_empty
+
+        expect(watchers_deleted.length).to be > watchers.length
+
+        deleted_watch = watchers_deleted[-1]
+        expect(deleted_watch[:watch_id]).to eql("")
+        expect(deleted_watch[:name]).to eql("Removed by the user")
+        expect(deleted_watch[:profile]).to eql("")
+        expect(deleted_watch[:profile_name]).to eql("")
+        expect(deleted_watch[:avatar]).to eql("I forgot the link.")
+        expect(deleted_watch[:posted]).to eql("")
+        expect(deleted_watch[:posted_at]).to eql("")
+      end
     end
 
     context 'submission comment notifications' do
