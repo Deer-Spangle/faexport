@@ -741,7 +741,7 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
       "is_reply": true,
       "your_submission": false,
       "their_submission": true,
-      "submission_id": "#cid:138134657",
+      "submission_id": "31400974",
       "title": "[CM] Willow Shafted (internal)",
       "posted": "on May 3rd, 2019 09:02 AM",
       "posted_at": "2019-05-03T09:02:00Z"
