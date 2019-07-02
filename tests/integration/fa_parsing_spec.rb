@@ -1387,19 +1387,98 @@ describe 'FA parser' do
       end
     end
 
-    it 'handles paging correctly'
+    it 'handles paging correctly' do
+      @fa.login_cookie = COOKIE_TEST_USER_3
+      all_subs = @fa.new_submission(nil)
+      expect(all_subs).to be_instance_of Array
+      expect(all_subs).not_to be_empty
+
+      second_sub = all_subs[1]
+      all_from_second = @fa.new_submissions(second_sub[:id])
+      expect(all_from_second).to be_instance_of Array
+      expect(all_from_second).not_to be_empty
+
+      all_after_second = @fa.new_submission(second_sub[:id]-1)
+      expect(all_after_second).to be_instance_of Array
+      expect(all_after_second).not_to be_empty
+
+      expect(all_from_second.length).to be(all_subs.length - 1)
+      expect(all_from_second[0][:id]).to eql(all_subs[1][:id])
+      expect(all_after_second.length).to be(all_subs.length - 2)
+      expect(all_after_second[0][:id]).to eql(all_subs[2][:id])
+    end
   end
 
   context 'when reading notifications' do
-    it 'will correctly parse current user'
+    it 'will correctly parse current user' do
+      @fa.login_cookie = COOKIE_TEST_USER_2
+      notifications = @fa.notifications(false)
+      expect(notifications[:current_user][:name]).to eql(TEST_USER_2)
+      check_profile_link(notifications[:current_user])
+    end
+
     it 'should not return anything unless login cookie is given'
-    it 'should contain all 6 types of notifications'
+    it 'should contain all 6 types of notifications' do
+      @fa.login_cookie = COOKIE_TEST_USER_2
+      notifications = @fa.notifications(false)
+      expect(notifications).to have_key(:new_watches)
+      expect(notifications).to have_key(:new_submission_comments)
+      expect(notifications).to have_key(:new_journal_comments)
+      expect(notifications).to have_key(:new_shouts)
+      expect(notifications).to have_key(:new_favorites)
+      expect(notifications).to have_key(:new_journals)
+    end
 
     context 'watcher notifications' do
-      it 'should handle zero new watchers'
-      it 'returns a list of new watcher notifications'
-      it 'should hide deleted watcher notifications by default'
-      it 'should display deleted watcher notifications when specified'
+      it 'should handle zero new watchers' do
+        @fa.login_cookie = COOKIE_TEST_USER_3
+        watchers = @fa.notifications(false)[:new_watches]
+        expect(watchers).to be_instance_of Array
+        expect(watchers).to be_empty
+      end
+
+      it 'returns a list of new watcher notifications' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        watchers = @fa.notifications(false)[:new_watches]
+        expect(watchers).to be_instance_of Array
+        expect(watchers).not_to be_empty
+        watchers.each do |watcher|
+          expect(watcher[:watch_id]).to match(/[0-9]+/)
+          check_profile_link(watcher)
+          check_avatar(watcher[:avatar], watcher[:profile_name])
+          check_date(watcher[:posted], watcher[:posted_at])
+        end
+      end
+
+      it 'should hide deleted watcher notifications by default' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        watchers = @fa.notifications(false)[:new_watches]
+        expect(watchers).to be_instance_of Array
+        expect(watchers).not_to be_empty
+        expect(watchers.length).to be 1
+      end
+
+      it 'should display deleted watcher notifications when specified and hide otherwise' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        watchers = @fa.notifications(false)[:new_watches]
+        expect(watchers).to be_instance_of Array
+        expect(watchers).not_to be_empty
+
+        watchers_deleted = @fa.notifications(true)[:new_watches]
+        expect(watchers_deleted).to be_instance_of Array
+        expect(watchers_deleted).not_to be_empty
+
+        expect(watchers_deleted.length).to be > watchers.length
+
+        deleted_watch = watchers_deleted[-1]
+        expect(deleted_watch[:watch_id]).to eql("")
+        expect(deleted_watch[:name]).to eql("Removed by the user")
+        expect(deleted_watch[:profile]).to eql("")
+        expect(deleted_watch[:profile_name]).to eql("")
+        expect(deleted_watch[:avatar]).to eql("I forgot the link.")
+        expect(deleted_watch[:posted]).to eql("")
+        expect(deleted_watch[:posted_at]).to eql("")
+      end
     end
 
     context 'submission comment notifications' do
@@ -1464,7 +1543,7 @@ describe 'FA parser' do
     expect(submission[:id]).to match(/^[0-9]+$/)
     # Check title
     if blank_title
-      expect(submission[:title]).to be_blank
+      expect(submission[:title]).to be_blank, "Title of submission #{submission[:id]} was not meant to be blank"
     else
       expect(submission[:title]).not_to be_blank
     end
