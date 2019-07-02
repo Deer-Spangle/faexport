@@ -16,6 +16,7 @@ describe 'FA parser' do
   TEST_USER_OVER_200_WATCHERS = "fender"
   TEST_USER_NO_WATCHERS = "fafeed-no-watchers"
   TEST_USER_NO_JOURNALS = TEST_USER_NO_WATCHERS
+  TEST_USER_NO_SHOUTS = TEST_USER_NO_WATCHERS
   TEST_USER_OVER_25_JOURNALS = TEST_USER_OVER_200_WATCHERS
   TEST_USER_EMPTY_GALLERIES = TEST_USER_NO_WATCHERS
   TEST_USER_2_PAGES_GALLERY = "rajii"
@@ -260,7 +261,7 @@ describe 'FA parser' do
     end
 
     it 'handles an empty shouts list' do
-      shouts = @fa.shouts(TEST_USER_2)
+      shouts = @fa.shouts(TEST_USER_NO_SHOUTS)
       expect(shouts).to be_instance_of Array
       expect(shouts).to be_empty
     end
