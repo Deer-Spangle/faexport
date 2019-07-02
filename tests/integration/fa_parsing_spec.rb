@@ -1369,6 +1369,7 @@ describe 'FA parser' do
     it 'should hide nsfw submissions if sfw=1 is specified'
     it 'returns a valid list of new submission notifications'
     it 'handles paging correctly' do
+      @fa.login_cookie = COOKIE_TEST_USER_3
       all_subs = @fa.new_submission(nil)
       expect(all_subs).to be_instance_of Array
       expect(all_subs).not_to be_empty
