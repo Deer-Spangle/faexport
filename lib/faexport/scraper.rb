@@ -497,10 +497,12 @@ class Furaffinity
   end
 
   def submit_journal(title, description)
-    raise FAFormError.new(fa_url('controls/journal'), 'title') unless title
-    raise FAFormError.new(fa_url('controls/journal'), 'description') unless description
+    url = 'controls/journal/'
+    raise FAFormError.new(fa_url(url), 'title') unless title
+    raise FAFormError.new(fa_url(url), 'description') unless description
+    raise FALoginError.new(fa_url(url)) unless login_cookie
 
-    html = fetch("controls/journal/")
+    html = fetch(url)
     key = html.at_css('input[name="key"]')['value']
     response = post('/controls/journal/', {
       'id' => '',

@@ -24,6 +24,8 @@ describe 'FA parser' do
   COOKIE_TEST_USER_HIDDEN_FAVS = ENV['test_cookie_hidden_favs']
   TEST_USER_2_PAGES_FAVS = TEST_USER_2_PAGES_GALLERY
   COOKIE_TEST_USER_NO_NOTIFICATIONS = COOKIE_TEST_USER_HIDDEN_FAVS
+  TEST_USER_JOURNAL_DUMP = TEST_USER_3
+  COOKIE_TEST_USER_JOURNAL_DUMP = COOKIE_TEST_USER_3
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
@@ -1876,11 +1878,36 @@ describe 'FA parser' do
   end
 
   context 'when posting a new journal' do
-    it 'requires a login cookie'
-    it 'fails if not given title'
-    it 'fails if not given description'
-    it 'can post a new journal entry using json'
-    it 'can post a new journal entry using query params'
+    it 'requires a login cookie' do
+      @fa.login_cookie = nil
+      expect { @fa.submit_journal("Do not post", "This journal should fail to post") }.to raise_error(FALoginError)
+    end
+
+    it 'fails if not given title' do
+      expect { @fa.submit_journal(nil, "No title journal") }.to raise_error(FAFormError)
+    end
+
+    it 'fails if not given description' do
+      expect { @fa.submit_journal("Title, no desc", nil) }.to raise_error(FAFormError)
+    end
+
+    it 'can post a new journal entry' do
+      @fa.login_cookie = COOKIE_TEST_USER_JOURNAL_DUMP
+      magic_key = (0...5).map { ('a'..'z').to_a[rand(26)] }.join
+      long_magic_key = (0...50).map { ('a'..'z').to_a[rand(26)] }.join
+      journal_title = "Automatically generated title - #{magic_key}"
+      journal_description = "Hello, this is an automatically generated journal.\n Magic key: #{long_magic_key}"
+
+      journal_resp = @fa.submit_journal(journal_title, journal_description)
+
+      expect(journal_resp[:url]).to match(/https:\/\/www.furaffinity.net\/journal\/[0-9]+\//)
+
+      # Get journal listing, ensure latest is this one
+      journals = @fa.journals(TEST_USER_JOURNAL_DUMP, 1)
+      expect(journals[0][:title]).to eql(journal_title)
+      expect(journals[0][:description]).to eql(journal_description.gsub("\n", "<br>\n"))
+      expect(journal_resp[:url]).to eql("https://www.furaffinity.net/journal/#{journals[0][:id]}/")
+    end
   end
 
   private
