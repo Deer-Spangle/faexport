@@ -379,7 +379,7 @@ Gets the the first few submissions from the specified folder.
 Options for `{folder}` are `gallery`, `scraps` and `favorites`.
 By default, the first 72 submissions are returned.
 
-If this is `gallery` or `scraps`, you can pass a parameter `?page=2` to load more.
+If this is `gallery` or `scraps`, you can pass a parameter `?page=2` to load more
 
 **BREAKING CHANGE**
 
@@ -536,7 +536,8 @@ Retrieves a list of comments made on the submission or journal with the specifie
     "posted_at": "2015-03-02T02:30:00Z",
     "text": "Wow, I love the way you do light and shadow.",
     "reply_to": "",
-    "reply_level": 0
+    "reply_level": 0,
+    "is_deleted": false
   },
   {
     "id": "252377",
@@ -548,7 +549,8 @@ Retrieves a list of comments made on the submission or journal with the specifie
     "posted_at": "2015-03-01T15:16:00Z",
     "text": "This drawing sucks.",
     "reply_to": "260397",
-    "reply_level": 1
+    "reply_level": 1,
+    "is_deleted": false
   },
   {
     "id": "236568",
@@ -560,22 +562,24 @@ Retrieves a list of comments made on the submission or journal with the specifie
     "posted_at": "2015-02-28T06:33:00Z",
     "text": "You stole my OC, REPORTED!",
     "reply_to": "",
-    "reply_level": 0
+    "reply_level": 0,
+    "is_deleted": false
   },
   <snip>
 ]
 ~~~
 
-Any replies to a hidden comment will contain `"reply_to": "hidden"`.
 By default, hidden comments are not included.
 If you would like hidden comments to show up, pass `?include_hidden=1`.
 Hidden comments are displayed in the following format:
 
 ~~~json
 {
+  "id": "96269",
   "text": "Comment hidden by its author",
   "reply_to": "96267",
-  "reply_level": 9
+  "reply_level": 9,
+  "is_deleted": true
 }
 
 ~~~

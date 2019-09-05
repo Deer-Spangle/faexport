@@ -737,8 +737,10 @@ describe 'FA parser' do
         expect(comments.length).to be 2
         expect(comments[0]).to have_key(:id)
         expect(comments[0][:text]).to eql("Non-deleted comment")
-        expect(comments[1]).not_to have_key(:id)
+        expect(comments[0][:is_deleted]).to be false
+        expect(comments[1]).to have_key(:id)
         expect(comments[1][:text]).to eql("Comment hidden by its owner")
+        expect(comments[1][:is_deleted]).to be true
       end
 
       it 'handles comments deleted by submission owner when specified' do
@@ -750,8 +752,9 @@ describe 'FA parser' do
         comments = @fa.submission_comments(submission_id, true)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 1
-        expect(comments[0]).not_to have_key(:id)
+        expect(comments[0]).to have_key(:id)
         expect(comments[0][:text]).to eql("Comment hidden by  the page owner")
+        expect(comments[0][:is_deleted]).to be true
       end
 
       it 'fails when given non-existent submission' do
@@ -796,16 +799,18 @@ describe 'FA parser' do
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
         # Check hidden comment
-        expect(comments[0]).not_to have_key(:id)
+        expect(comments[1][:id]).not_to be_blank
         expect(comments[0][:text]).to start_with("Comment hidden by")
         expect(comments[0][:reply_to]).to eql("")
         expect(comments[0][:reply_level]).to be 0
+        expect(comments[0][:is_deleted]).to be true
         # Check reply comment
         expect(comments[1][:id]).not_to be_blank
         expect(comments[1][:text]).not_to start_with("Comment hidden by")
         expect(comments[1]).to have_key(:profile_name)
         expect(comments[1][:reply_level]).to be 1
-        expect(comments[1][:reply_to]).to eql("hidden")
+        expect(comments[1][:reply_to]).not_to be_blank
+        expect(comments[1][:is_deleted]).to be false
       end
 
       it 'handles replies to hidden deleted comments' do
@@ -817,7 +822,7 @@ describe 'FA parser' do
         expect(comments[0][:text]).not_to start_with("Comment hidden by")
         expect(comments[0]).to have_key(:profile_name)
         expect(comments[0][:reply_level]).to be 1
-        expect(comments[0][:reply_to]).to eql("hidden")
+        expect(comments[0][:reply_to]).not_to be_blank
       end
 
       it 'handles 2 replies to the same comment' do
@@ -846,15 +851,17 @@ describe 'FA parser' do
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
         # Check hidden comment
-        expect(comments[0]).not_to have_key(:id)
+        expect(comments[0][:id]).not_to be_blank
         expect(comments[0][:text]).to start_with("Comment hidden by")
         expect(comments[0][:reply_level]).to be 0
         expect(comments[0][:reply_to]).to eql("")
+        expect(comments[0][:is_deleted]).to be true
         # Check reply comment
-        expect(comments[1]).not_to have_key(:id)
+        expect(comments[0][:id]).not_to be_blank
         expect(comments[1][:text]).to start_with("Comment hidden by")
         expect(comments[1][:reply_level]).to be 1
-        expect(comments[1][:reply_to]).to eql("hidden")
+        expect(comments[1][:reply_to]).to eql(comments[0][:id])
+        expect(comments[0][:is_deleted]).to be true
       end
 
       it 'handles comments to max depth' do
@@ -967,8 +974,10 @@ describe 'FA parser' do
         expect(comments.length).to be 2
         expect(comments[0]).to have_key(:id)
         expect(comments[0][:text]).to eql("Non-deleted comment")
-        expect(comments[1]).not_to have_key(:id)
+        expect(comments[0][:is_deleted]).to be false
+        expect(comments[1]).to have_key(:id)
         expect(comments[1][:text]).to eql("Comment hidden by its owner")
+        expect(comments[1][:is_deleted]).to be true
       end
 
       it 'handles comments deleted by journal owner when specified' do
@@ -980,8 +989,9 @@ describe 'FA parser' do
         comments = @fa.journal_comments(journal_id, true)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 1
-        expect(comments[0]).not_to have_key(:id)
+        expect(comments[0]).to have_key(:id)
         expect(comments[0][:text]).to eql("Comment hidden by  the page owner")
+        expect(comments[0][:is_deleted]).to be true
       end
 
       it 'fails when given non-existent journal' do
@@ -1026,16 +1036,18 @@ describe 'FA parser' do
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
         # Check hidden comment
-        expect(comments[0]).not_to have_key(:id)
+        expect(comments[0][:id]).not_to be_blank
         expect(comments[0][:text]).to start_with("Comment hidden by")
         expect(comments[0][:reply_to]).to eql("")
         expect(comments[0][:reply_level]).to be 0
+        expect(comments[0][:is_deleted]).to be true
         # Check reply comment
         expect(comments[1][:id]).not_to be_blank
         expect(comments[1][:text]).not_to start_with("Comment hidden by")
         expect(comments[1]).to have_key(:profile_name)
         expect(comments[1][:reply_level]).to be 1
-        expect(comments[1][:reply_to]).to eql("hidden")
+        expect(comments[1][:reply_to]).to eql(comments[0][:id])
+        expect(comments[1][:is_deleted]).to be false
       end
 
       it 'handles replies to hidden deleted comments' do
@@ -1047,7 +1059,7 @@ describe 'FA parser' do
         expect(comments[0][:text]).not_to start_with("Comment hidden by")
         expect(comments[0]).to have_key(:profile_name)
         expect(comments[0][:reply_level]).to be 1
-        expect(comments[0][:reply_to]).to eql("hidden")
+        expect(comments[0][:reply_to]).not_to be_blank
       end
 
       it 'handles 2 replies to the same comment' do
@@ -1076,15 +1088,17 @@ describe 'FA parser' do
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
         # Check hidden comment
-        expect(comments[0]).not_to have_key(:id)
+        expect(comments[0]).to have_key(:id)
         expect(comments[0][:text]).to start_with("Comment hidden by")
         expect(comments[0][:reply_level]).to be 0
         expect(comments[0][:reply_to]).to eql("")
+        expect(comments[0][:is_deleted]).to be true
         # Check reply comment
-        expect(comments[1]).not_to have_key(:id)
+        expect(comments[1]).to have_key(:id)
         expect(comments[1][:text]).to start_with("Comment hidden by")
         expect(comments[1][:reply_level]).to be 1
-        expect(comments[1][:reply_to]).to eql("hidden")
+        expect(comments[1][:reply_to]).to eql(comments[0][:id])
+        expect(comments[1][:is_deleted]).to be true
       end
 
       it 'handles comments to max depth' do
