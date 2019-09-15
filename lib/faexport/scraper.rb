@@ -293,7 +293,8 @@ class Furaffinity
     keywords = raw_info.css('div#keywords a')
     date = pick_date(raw_info.at_css('.popup_date'))
     img = html.at_css('img#submissionImg')
-    download_url = "https:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
+    actions_bar = html.css('#page-submission td.alt1 div.actions a')
+    download_url = "https:" + actions_bar.select {|a| a.content == "Download" }.first['href']
     profile_url = html.at_css('td.cat a')['href'][1..-1]
     og_thumb = html.at_css('meta[property="og:image"]')
     thumb_img = if og_thumb.nil? || og_thumb['content'].include?("/banners/fa_logo.png")
@@ -301,6 +302,9 @@ class Furaffinity
                 else
                   og_thumb['content'].sub! "http:", "https:"
                 end
+    fav_link = actions_bar.select {|a| a.content.end_with? "Favorites" }.first
+    fav_status = fav_link.content.start_with?("-Remove")
+    fav_key = fav_link['href'].split("?key=")[-1]
 
     {
       title: submission_title.at_css('h2').content,
@@ -314,6 +318,8 @@ class Furaffinity
       posted: date,
       posted_at: to_iso8601(date),
       download: download_url,
+      fav_status: fav_status,
+      fav_key: fav_key,
       full: img ? "https:" + img['data-fullview-src'] : nil,
       thumbnail: thumb_img,
       category: field(info, 'Category'),
