@@ -150,6 +150,21 @@ module FAExport
       end
     end
 
+    # GET /browse.json
+    # GET /browse.xml
+    get %r{/browse\.(json|xml)} do |type|
+      page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
+      set_content_type(type)
+      cache("browse:#{type}.#{page}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.browse(page)
+        when 'xml'
+          @fa.browse(page).to_xml(root: 'browse', skip_types: true)
+        end
+      end
+    end
+
     # GET /user/{name}.json
     # GET /user/{name}.xml
     get %r{/user/#{USER_REGEX}\.(json|xml)} do |name, type|

@@ -225,6 +225,13 @@ class Furaffinity
     }
   end
 
+  def browse(page)
+    html = fetch("browse/#{page}/")
+    gallery = html.css('section#gallery-browse')
+
+    gallery.css('figure').map{|art| build_submission(art)}
+  end
+
   def user(name)
     profile = "user/#{escape(name)}/"
     html = fetch(profile)

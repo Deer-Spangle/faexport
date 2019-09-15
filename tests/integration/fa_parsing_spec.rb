@@ -1924,6 +1924,24 @@ describe 'FA parser' do
     end
   end
 
+  context 'when browsing' do
+    it 'returns a list of submissions' do
+      submissions = @fa.browse(1)
+
+      submissions.map(&method(:check_submission))
+    end
+
+    it 'returns a second page, different to the first' do
+      submissions_1 = @fa.browse(1)
+      submissions_2 = @fa.browse(2)
+
+      submissions_1.map(&method(:check_submission))
+      submissions_2.map(&method(:check_submission))
+
+      check_results_lists_are_different(submissions_1, submissions_2)
+    end
+  end
+
   private
 
   # noinspection RubyResolve

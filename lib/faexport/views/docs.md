@@ -138,6 +138,43 @@ Fetches all the latest posts from the home page
 }
 ~~~
 
+### GET /browse
+
+Fetches all the recent uploads on the browse page. You can pass a parameter ?page=2 to load more.
+
+~~~json
+[
+  {
+    "id": "33050174",
+    "title": "YCH REMINDER",
+    "thumbnail": "https://t.facdn.net/33050174@200-1568543823.jpg",
+    "link": "https://www.furaffinity.net/view/33050174/",
+    "name": "KoiiAdopts",
+    "profile": "https://www.furaffinity.net/user/koiiadopts/",
+    "profile_name": "koiiadopts"
+  },
+  {
+    "id": "33050173",
+    "title": "Yote At The Grainery",
+    "thumbnail": "https://t.facdn.net/33050173@200-1568543817.jpg",
+    "link": "https://www.furaffinity.net/view/33050173/",
+    "name": "RocketT.Coyote",
+    "profile": "https://www.furaffinity.net/user/rockett.coyote/",
+    "profile_name": "rockett.coyote"
+  },
+  {
+    "id": "33050172",
+    "title": "Troopashroom Powerup 2/2",
+    "thumbnail": "https://t.facdn.net/33050172@300-1568543811.jpg",
+    "link": "https://www.furaffinity.net/view/33050172/",
+    "name": "Blueballs",
+    "profile": "https://www.furaffinity.net/user/blueballs/",
+    "profile_name": "blueballs"
+  },
+  <snip>
+]
+~~~
+
 ### GET /user/*{name}*
 
 General information about a user's account.
