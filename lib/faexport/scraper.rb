@@ -200,7 +200,7 @@ class Furaffinity
   end
 
   def login(username, password)
-    response, _ = post('/login/', {
+    response = post('/login/', {
       'action' => 'login',
       'retard_protection' => '1',
       'name' => username,
@@ -244,12 +244,12 @@ class Furaffinity
       profile: fa_url(profile),
       account_type: html.at_css('.addpad.lead').content[/\((.+?)\)/,1].strip,
       avatar: "https:#{html.at_css('td.addpad img')['src']}",
-      full_name: html_field(info, 'Full Name'),
-      artist_type: user_title, # Backwards compatability
+      full_name: html.at_css("title").content[/Userpage of(.+?)--/,1].strip,
+      artist_type: user_title, # Backwards compatibility
       user_title: user_title,
       registered_since: date,
       registered_at: to_iso8601(date),
-      current_mood: html_field(info, 'Current mood'),
+      current_mood: html_field(info, 'Current Mood'),
       artist_profile: html_long_field(info, 'Artist Profile'),
       pageviews: html_field(stats, 'Page Visits'),
       submissions: html_field(stats, 'Submissions'),
@@ -268,13 +268,24 @@ class Furaffinity
 
   def budlist(name, page, is_watchers)
     mode = is_watchers ? 'to' : 'by'
-    html = fetch("user/#{escape(name)}")
-    html = fetch("watchlist/#{mode}/#{escape(name)}/#{page}/")
+    url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
+    html = fetch(url)
+    error_msg = html.at_css("table.maintable td.alt1 b")
+    if !error_msg.nil? && error_msg.content == "Provided username not found in the database."
+      raise FASystemError.new(url)
+    end
+
     html.css('.artist_name').map{|elem| elem.content}
   end
 
   def submission(id)
-    html = fetch("view/#{id}/")
+    url = "view/#{id}/"
+    html = fetch(url)
+    error_msg = html.at_css("table.maintable td.alt1")
+    if !error_msg.nil? && error_msg.content.strip == "You are not allowed to view this image due to the content filter settings."
+      raise FASystemError.new(url)
+    end
+
     submission = html.css('div#page-submission table.maintable table.maintable')[-1]
     submission_title = submission.at_css(".classic-submission-title")
     raw_info = submission.at_css('td.alt1')
@@ -284,12 +295,18 @@ class Furaffinity
     img = html.at_css('img#submissionImg')
     download_url = "https:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
     profile_url = html.at_css('td.cat a')['href'][1..-1]
+    og_thumb = html.at_css('meta[property="og:image"]')
+    thumb_img = if og_thumb.nil? || og_thumb['content'].include?("/banners/fa_logo.png")
+                  img ? "https:" + img['data-preview-src'] : nil
+                else
+                  og_thumb['content'].sub! "http:", "https:"
+                end
 
     {
       title: submission_title.at_css('h2').content,
       description: submission.css('td.alt1')[2].children.to_s.strip,
-      description_body: submission.css('td.alt1')[2].children[5..-1].to_s.strip,
-      name: html.at_css('td.cat a').content,
+      description_body: submission.css('td.alt1')[2].children.to_s.strip,
+      name: html.css('td.cat a')[1].content,
       profile: fa_url(profile_url),
       profile_name: last_path(profile_url),
       avatar: "https:#{submission_title.at_css("img.avatar")['src']}",
@@ -298,7 +315,7 @@ class Furaffinity
       posted_at: to_iso8601(date),
       download: download_url,
       full: img ? "https:" + img['data-fullview-src'] : nil,
-      thumbnail: img ? "https:" + img['data-preview-src'] : nil,
+      thumbnail: thumb_img,
       category: field(info, 'Category'),
       theme: field(info, 'Theme'),
       species: field(info, 'Species'),
@@ -361,6 +378,13 @@ class Furaffinity
     end
 
     html = fetch(url)
+    error_msg = html.at_css("table.maintable td.alt1 b")
+    if !error_msg.nil? &&
+      (error_msg.text == "The username \"#{user}\" could not be found." ||
+          error_msg.text == "User \"#{user}\" was not found in our database.")
+      raise FASystemError.new(url)
+    end
+
     html.css('.gallery > figure').map {|art| build_submission(art)}
   end
 
@@ -434,6 +458,7 @@ class Furaffinity
     options = SEARCH_DEFAULTS.merge(options)
     params = {}
 
+    # Handle page specification
     page = options['page']
     if page !~ /[0-9]+/ || page.to_i <= 1
       options['page'] = 1
@@ -443,6 +468,7 @@ class Furaffinity
       params['next_page'] = ">>> #{options['perpage']} more >>>"
     end
 
+    # Construct params, to send in POST request
     options.each do |key, value|
       name = key.gsub('_','-')
       if SEARCH_MULTIPLE.include? key
@@ -457,24 +483,28 @@ class Furaffinity
       end
     end
 
-    raw, uri = @cache.add("url:search:#{params.to_s}") do
-      response, uri = post('/search/', params)
+    # Get search response
+    raw = @cache.add("url:search:#{params.to_s}") do
+      response = post('/search/', params)
       unless response.is_a?(Net::HTTPSuccess)
         raise FAStatusError.new(fa_url('search/'), response.message)
       end
-      [response.body, uri]
+      response.body
     end
+    # Parse search results
     html = Nokogiri::HTML(raw)
-    [html.css('.gallery > figure').map{|art| build_submission(art)}, uri]
+    html.css('.gallery > figure').map{|art| build_submission(art)}
   end
 
   def submit_journal(title, description)
-    raise FAFormError.new(fa_url('controls/journal'), 'title') unless title
-    raise FAFormError.new(fa_url('controls/journal'), 'description') unless description
+    url = 'controls/journal/'
+    raise FAFormError.new(fa_url(url), 'title') unless title
+    raise FAFormError.new(fa_url(url), 'description') unless description
+    raise FALoginError.new(fa_url(url)) unless login_cookie
 
-    html = fetch("controls/journal/")
+    html = fetch(url)
     key = html.at_css('input[name="key"]')['value']
-    response, _ = post('/controls/journal/', {
+    response = post('/controls/journal/', {
       'id' => '',
       'key' => key,
       'do' => 'update',
@@ -500,7 +530,7 @@ class Furaffinity
     # Get page code
     html = fetch(url)
 
-    login_user = get_current_user(html)
+    login_user = get_current_user(html, url)
     submissions = html.css('.gallery > figure').map{|art| build_submission_notification(art)}
     {
         "current_user": login_user,
@@ -510,9 +540,10 @@ class Furaffinity
 
   def notifications(include_deleted)
     # Get page code
-    html = fetch("msg/others/")
+    url = "msg/others/"
+    html = fetch(url)
     # Parse page
-    login_user = get_current_user(html)
+    login_user = get_current_user(html, url)
     # Parse new watcher notifications
     new_watches = []
     watches_elem = html.at_css("ul#watches")
@@ -558,6 +589,7 @@ class Furaffinity
                 profile_name: "",
                 is_reply: false,
                 your_submission: false,
+                their_submission: false,
                 submission_id: "",
                 title: "Comment or the submission it was left on has been deleted",
                 posted: "",
@@ -568,13 +600,15 @@ class Furaffinity
         end
         elem_links = elem.css("a")
         date = pick_date(elem.at_css('.popup_date'))
+        is_reply = elem.to_s.include?("<em>your</em> comment on")
         new_submission_comments << {
             comment_id: elem.at_css("input")['value'],
             name: elem_links[0].content,
             profile: fa_url(elem_links[0]['href']),
             profile_name: last_path(elem_links[0]['href']),
-            is_reply: elem.to_s.include?("<em>your</em> comment on"),
-            your_submission: elem.css('em').last.content == "your",
+            is_reply: is_reply,
+            your_submission: !is_reply || elem.css('em').length == 2 && elem.css('em').last.content == "your",
+            their_submission: elem.css('em').last.content == "their",
             submission_id: elem_links[1]['href'].split("/")[-2],
             title: elem_links[1].content,
             posted: date,
@@ -596,6 +630,7 @@ class Furaffinity
                 profile_name: "",
                 is_reply: false,
                 your_journal: false,
+                their_journal: false,
                 journal_id: "",
                 title: "Comment or the journal it was left on has been deleted",
                 posted: "",
@@ -606,13 +641,15 @@ class Furaffinity
         end
         elem_links = elem.css("a")
         date = pick_date(elem.at_css('.popup_date'))
+        is_reply = elem.to_s.include?("<em>your</em> comment on")
         new_journal_comments << {
             comment_id: elem.at_css("input")['value'],
             name: elem_links[0].content,
             profile: fa_url(elem_links[0]['href']),
             profile_name: last_path(elem_links[0]['href']),
-            is_reply: elem.to_s.include?("<em>your</em> comment on"),
-            your_journal: elem.css('em').last.content == "your",
+            is_reply: is_reply,
+            your_journal: !is_reply || elem.css('em').length == 2 && elem.css('em').last.content == "your",
+            their_journal: elem.css('em').last.content == "their",
             journal_id: elem_links[1]['href'].split("/")[-2],
             title: elem_links[1].content,
             posted: date,
@@ -848,7 +885,7 @@ private
     elem = elem.at_css('td.alt1') if elem
     return nil unless elem
     info = {}
-    elem.children.to_s.scan(/<span>\s*(.*?)\s*<\/span>\s*:\s*(.*?)\s*<br\/?>/).each do |match|
+    elem.children.to_s.scan(/<strong>\s*(.*?)\s*<\/strong>\s*:\s*(.*?)\s*<\/div>/).each do |match|
       info[match[0]] = match[1]
     end
     info
@@ -857,11 +894,11 @@ private
   def select_contact_info(elem)
     elem = elem.at_css('td.alt1') if elem
     return nil unless elem
-    elem.css('tr').map do |tr|
-      link_elem = tr.at_css('a')
+    elem.css('div.classic-contact-info-item').map do |item|
+      link_elem = item.at_css('a')
       {
-        title: tr.at_css('strong').content.gsub(/:\s*$/, ''),
-        name: (link_elem || tr.at_css('td')).content.strip,
+        title: item.at_css('strong').content.gsub(/:\s*$/, ''),
+        name: (link_elem || item.xpath('child::text()').to_s.squeeze(' ').strip),
         link: link_elem ? link_elem['href'] : ''
       }
     end
@@ -888,8 +925,8 @@ private
 
   def fetch(path, extra_cookie = nil)
     url = fa_url(path)
-    raw = @cache.add("url:#{url}:#{extra_cookie}") do
-      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "#{@login_cookie};#{extra_cookie}") do |response|
+    raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
+      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "@login_cookie;#{extra_cookie}") do |response|
         if response.status[0] != '200'
           raise FAStatusError.new(url, response.status.join(' '))
         end
@@ -928,7 +965,7 @@ private
     request.add_field('User-Agent', USER_AGENT)
     request.add_field('Cookie', @login_cookie)
     request.form_data = params
-    [http.request(request), request.uri]
+    http.request(request)
   end
 
   def build_submission(elem)
@@ -978,8 +1015,8 @@ private
     comments = html.css('table.container-comment')
     reply_stack = []
     comments.map do |comment|
-      has_id = !!comment.attr('id')
-      id = has_id ? comment.attr('id').gsub('cid:', '') : 'hidden'
+      has_timestamp = !!comment.attr('data-timestamp')
+      id = comment.attr('id').gsub('cid:', '')
       width = comment.attr('width')[0..-2].to_i
 
       while reply_stack.any? && reply_stack.last[:width] <= width
@@ -989,7 +1026,7 @@ private
       reply_level = reply_stack.size
       reply_stack.push({id: id, width: width})
 
-      if has_id
+      if has_timestamp
         date = pick_date(comment.at_css('.popup_date'))
         profile_url = comment.at_css('ul ul li a')['href'][1..-1]
         {
@@ -1002,13 +1039,16 @@ private
           posted_at: to_iso8601(date),
           text: comment.at_css('.message-text').children.to_s.strip,
           reply_to: reply_to,
-          reply_level: reply_level
+          reply_level: reply_level,
+          is_deleted: false
         }
       elsif include_hidden
         {
+          id: id,
           text: comment.at_css('strong').content,
           reply_to: reply_to,
-          reply_level: reply_level
+          reply_level: reply_level,
+          is_deleted: true
         }
       else
         nil
@@ -1016,8 +1056,11 @@ private
     end.compact
   end
 
-  def get_current_user(html)
+  def get_current_user(html, url)
     name_elem = html.at_css("a#my-username")
+    if name_elem.nil?
+      raise FALoginError.new(url)
+    end
     {
         "name": name_elem.content.gsub(/^~/, ''),
         "profile": fa_url(name_elem['href'][1..-1]),

@@ -17,7 +17,7 @@ document.cookie.split('; ').filter(function(x){return/^[ab]=/.test(x)}).sort().r
 
 The output should look something like this:
 
-~~~javascript
+~~~
 "b=3a485360-d203-4a38-97e8-4ff7cdfa244c; a=b1b985c4-d73e-492a-a830-ad238a3693ef"
 ~~~
 
@@ -377,14 +377,14 @@ If you want more information, pass `?full=1` to retrieve more fields.
 
 Gets the the first few submissions from the specified folder.
 Options for `{folder}` are `gallery`, `scraps` and `favorites`.
-By default, the first 60 submissions are returned.
+By default, the first 72 submissions are returned.
 
-If this is `gallery` or `scraps`, you can pass a parameter `?page=2` to load more.
+If this is `gallery` or `scraps`, you can pass a parameter `?page=2` to load more
 
 **BREAKING CHANGE**
 
 Due to FA changing the way it handles pagination on favorites using `page` will no longer work.
-Instead, all favorites all now come with a `fav_id` field (assuing `?full=1` is used) that can be used with `next` and `prev`.
+Instead, all favorites all now come with a `fav_id` field (assuming `?full=1` is used) that can be used with `next` and `prev`.
 For instance if the last favorite fetched has an `fav_id` of `29980`, we can set `?next=29980` to
 load the next set of favorites that come after it.
 Likewise we can also use `?prev=29980` to load the set of favorites directly before it.
@@ -399,7 +399,7 @@ By default, this only returns the id of each submission.
   "11157906",
   "10796676",
   <snip>
-}
+]
 ~~~
 
 If you want more information, pass `?full=1` to retrieve more fields.
@@ -432,7 +432,7 @@ If you want more information, pass `?full=1` to retrieve more fields.
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
     "profile_name": "fender"
-  }
+  },
   <snip>
 ]
 ~~~
@@ -520,7 +520,7 @@ Retrieves information about the journal with the specified id.
 
 ### GET /submission/*{id}*/comments <br/> GET /journal/*{id}*/comments
 
-Retrivies a list of comments made on the submission or journal with the specified id.
+Retrieves a list of comments made on the submission or journal with the specified id.
 
 *Formats:* `json`, `xml`
 
@@ -534,9 +534,10 @@ Retrivies a list of comments made on the submission or journal with the specifie
     "avatar": "http://a.facdn.net/1424258659/anotherartist.gif",
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
-    "text": "Wow, I love the way you do light and shadow."
+    "text": "Wow, I love the way you do light and shadow.",
     "reply_to": "",
-    "reply_level": 0
+    "reply_level": 0,
+    "is_deleted": false
   },
   {
     "id": "252377",
@@ -546,43 +547,46 @@ Retrivies a list of comments made on the submission or journal with the specifie
     "avatar": "http://a.facdn.net/1424258659/annoyingsalamander.gif",
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
-    "text": "This drawing sucks."
+    "text": "This drawing sucks.",
     "reply_to": "260397",
-    "reply_level": 1
+    "reply_level": 1,
+    "is_deleted": false
   },
   {
     "id": "236568",
     "name": "afreshcat001",
     "profile": "http://www.furaffinity.net/user/afreshcat001/",
-    "profile": "afreshcat001",
+    "profile_name": "afreshcat001",
     "avatar": "http://a.facdn.net/1424258659/afreshcat001.gif",
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",
-    "text": "You stole my OC, REPORTED!"
+    "text": "You stole my OC, REPORTED!",
     "reply_to": "",
-    "reply_level": 0
+    "reply_level": 0,
+    "is_deleted": false
   },
   <snip>
 ]
 ~~~
 
-Any replies to a hidden comment will contain `"reply_to": "hidden"`.
 By default, hidden comments are not included.
 If you would like hidden comments to show up, pass `?include_hidden=1`.
 Hidden comments are displayed in the following format:
 
 ~~~json
 {
+  "id": "96269",
   "text": "Comment hidden by its author",
   "reply_to": "96267",
-  "reply_level": 9
+  "reply_level": 9,
+  "is_deleted": true
 }
 
 ~~~
 
 ### GET /search
 
-Perfoms a site wide search of Furaffinity.
+Performs a site wide search of Furaffinity.
 The following parameters can be provided:
 
 * **q**: Words to search for.
@@ -605,7 +609,7 @@ By default, this only returns the id of each submission.
   "11157906",
   "10796676",
   <snip>
-}
+]
 ~~~
 
 If you want more information, pass `&full=1` to retrieve more fields.
@@ -638,7 +642,7 @@ If you want more information, pass `&full=1` to retrieve more fields.
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
     "profile_name": "fender"
-  }
+  },
   <snip>
 ]
 ~~~
@@ -653,7 +657,7 @@ Retrieves a list of new submission notifications.
 
 The way that FA handles paging in submission notifications is that you specify the ID of a submission in your notifications, and it will display that submission, and all the ones after it.
 You can specify the submission ID to start from with the `from=` parameter in the URL.
-Paging through submissions without overlap can be achieved by taking the last submission, adding 1 to the ID, and supplying that using the `from` parameter.
+Paging through submissions without overlap can be achieved by taking the last submission, subtracting 1 from the ID, and supplying that using the `from` parameter.
 
 ~~~json
 {
@@ -689,10 +693,10 @@ Paging through submissions without overlap can be achieved by taking the last su
       "name": "feve",
       "profile": "https://sfw.furaffinity.net/user/feve/",
       "profile_name": "feve"
-    }
+    },
     <snip>
   ]
-]
+}
 ~~~
 ### GET /notifications/others
 
@@ -703,14 +707,15 @@ Login cookie required.
 Retrieves a dictionary of all current (non-submission) notifications. RSS feeds are available for each individual notification type.
 
 While json and xml formats are available as a combined endpoint at /notifications/others, rss feeds are separated into 6 different endpoints:
-- /notifications/watches.rss
-- /notifications/submission_comments.rss
-- /notifications/journal_comments.rss
-- /notifications/shouts.rss
-- /notifications/favorites.rss
-- /notifications/journals.rss
+* /notifications/watches.rss
+* /notifications/submission_comments.rss
+* /notifications/journal_comments.rss
+* /notifications/shouts.rss
+* /notifications/favorites.rss
+* /notifications/journals.rss
 
 To include deleted notifications as well, pass `?include_deleted=1`.
+As deleted journal notifications are hidden on FA now, you cannot display these using the `include_deleted` parameter.
 
 ~~~json
 {
@@ -739,7 +744,8 @@ To include deleted notifications as well, pass `?include_deleted=1`.
       "profile_name": "scruffythedeer",
       "is_reply": true,
       "your_submission": false,
-      "submission_id": "#cid:138134657",
+      "their_submission": true,
+      "submission_id": "31400974",
       "title": "[CM] Willow Shafted (internal)",
       "posted": "on May 3rd, 2019 09:02 AM",
       "posted_at": "2019-05-03T09:02:00Z"
@@ -754,11 +760,13 @@ To include deleted notifications as well, pass `?include_deleted=1`.
       "profile_name": "jeevestheroo",
       "is_reply": true,
       "your_journal": false,
+      "their_journal": true,
       "journal_id": "9130470",
       "title": "Confuzzled 2019!! Say hello to me if you're going!",
       "posted": "on May 3rd, 2019 01:04 PM",
       "posted_at": "2019-05-03T13:04:00Z"
-    }
+    },
+    <snip>
   ],
   "new_shouts": [
     {
