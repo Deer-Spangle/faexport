@@ -140,7 +140,14 @@ Fetches all the latest posts from the home page
 
 ### GET /browse
 
-Fetches all the recent uploads on the browse page. You can pass a parameter ?page=2 to load more.
+Fetches all the recent uploads on the browse page.
+The following parameters can be provided:
+
+* **page**: Page of results to display.  Defaults to: `1`.
+* **perpage**: How many results to display per page.  Can be one of: `24`, `48` or `72`.  Defaults to: `72`.
+* **rating**: what rating levels are included.  Can be any of: `general`, `mature` and `adult` separated by commas.  Defaults to: `general,mature,adult`.
+
+The API does not yet allow specifying category, type, species or gender, as FA requires hard coding these by number.
 
 ~~~json
 [

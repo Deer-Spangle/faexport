@@ -153,14 +153,13 @@ module FAExport
     # GET /browse.json
     # GET /browse.xml
     get %r{/browse\.(json|xml)} do |type|
-      page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
       set_content_type(type)
-      cache("browse:#{type}.#{page}") do
+      cache("browse:#{type}.#{params.to_s}") do
         case type
         when 'json'
-          JSON.pretty_generate @fa.browse(page)
+          JSON.pretty_generate @fa.browse(params)
         when 'xml'
-          @fa.browse(page).to_xml(root: 'browse', skip_types: true)
+          @fa.browse(params).to_xml(root: 'browse', skip_types: true)
         end
       end
     end

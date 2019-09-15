@@ -1926,19 +1926,53 @@ describe 'FA parser' do
 
   context 'when browsing' do
     it 'returns a list of submissions' do
-      submissions = @fa.browse(1)
+      submissions = @fa.browse({"page" => "1"})
 
       submissions.map(&method(:check_submission))
     end
 
     it 'returns a second page, different to the first' do
-      submissions_1 = @fa.browse(1)
-      submissions_2 = @fa.browse(2)
+      submissions_1 = @fa.browse({"page" => "1"})
+      submissions_2 = @fa.browse({"page" => "2"})
 
       submissions_1.map(&method(:check_submission))
       submissions_2.map(&method(:check_submission))
 
       check_results_lists_are_different(submissions_1, submissions_2)
+    end
+
+    it 'defaults to 72 results' do
+      submissions = @fa.browse({})
+
+      submissions.map(&method(:check_submission))
+      expect(submissions.length).to eql(72)
+    end
+
+    it 'returns as many submissions as perpage specifies' do
+      submissions_24 = @fa.browse({"perpage" => "24"})
+      submissions_48 = @fa.browse({"perpage" => "48"})
+      submissions_72 = @fa.browse({"perpage" => "72"})
+
+      expect(submissions_24.length).to eql(24)
+      expect(submissions_48.length).to eql(48)
+      expect(submissions_72.length).to eql(72)
+    end
+
+    it 'can specify ratings to display, and honours that selection' do
+      only_adult = @fa.browse({"perpage" => 24, "rating" => "adult"})
+      only_sfw_or_mature = @fa.browse({"perpage" => 24, "rating" => "mature,general"})
+
+      check_results_lists_are_different(only_adult, only_sfw_or_mature)
+
+      only_adult[0..5].each do |submission|
+        full_submission = @fa.submission(submission[:id])
+        expect(full_submission[:rating]).to eql("Adult")
+      end
+
+      only_sfw_or_mature[0..5].each do |submission|
+        full_submission = @fa.submission(submission[:id])
+        expect(full_submission[:rating]).not_to eql("Adult")
+      end
     end
   end
 
