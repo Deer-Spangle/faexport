@@ -2011,22 +2011,22 @@ describe 'FA parser' do
   end
 
   def check_status_result(status)
-    expect(status).to have_key(:online)
-    expect(status[:online]).to have_key(:guests)
-    expect(status[:online][:guests]).to be_instance_of Integer
-    expect(status[:online]).to have_key(:registered)
-    expect(status[:online][:registered]).to be_instance_of Integer
-    expect(status[:online]).to have_key(:other)
-    expect(status[:online][:other]).to be_instance_of Integer
-    expect(status[:online]).to have_key(:total)
-    expect(status[:online][:total]).to be_instance_of Integer
-    expect(status[:online][:total]).to eql(status[:online][:guests] + status[:online][:registered] + status[:online][:other])
+    expect(status).to have_key("online")
+    expect(status["online"]).to have_key("guests")
+    expect(status["online"]["guests"]).to be_instance_of Integer
+    expect(status["online"]).to have_key("registered")
+    expect(status["online"]["registered"]).to be_instance_of Integer
+    expect(status["online"]).to have_key("other")
+    expect(status["online"]["other"]).to be_instance_of Integer
+    expect(status["online"]).to have_key("total")
+    expect(status["online"]["total"]).to be_instance_of Integer
+    expect(status["online"]["total"]).to eql(status["online"]["guests"] + status["online"]["registered"] + status["online"]["other"])
 
-    expect(status).to have_key(:fa_server_time)
-    expect(status[:fa_server_time]).to be_instance_of String
-    expect(status[:fa_server_time]).not_to be_blank
-    expect(status).to have_key(:fa_server_time_at)
-    expect(status[:fa_server_time]).to be_instance_of String
-    expect(status[:fa_server_time]).not_to be_blank
+    expect(status).to have_key("fa_server_time")
+    expect(status["fa_server_time"]).to be_instance_of String
+    expect(status["fa_server_time"]).not_to be_blank
+    expect(status).to have_key("fa_server_time_at")
+    expect(status["fa_server_time_at"]).to be_instance_of String
+    expect(status["fa_server_time_at"]).not_to be_blank
   end
 end

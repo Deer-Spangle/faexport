@@ -186,6 +186,11 @@ class RedisCache
     end
   end
 
+  def save_status(status)
+    @redis.set("#status", status)
+    @redis.expire("#status", @expire)
+  end
+
   def remove(key)
     @redis.del(key)
   end
@@ -226,25 +231,10 @@ class Furaffinity
   end
 
   def status
-    html = fetch('')
-    footer = html.css('.footer')
-    center = footer.css('center')
-
-    timestamp_line = footer[0].inner_html.split("\n").select{|line| line.strip.start_with? "Server Local Time: "}
-    timestamp = timestamp_line[0].to_s.split("Time:")[1].strip
-
-    counts = center.to_s.scan(/([0-9]+)\s*<b>/).map{|d| d[0].to_i}
-
-    {
-        online: {
-            guests: counts[1],
-            registered: counts[2],
-            other: counts[3],
-            total: counts[0]
-        },
-        fa_server_time: timestamp,
-        fa_server_time_at: to_iso8601(timestamp)
-    }
+    json = @cache.add("#status", false) do
+      parse_status fetch('')
+    end
+    JSON.parse json
   end
 
   def user(name)
@@ -886,6 +876,9 @@ private
       raise FASystemError.new(url)
     end
 
+    # Parse and save the status, every page should have this.
+    parse_status(html)
+
     html
   end
 
@@ -1002,5 +995,31 @@ private
         "profile": fa_url(name_elem['href'][1..-1]),
         "profile_name": last_path(name_elem['href'])
     }
+  end
+
+  def parse_status(html)
+    footer = html.css('.footer')
+    center = footer.css('center')
+
+    timestamp_line = footer[0].inner_html.split("\n").select{|line| line.strip.start_with? "Server Local Time: "}
+    timestamp = timestamp_line[0].to_s.split("Time:")[1].strip
+
+    counts = center.to_s.scan(/([0-9]+)\s*<b>/).map{|d| d[0].to_i}
+
+    status = {
+        online: {
+            guests: counts[1],
+            registered: counts[2],
+            other: counts[3],
+            total: counts[0]
+        },
+        fa_server_time: timestamp,
+        fa_server_time_at: to_iso8601(timestamp)
+    }
+    status_json = JSON.pretty_generate status
+    @cache.save_status(status_json)
+    status_json
+  rescue
+    # If we fail to read and save status, it's no big deal
   end
 end
