@@ -457,6 +457,8 @@ Deleted submissions are displayed in the following format:
 Retrieves information about the submission with the specified id.
 Note: the "full" and "thumbnail" members are parsed from the image viewer javascript snippet, the "download" is parsed from the "Download" link. When getting a non-image submission, the "thumbnail" and "full" members are null, but the "download" is guaranteed to point to the submission.
 
+If you supply a login cookie, you will get two additional keys in the results: `fav_status` will be a boolean, specifying whether this submission is marked as a favourite. `fav_key` will be the key required to change whether the submission is marked as a favourite.
+
 *Formats:* `json`, `xml`
 
 ~~~json
