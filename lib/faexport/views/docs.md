@@ -138,6 +138,23 @@ Fetches all the latest posts from the home page
 }
 ~~~
 
+### GET /status
+
+Returns the FA status information, usually displayed on the bottom of every page
+
+~~~json
+{
+  "online": {
+    "guests": "1346",
+    "registered": "8586",
+    "other": "17273",
+    "total": "27205"
+  },
+  "fa_server_time": "Sep 15th, 2019 08:11 AM",
+  "fa_server_time_at": "2019-09-15T08:11:00Z"
+}
+~~~
+
 ### GET /user/*{name}*
 
 General information about a user's account.

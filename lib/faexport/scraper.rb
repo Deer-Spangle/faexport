@@ -225,6 +225,28 @@ class Furaffinity
     }
   end
 
+  def status
+    html = fetch('')
+    footer = html.css('.footer')
+    center = footer.css('center')
+
+    timestamp_line = footer[0].inner_html.split("\n").select{|line| line.strip.start_with? "Server Local Time: "}
+    timestamp = timestamp_line[0].to_s.split("Time:")[1].strip
+
+    counts = center.to_s.scan(/([0-9]+)\s*<b>/).map{|d| d[0].to_i}
+
+    {
+        online: {
+            guests: counts[1],
+            registered: counts[2],
+            other: counts[3],
+            total: counts[0]
+        },
+        fa_server_time: timestamp,
+        fa_server_time_at: to_iso8601(timestamp)
+    }
+  end
+
   def user(name)
     profile = "user/#{escape(name)}/"
     html = fetch(profile)

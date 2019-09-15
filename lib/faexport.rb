@@ -150,6 +150,18 @@ module FAExport
       end
     end
 
+    # GET /status.json
+    # GET /home.xml
+    get %r{/status\.(json|xml)} do |type|
+      set_content_type(type)
+      case type
+      when 'json'
+        JSON.pretty_generate @fa.status
+      when 'xml'
+        @fa.status.to_xml(root: 'home', skip_types: true)
+      end
+    end
+
     # GET /user/{name}.json
     # GET /user/{name}.xml
     get %r{/user/#{USER_REGEX}\.(json|xml)} do |name, type|

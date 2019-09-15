@@ -1924,6 +1924,23 @@ describe 'FA parser' do
     end
   end
 
+  context 'when checking FA status' do
+    it 'displays the usual status information' do
+      status = @fa.status
+
+      check_status_result(status)
+    end
+
+    it 'displays status information after another page load' do
+      status_1 = @fa.status
+      @fa.home
+      status_2 = @fa.status
+
+      check_status_result(status_1)
+      check_status_result(status_2)
+    end
+  end
+
   private
 
   # noinspection RubyResolve
@@ -1991,5 +2008,25 @@ describe 'FA parser' do
 
     threshold = [results1_ids.length, results2_ids.length].max * 0.1
     expect(intersection.length).to be <= threshold
+  end
+
+  def check_status_result(status)
+    expect(status).to have_key(:online)
+    expect(status[:online]).to have_key(:guests)
+    expect(status[:online][:guests]).to be_instance_of Integer
+    expect(status[:online]).to have_key(:registered)
+    expect(status[:online][:registered]).to be_instance_of Integer
+    expect(status[:online]).to have_key(:other)
+    expect(status[:online][:other]).to be_instance_of Integer
+    expect(status[:online]).to have_key(:total)
+    expect(status[:online][:total]).to be_instance_of Integer
+    expect(status[:online][:total]).to eql(status[:online][:guests] + status[:online][:registered] + status[:online][:other])
+
+    expect(status).to have_key(:fa_server_time)
+    expect(status[:fa_server_time]).to be_instance_of String
+    expect(status[:fa_server_time]).not_to be_blank
+    expect(status).to have_key(:fa_server_time_at)
+    expect(status[:fa_server_time]).to be_instance_of String
+    expect(status[:fa_server_time]).not_to be_blank
   end
 end
