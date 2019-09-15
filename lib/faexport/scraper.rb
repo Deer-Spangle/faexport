@@ -278,7 +278,7 @@ class Furaffinity
     html.css('.artist_name').map{|elem| elem.content}
   end
 
-  def submission(id)
+  def submission(id, is_login=false)
     url = "view/#{id}/"
     html = fetch(url)
     error_msg = html.at_css("table.maintable td.alt1")
@@ -302,11 +302,8 @@ class Furaffinity
                 else
                   og_thumb['content'].sub! "http:", "https:"
                 end
-    fav_link = actions_bar.select {|a| a.content.end_with? "Favorites" }.first
-    fav_status = fav_link.content.start_with?("-Remove")
-    fav_key = fav_link['href'].split("?key=")[-1]
 
-    {
+    submission = {
       title: submission_title.at_css('h2').content,
       description: submission.css('td.alt1')[2].children.to_s.strip,
       description_body: submission.css('td.alt1')[2].children.to_s.strip,
@@ -318,8 +315,6 @@ class Furaffinity
       posted: date,
       posted_at: to_iso8601(date),
       download: download_url,
-      fav_status: fav_status,
-      fav_key: fav_key,
       full: img ? "https:" + img['data-fullview-src'] : nil,
       thumbnail: thumb_img,
       category: field(info, 'Category'),
@@ -333,6 +328,17 @@ class Furaffinity
       rating: raw_info.at_css('div img')['alt'].gsub(' rating', ''),
       keywords: keywords ? keywords.map(&:content).reject(&:empty?) : []
     }
+
+    if is_login
+      fav_link = actions_bar.select {|a| a.content.end_with? "Favorites" }.first
+      fav_status = fav_link.content.start_with?("-Remove")
+      fav_key = fav_link['href'].split("?key=")[-1]
+
+      submission[:fav_status] = fav_status
+      submission[:fav_key] = fav_key
+    end
+
+    submission
   end
 
   def journal(id)
