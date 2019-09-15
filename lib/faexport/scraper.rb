@@ -782,10 +782,10 @@ class Furaffinity
         end
       end
       {
-          note_id: note.at_css("input")['value'],
+          note_id: note.at_css("input")['value'].to_i,
           subject: subject.at_css("a.notelink").content,
           is_inbound: is_inbound,
-          is_read: subject.at_css("img.unread").nil?,
+          is_read: subject.at_css("a.notelink.note-unread").nil?,
           name: profile.content,
           profile: fa_url(profile['href'][1..-1]),
           profile_name: last_path(profile['href']),
@@ -926,7 +926,7 @@ private
   def fetch(path, extra_cookie = nil)
     url = fa_url(path)
     raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
-      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "@login_cookie;#{extra_cookie}") do |response|
+      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "#{@login_cookie};#{extra_cookie}") do |response|
         if response.status[0] != '200'
           raise FAStatusError.new(url, response.status.join(' '))
         end
