@@ -796,9 +796,13 @@ class Furaffinity
   end
 
   def note(id)
-    html = fetch("msg/pms/1/#{id}/")
-    current_user = get_current_user(html)
+    url = "msg/pms/1/#{id}/"
+    html = fetch(url)
+    current_user = get_current_user(html, url)
     note_table = html.at_css(".note-view-container table.maintable table.maintable")
+    if note_table.nil?
+      raise FASystemError.new(url)
+    end
     note_header = note_table.at_css("td.head")
     note_from = note_header.css("em")[1].at_css("a")
     note_to = note_header.css("em")[2].at_css("a")
@@ -819,12 +823,12 @@ class Furaffinity
         avatar: "https#{note_table.at_css("img.avatar")['src']}",
         description: description.inner_html.strip,
         description_body: html_strip(desc_split.first.strip),
-        preceeding_notes: desc_split[1..-1].map do |note|
+        preceding_notes: desc_split[1..-1].map do |note|
           note_html = Nokogiri::HTML(note)
           profile = note_html.at_css("a.linkusername")
           {
               name: profile.content.to_s,
-              profile: fa_url(profile['href'][1..-1]),
+              profile: fa_url(profile['href'][1..-1]+"/"),
               profile_name: last_path(profile['href']),
               description: note,
               description_body: html_strip(note.to_s.split("</a>:")[1..-1].join("</a>:"))

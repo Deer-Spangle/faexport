@@ -2006,9 +2006,56 @@ describe 'FA parser' do
     end
 
     context 'individual notes' do
-      it 'can view a specific note'
-      it 'can view an outbound note'
-      it 'throws an error for an invalid note'
+      it 'can view a specific note' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        note = @fa.note(108710830)
+
+        expect(note[:note_id]).to be_instance_of Integer
+        expect(note[:note_id]).not_to be_blank
+        expect(note[:subject]).to be_instance_of String
+        expect(note[:subject]).not_to be_blank
+        expect(note[:is_inbound]).to eql(true)
+        expect(note[:profile]).not_to eql(TEST_USER_2)
+        check_profile_link(note)
+        check_date(note[:posted], note[:posted_at])
+        expect(note[:description]).to be_instance_of String
+        expect(note[:description]).not_to be_blank
+        expect(note[:description_body]).to be_instance_of String
+        expect(note[:description_body]).not_to be_blank
+        expect(note[:description]).to start_with(note[:description_body])
+        expect(note[:preceding_notes]).to be_instance_of Array
+        expect(note[:preceding_notes].length).to eql(0)
+      end
+
+      it 'correctly parses preceding notes' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        note = @fa.note(108710838)
+
+        expect(note[:note_id]).to be_instance_of Integer
+        expect(note[:note_id]).not_to be_blank
+        expect(note[:subject]).to be_instance_of String
+        expect(note[:subject]).not_to be_blank
+        expect(note[:is_inbound]).to be_in([true, false])
+        expect(note[:profile]).not_to eql(TEST_USER_2)
+        check_profile_link(note)
+        check_date(note[:posted], note[:posted_at])
+        expect(note[:description]).to be_instance_of String
+        expect(note[:description]).not_to be_blank
+        expect(note[:description_body]).to be_instance_of String
+        expect(note[:description_body]).not_to be_blank
+        expect(note[:description]).to start_with(note[:description_body])
+        expect(note[:preceding_notes]).to be_instance_of Array
+        expect(note[:preceding_notes].length).to eql(1)
+        expect(note[:preceding_notes][0][:description]).to be_instance_of String
+        expect(note[:preceding_notes][0][:description]).not_to be_blank
+        check_profile_link(note[:preceding_notes][0])
+        expect(note[:preceding_notes][0][:profile]).not_to eql(TEST_USER_2)
+      end
+
+      it 'throws an error for an invalid note' do
+        @fa.login_cookie = COOKIE_TEST_USER_2
+        expect { @fa.note(108710839) }.to raise_error(FASystemError)
+      end
     end
   end
 

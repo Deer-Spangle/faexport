@@ -852,7 +852,7 @@ Views a specific note.
   "posted_at": "2019-05-03T13:04:00Z",
   "description": "Not really. How are you?\n\n______<snip>",
   "description_body": "Not really. How are you?",
-  "preceeding_notes": [
+  "preceding_notes": [
     {
       "name": "Fender",
       "profile_name": "https://furaffinity.net/user/fender/",
