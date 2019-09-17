@@ -868,6 +868,68 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
 }
 ~~~
 
+### GET /notes/{folder}
+
+*Formats:* `json`, `xml`, `rss`
+
+Login cookie required.
+
+Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox`, `unread`, `archive`, `trash`, `high`, `medium`, or `low`.
+
+~~~json
+[
+  {
+    "note_id": 123,
+    "subject": "No subject",
+    "is_inbound": true,
+    "is_read": false,
+    "name": "John Oliver",
+    "profile_name": "https://furaffinity.net/user/john_oliver/",
+    "profile": "john_oliver",
+    "posted": "on May 3rd, 2019 01:04 PM",
+    "posted_at": "2019-05-03T13:04:00Z"
+  },
+  <snip>
+]
+~~~
+
+### GET /note/{id}
+
+*Formats:* `json`, `xml`
+
+Login cookie required.
+
+Views a specific note.
+
+~~~json
+{
+  "note_id": 125,
+  "subject": "Re: No subject",
+  "is_inbound": true,
+  "name": "John Oliver",
+  "profile_name": "https://furaffinity.net/user/john_oliver/",
+  "profile": "john_oliver",
+  "posted": "on May 3rd, 2019 01:04 PM",
+  "posted_at": "2019-05-03T13:04:00Z",
+  "description": "Not really. How are you?\n\n______<snip>",
+  "description_body": "Not really. How are you?",
+  "preceding_notes": [
+    {
+      "name": "Fender",
+      "profile_name": "https://furaffinity.net/user/fender/",
+      "profile": "fender",
+      "description": "Hey, do u rp?"
+    },
+    {
+      "name": "John Oliver",
+      "profile_name": "https://furaffinity.net/user/john_oliver/",
+      "profile": "john_oliver",
+      "description": "Hello there!"
+    }
+  ]
+}
+~~~
+
 ### POST /journal
 
 *Formats:* `json`, `query`

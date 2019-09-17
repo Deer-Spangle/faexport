@@ -69,3 +69,16 @@
     %dd
       %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notifications/#{notification_type}.rss"}
       %br
+  %dt Notes (login cookie required)
+  %dd
+    - %w(json xml rss).map do |type|
+      - %w(inbox unread outbox high medium low archive trash).map do |folder|
+        %dd
+          %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notes/#{folder}.#{type}"}
+          %br
+  %dt Note view (login cookie required)
+  %dd
+    - %w(json xml).map do |type|
+      %dd
+        %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/note/{id}.#{type}"}
+        %br

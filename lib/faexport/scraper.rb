@@ -795,6 +795,92 @@ class Furaffinity
     }
   end
 
+  def notes(folder)
+    note_cookie = {
+        inbox: "inbox",
+        outbox: "outbox",
+        unread: "unread",
+        archive: "archive",
+        trash: "trash",
+        high: "high_prio",
+        medium: "medium_prio",
+        low: "low_prio"
+    }[folder.to_sym]
+    html = fetch("msg/pms/", "folder=#{note_cookie}")
+    notes_table = html.at_css("table#notes-list")
+    notes_table.css("tr.note").map do |note|
+      subject = note.at_css("td.subject")
+      profile_from = note.at_css("td.col-from")
+      profile_to = note.at_css("td.col-to")
+      date = pick_date(note.at_css("span.popup_date"))
+      if profile_to.nil?
+        is_inbound = true
+        profile = profile_from.at_css("a")
+      else
+        if profile_from.nil?
+          is_inbound = false
+          profile = profile_to.at_css("a")
+        else
+          is_inbound = profile_to.content.strip == "me"
+          profile = is_inbound ? profile_from.at_css("a") : profile_to.at_css("a")
+        end
+      end
+      {
+          note_id: note.at_css("input")['value'].to_i,
+          subject: subject.at_css("a.notelink").content,
+          is_inbound: is_inbound,
+          is_read: subject.at_css("a.notelink.note-unread").nil?,
+          name: profile.content,
+          profile: fa_url(profile['href'][1..-1]),
+          profile_name: last_path(profile['href']),
+          posted: date,
+          posted_at: to_iso8601(date)
+      }
+    end
+  end
+
+  def note(id)
+    url = "msg/pms/1/#{id}/"
+    html = fetch(url)
+    current_user = get_current_user(html, url)
+    note_table = html.at_css(".note-view-container table.maintable table.maintable")
+    if note_table.nil?
+      raise FASystemError.new(url)
+    end
+    note_header = note_table.at_css("td.head")
+    note_from = note_header.css("em")[1].at_css("a")
+    note_to = note_header.css("em")[2].at_css("a")
+    is_inbound = current_user[:profile_name] == last_path(note_to['href'])
+    profile = is_inbound ? note_from : note_to
+    date = pick_date(note_table.at_css("span.popup_date"))
+    description = note_table.at_css("td.text")
+    desc_split = description.inner_html.split("—————————")
+    {
+        note_id: id,
+        subject: note_header.at_css("em.title").content,
+        is_inbound: is_inbound,
+        name: profile.content,
+        profile: fa_url(profile['href'][1..-1]),
+        profile_name: last_path(profile['href']),
+        posted: date,
+        posted_at: to_iso8601(date),
+        avatar: "https#{note_table.at_css("img.avatar")['src']}",
+        description: description.inner_html.strip,
+        description_body: html_strip(desc_split.first.strip),
+        preceding_notes: desc_split[1..-1].map do |note|
+          note_html = Nokogiri::HTML(note)
+          profile = note_html.at_css("a.linkusername")
+          {
+              name: profile.content.to_s,
+              profile: fa_url(profile['href'][1..-1]+"/"),
+              profile_name: last_path(profile['href']),
+              description: note,
+              description_body: html_strip(note.to_s.split("</a>:")[1..-1].join("</a>:"))
+          }
+        end
+    }
+  end
+
   def fa_url(path)
     if path.to_s.start_with? "/"
       path = path[1..-1]
@@ -805,6 +891,10 @@ class Furaffinity
 private
   def fa_address
     "https://#{safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
+  end
+
+  def html_strip(html_s)
+    html_s.gsub(/^(<br ?\/?>|\\r|\\n|\s)+/, "").gsub(/(<br ?\/?>|\\r|\\n|\s)+$/,"")
   end
 
   def last_path(path)
@@ -881,10 +971,10 @@ private
     CGI::escape(name)
   end
 
-  def fetch(path)
+  def fetch(path, extra_cookie = nil)
     url = fa_url(path)
-    raw = @cache.add("url:#{url}:#{@login_cookie}") do
-      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => @login_cookie) do |response|
+    raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
+      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "#{@login_cookie};#{extra_cookie}") do |response|
         if response.status[0] != '200'
           raise FAStatusError.new(url, response.status.join(' '))
         end
