@@ -150,6 +150,20 @@ module FAExport
       end
     end
 
+    # GET /browse.json
+    # GET /browse.xml
+    get %r{/browse\.(json|xml)} do |type|
+      set_content_type(type)
+      cache("browse:#{type}.#{params.to_s}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.browse(params)
+        when 'xml'
+          @fa.browse(params).to_xml(root: 'browse', skip_types: true)
+        end
+      end
+    end
+
     # GET /status.json
     # GET /home.xml
     get %r{/status\.(json|xml)} do |type|

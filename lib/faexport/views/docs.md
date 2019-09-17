@@ -138,6 +138,50 @@ Fetches all the latest posts from the home page
 }
 ~~~
 
+### GET /browse
+
+Fetches all the recent uploads on the browse page.
+The following parameters can be provided:
+
+* **page**: Page of results to display.  Defaults to: `1`.
+* **perpage**: How many results to display per page.  Can be one of: `24`, `48` or `72`.  Defaults to: `72`.
+* **rating**: what rating levels are included.  Can be any of: `general`, `mature` and `adult` separated by commas.  Defaults to: `general,mature,adult`.
+
+The API does not yet allow specifying category, type, species or gender, as FA requires hard coding these by number.
+
+~~~json
+[
+  {
+    "id": "33050174",
+    "title": "YCH REMINDER",
+    "thumbnail": "https://t.facdn.net/33050174@200-1568543823.jpg",
+    "link": "https://www.furaffinity.net/view/33050174/",
+    "name": "KoiiAdopts",
+    "profile": "https://www.furaffinity.net/user/koiiadopts/",
+    "profile_name": "koiiadopts"
+  },
+  {
+    "id": "33050173",
+    "title": "Yote At The Grainery",
+    "thumbnail": "https://t.facdn.net/33050173@200-1568543817.jpg",
+    "link": "https://www.furaffinity.net/view/33050173/",
+    "name": "RocketT.Coyote",
+    "profile": "https://www.furaffinity.net/user/rockett.coyote/",
+    "profile_name": "rockett.coyote"
+  },
+  {
+    "id": "33050172",
+    "title": "Troopashroom Powerup 2/2",
+    "thumbnail": "https://t.facdn.net/33050172@300-1568543811.jpg",
+    "link": "https://www.furaffinity.net/view/33050172/",
+    "name": "Blueballs",
+    "profile": "https://www.furaffinity.net/user/blueballs/",
+    "profile_name": "blueballs"
+  },
+  <snip>
+]
+~~~
+
 ### GET /status
 
 Returns the FA status information, usually displayed on the bottom of every page

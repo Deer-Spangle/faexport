@@ -230,6 +230,38 @@ class Furaffinity
     }
   end
 
+  def browse(params)
+    page = params['page'] =~ /^[0-9]+$/ ? params['page'] : "1"
+    perpage = SEARCH_OPTIONS['perpage'].include?(params['perpage']) ? params['perpage'] : SEARCH_DEFAULTS['perpage']
+    ratings =
+        if params.key?('rating') and params['rating'].gsub(' ', '').split(',').all? {|v| SEARCH_OPTIONS['rating'].include? v}
+          params['rating'].gsub(' ', '').split(',')
+        else
+          SEARCH_DEFAULTS['rating'].split(",")
+        end
+
+    options = {
+        perpage: perpage,
+        rating_general: ratings.include?("general") ? 1 : 0,
+        rating_mature: ratings.include?("mature") ? 1 : 0,
+        rating_adult: ratings.include?("adult") ? 1 : 0
+    }
+
+    raw = @cache.add("url:browse:#{params.to_s}") do
+      response = post("/browse/#{page}/", options)
+      unless response.is_a?(Net::HTTPSuccess)
+        raise FAStatusError.new(fa_url("/browse/#{page}/"), response.message)
+      end
+      response.body
+    end
+
+    # Parse browse results
+    html = Nokogiri::HTML(raw)
+    gallery = html.css('section#gallery-browse')
+
+    gallery.css('figure').map{|art| build_submission(art)}
+  end
+
   def status
     json = @cache.add("#status", false) do
       parse_status fetch('')

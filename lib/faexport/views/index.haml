@@ -9,6 +9,11 @@
     - %w(json xml).map do |type|
       %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/home.#{type}"}
       %br
+  %dt Browse
+  %dd
+    - %w(json xml).map do |type|
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/browse.#{type}"}
+      %br
   %dt Status
   %dd
     - %w(json xml).map do |type|
