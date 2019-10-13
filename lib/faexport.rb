@@ -324,6 +324,19 @@ module FAExport
       end
     end
 
+    # POST /submission/{id}/favorite.json
+    post %r{/submission/#{ID_REGEX}/favorite\.(json|)} do |id|
+      ensure_login!
+      fav = case type
+            when '.json' then JSON.parse(request.body.read)
+            else params
+            end
+      result = @fa.favorite_submission(id, fav['fav_status'], fav['fav_key'])
+
+      set_content_type('json')
+      JSON.pretty_generate(result)
+    end
+
     # GET /journal/{id}.json
     # GET /journal/{id}.xml
     get %r{/journal/#{ID_REGEX}\.(json|xml)} do |id, type|
