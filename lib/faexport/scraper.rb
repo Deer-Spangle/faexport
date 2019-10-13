@@ -286,17 +286,17 @@ class Furaffinity
       raise FASystemError.new(url)
     end
 
-    parse_submission_page(html, is_login)
+    parse_submission_page(id, html, is_login)
   end
 
   def favorite_submission(id, fav_status, fav_key)
-    url = "#{fav_status ? 'fav' : 'unfav'}/#{id}/?key=#{key}"
-    raise FAFormError.new(fa_url(url), 'fav_status') unless fav_status
+    url = "#{fav_status ? 'fav' : 'unfav'}/#{id}/?key=#{fav_key}"
+    raise FAFormError.new(fa_url(url), 'fav_status') unless [true, false].include? fav_status
     raise FAFormError.new(fa_url(url), 'fav_key') unless fav_key
     raise FALoginError.new(fa_url(url)) unless login_cookie
 
     html = fetch(url)
-    parse_submission_page(html, true)
+    parse_submission_page(id, html, true)
   end
 
   def journal(id)
@@ -952,7 +952,7 @@ private
     }
   end
 
-  def parse_submission_page(html, is_login)
+  def parse_submission_page(id, html, is_login)
     submission = html.css('div#page-submission table.maintable table.maintable')[-1]
     submission_title = submission.at_css(".classic-submission-title")
     raw_info = submission.at_css('td.alt1')
