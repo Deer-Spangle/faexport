@@ -518,6 +518,8 @@ Deleted submissions are displayed in the following format:
 Retrieves information about the submission with the specified id.
 Note: the "full" and "thumbnail" members are parsed from the image viewer javascript snippet, the "download" is parsed from the "Download" link. When getting a non-image submission, the "thumbnail" and "full" members are null, but the "download" is guaranteed to point to the submission.
 
+If you supply a login cookie, you will get two additional keys in the results: `fav_status` will be a boolean, specifying whether this submission is marked as a favourite. `fav_key` will be the key required to change whether the submission is marked as a favourite.
+
 *Formats:* `json`, `xml`
 
 ~~~json
@@ -555,6 +557,20 @@ Note: the "full" and "thumbnail" members are parsed from the image viewer javasc
   ]
 }
 ~~~
+
+### POST /submission/*{id}*/favorite
+
+*Formats:* `json`, `query`
+
+Login cookie required.
+
+Updates the favorited-status of a submission.
+The following parameters must be provided:
+
+* **fav_status**: A boolean, indicating whether the submission should be made a favorite.
+* **fav_key**: A key obtained from the submission page.
+
+The response will be the same as the submission request for this submission.
 
 ### GET /journal/*{id}*
 

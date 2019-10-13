@@ -635,6 +635,107 @@ describe 'FA parser' do
       @fa.safe_for_work = true
       expect { @fa.submission("32011278") }.to raise_error(FASystemError)
     end
+
+    it 'should not display the fav status and fav code if not logged in' do
+      submission = @fa.submission("32006442", false)
+      expect(submission).not_to have_key(:fav_status)
+      expect(submission).not_to have_key(:fav_key)
+    end
+
+    it 'should display the fav status and fav code when logged in' do
+      submission = @fa.submission("32006442", true)
+      expect(submission).to have_key(:fav_status)
+      expect(submission[:fav_status]).to be_in([true, false])
+      expect(submission).to have_key(:fav_key)
+      expect(submission[:fav_key]).to be_instance_of String
+      expect(submission[:fav_key]).not_to be_empty
+    end
+  end
+
+  context 'when updating favorite status of a submission' do
+    it 'should return a valid submission' do
+      sub_id = "32006442"
+      submission = @fa.submission(sub_id, true)
+      is_fav = submission[:fav_status]
+      fav_key = submission[:fav_key]
+
+      sub = @fa.favorite_submission(sub_id, !is_fav, fav_key)
+      expect(sub[:title]).not_to be_blank
+      expect(sub[:description]).not_to be_blank
+      expect(sub[:description_body]).to eql(sub[:description])
+      check_profile_link(sub)
+      check_avatar(sub[:avatar], sub[:profile_name])
+      check_submission_link(sub[:link], sub_id)
+      check_date(sub[:posted], sub[:posted_at])
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
+      # For an image submission, full == download
+      expect(sub[:full]).to eql(sub[:download])
+      check_thumbnail_link(sub[:thumbnail], sub_id)
+      # Info box
+      expect(sub[:category]).not_to be_blank
+      expect(sub[:theme]).not_to be_blank
+      expect(sub[:species]).not_to be_blank
+      expect(sub[:gender]).not_to be_blank
+      expect(sub[:favorites]).to match(/[0-9]+/)
+      expect(sub[:favorites].to_i).to be > 0
+      expect(sub[:comments]).to match(/[0-9]+/)
+      expect(sub[:comments].to_i).to be > 0
+      expect(sub[:views]).to match(/[0-9]+/)
+      expect(sub[:views].to_i).to be > 0
+      expect(sub[:resolution]).not_to be_blank
+      expect(sub[:rating]).not_to be_blank
+      expect(sub[:keywords]).to be_instance_of Array
+    end
+
+
+    it 'should update the fav status when code is given' do
+      id = "32006442"
+      submission = @fa.submission(id, true)
+      is_fav = submission[:fav_status]
+      fav_key = submission[:fav_key]
+
+      new_submission = @fa.favorite_submission(id, !is_fav, fav_key)
+      now_fav = new_submission[:fav_status]
+      expect(is_fav).to be_in([true, false])
+      expect(now_fav).to be_in([true, false])
+      expect(is_fav).not_to equal(now_fav)
+    end
+
+    it 'should be able to set and unset fav status' do
+      id = "32006442"
+      submission = @fa.submission(id, true)
+      is_fav = submission[:fav_status]
+      fav_key = submission[:fav_key]
+
+      new_submission = @fa.favorite_submission(id, !is_fav, fav_key)
+      now_fav = new_submission[:fav_status]
+      new_key = new_submission[:fav_key]
+      expect(now_fav).not_to equal(is_fav)
+
+      new_submission2 = @fa.favorite_submission(id, !now_fav, new_key)
+      expect(new_submission2[:fav_status]).to equal(is_fav)
+    end
+
+    it 'should not make any change if setting fav status to current value' do
+      id = "32006442"
+      submission = @fa.submission(id, true)
+      is_fav = submission[:fav_status]
+      fav_key = submission[:fav_key]
+
+      new_submission = @fa.favorite_submission(id, is_fav, fav_key)
+      now_fav = new_submission[:fav_status]
+      expect(now_fav).to equal(is_fav)
+    end
+
+    it 'should not change fav status if invalid code is given' do
+      id = "32006442"
+      submission = @fa.submission(id, true)
+      is_fav = submission[:fav_status]
+
+      new_submission = @fa.favorite_submission(id, !is_fav, "fake_key")
+      now_fav = new_submission[:fav_status]
+      expect(now_fav).to equal(is_fav)
+    end
   end
 
   context 'when viewing a journal post' do

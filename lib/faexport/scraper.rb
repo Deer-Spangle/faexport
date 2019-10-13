@@ -322,7 +322,7 @@ class Furaffinity
     html.css('.artist_name').map{|elem| elem.content}
   end
 
-  def submission(id)
+  def submission(id, is_login=false)
     url = "view/#{id}/"
     html = fetch(url)
     error_msg = html.at_css("table.maintable td.alt1")
@@ -330,47 +330,17 @@ class Furaffinity
       raise FASystemError.new(url)
     end
 
-    submission = html.css('div#page-submission table.maintable table.maintable')[-1]
-    submission_title = submission.at_css(".classic-submission-title")
-    raw_info = submission.at_css('td.alt1')
-    info = raw_info.content.lines.map{|i| i.gsub(/^\p{Space}*/, '').rstrip}
-    keywords = raw_info.css('div#keywords a')
-    date = pick_date(raw_info.at_css('.popup_date'))
-    img = html.at_css('img#submissionImg')
-    download_url = "https:" + html.css('#page-submission td.alt1 div.actions a').select {|a| a.content == "Download" }.first['href']
-    profile_url = html.at_css('td.cat a')['href'][1..-1]
-    og_thumb = html.at_css('meta[property="og:image"]')
-    thumb_img = if og_thumb.nil? || og_thumb['content'].include?("/banners/fa_logo.png")
-                  img ? "https:" + img['data-preview-src'] : nil
-                else
-                  og_thumb['content'].sub! "http:", "https:"
-                end
+    parse_submission_page(id, html, is_login)
+  end
 
-    {
-      title: submission_title.at_css('h2').content,
-      description: submission.css('td.alt1')[2].children.to_s.strip,
-      description_body: submission.css('td.alt1')[2].children.to_s.strip,
-      name: html.css('td.cat a')[1].content,
-      profile: fa_url(profile_url),
-      profile_name: last_path(profile_url),
-      avatar: "https:#{submission_title.at_css("img.avatar")['src']}",
-      link: fa_url("view/#{id}/"),
-      posted: date,
-      posted_at: to_iso8601(date),
-      download: download_url,
-      full: img ? "https:" + img['data-fullview-src'] : nil,
-      thumbnail: thumb_img,
-      category: field(info, 'Category'),
-      theme: field(info, 'Theme'),
-      species: field(info, 'Species'),
-      gender: field(info, 'Gender'),
-      favorites: field(info, 'Favorites'),
-      comments: field(info, 'Comments'),
-      views: field(info, 'Views'),
-      resolution: field(info, 'Resolution'),
-      rating: raw_info.at_css('div img')['alt'].gsub(' rating', ''),
-      keywords: keywords ? keywords.map(&:content).reject(&:empty?) : []
-    }
+  def favorite_submission(id, fav_status, fav_key)
+    url = "#{fav_status ? 'fav' : 'unfav'}/#{id}/?key=#{fav_key}"
+    raise FAFormError.new(fa_url(url), 'fav_status') unless [true, false].include? fav_status
+    raise FAFormError.new(fa_url(url), 'fav_key') unless fav_key
+    raise FALoginError.new(fa_url(url)) unless login_cookie
+
+    html = fetch(url)
+    parse_submission_page(id, html, true)
   end
 
   def journal(id)
@@ -1143,5 +1113,61 @@ private
     status_json
   rescue
     # If we fail to read and save status, it's no big deal
+  end
+
+  def parse_submission_page(id, html, is_login)
+    submission = html.css('div#page-submission table.maintable table.maintable')[-1]
+    submission_title = submission.at_css(".classic-submission-title")
+    raw_info = submission.at_css('td.alt1')
+    info = raw_info.content.lines.map{|i| i.gsub(/^\p{Space}*/, '').rstrip}
+    keywords = raw_info.css('div#keywords a')
+    date = pick_date(raw_info.at_css('.popup_date'))
+    img = html.at_css('img#submissionImg')
+    actions_bar = html.css('#page-submission td.alt1 div.actions a')
+    download_url = "https:" + actions_bar.select {|a| a.content == "Download" }.first['href']
+    profile_url = html.at_css('td.cat a')['href'][1..-1]
+    og_thumb = html.at_css('meta[property="og:image"]')
+    thumb_img = if og_thumb.nil? || og_thumb['content'].include?("/banners/fa_logo.png")
+                  img ? "https:" + img['data-preview-src'] : nil
+                else
+                  og_thumb['content'].sub! "http:", "https:"
+                end
+
+    submission = {
+        title: submission_title.at_css('h2').content,
+        description: submission.css('td.alt1')[2].children.to_s.strip,
+        description_body: submission.css('td.alt1')[2].children.to_s.strip,
+        name: html.css('td.cat a')[1].content,
+        profile: fa_url(profile_url),
+        profile_name: last_path(profile_url),
+        avatar: "https:#{submission_title.at_css("img.avatar")['src']}",
+        link: fa_url("view/#{id}/"),
+        posted: date,
+        posted_at: to_iso8601(date),
+        download: download_url,
+        full: img ? "https:" + img['data-fullview-src'] : nil,
+        thumbnail: thumb_img,
+        category: field(info, 'Category'),
+        theme: field(info, 'Theme'),
+        species: field(info, 'Species'),
+        gender: field(info, 'Gender'),
+        favorites: field(info, 'Favorites'),
+        comments: field(info, 'Comments'),
+        views: field(info, 'Views'),
+        resolution: field(info, 'Resolution'),
+        rating: raw_info.at_css('div img')['alt'].gsub(' rating', ''),
+        keywords: keywords ? keywords.map(&:content).reject(&:empty?) : []
+    }
+
+    if is_login
+      fav_link = actions_bar.select {|a| a.content.end_with? "Favorites" }.first
+      fav_status = fav_link.content.start_with?("-Remove")
+      fav_key = fav_link['href'].split("?key=")[-1]
+
+      submission[:fav_status] = fav_status
+      submission[:fav_key] = fav_key
+    end
+
+    submission
   end
 end

@@ -339,15 +339,29 @@ module FAExport
     # GET /submission/{id}.json
     # GET /submission/{id}.xml
     get %r{/submission/#{ID_REGEX}\.(json|xml)} do |id, type|
+      is_login = !!@user_cookie
       set_content_type(type)
       cache("submission:#{id}.#{type}") do
         case type
         when 'json'
-          JSON.pretty_generate @fa.submission(id)
+          JSON.pretty_generate @fa.submission(id, is_login)
         when 'xml'
-          @fa.submission(id).to_xml(root: 'submission', skip_types: true)
+          @fa.submission(id, is_login).to_xml(root: 'submission', skip_types: true)
         end
       end
+    end
+
+    # POST /submission/{id}/favorite.json
+    post %r{/submission/#{ID_REGEX}/favorite\.(json|)} do |id|
+      ensure_login!
+      fav = case type
+            when '.json' then JSON.parse(request.body.read)
+            else params
+            end
+      result = @fa.favorite_submission(id, fav['fav_status'], fav['fav_key'])
+
+      set_content_type('json')
+      JSON.pretty_generate(result)
     end
 
     # GET /journal/{id}.json
