@@ -497,6 +497,20 @@ If you supply a login cookie, you will get two additional keys in the results: `
 }
 ~~~
 
+### POST /submission/*{id}*/favorite
+
+*Formats:* `json`, `query`
+
+Login cookie required.
+
+Updates the favorited-status of a submission.
+The following parameters must be provided:
+
+* **fav_status**: A boolean, indicating whether the submission should be made a favorite.
+* **fav_key**: A key obtained from the submission page.
+
+The response will be the same as the submission request for this submission.
+
 ### GET /journal/*{id}*
 
 Retrieves information about the journal with the specified id.
