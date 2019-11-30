@@ -823,8 +823,8 @@ Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox
     "is_inbound": true,
     "is_read": false,
     "name": "John Oliver",
-    "profile_name": "https://furaffinity.net/user/john_oliver/",
-    "profile": "john_oliver",
+    "profile": "https://furaffinity.net/user/john_oliver/",
+    "profile_name": "john_oliver",
     "posted": "on May 3rd, 2019 01:04 PM",
     "posted_at": "2019-05-03T13:04:00Z"
   },
@@ -846,8 +846,8 @@ Views a specific note.
   "subject": "Re: No subject",
   "is_inbound": true,
   "name": "John Oliver",
-  "profile_name": "https://furaffinity.net/user/john_oliver/",
-  "profile": "john_oliver",
+  "profile": "https://furaffinity.net/user/john_oliver/",
+  "profile_name": "john_oliver",
   "posted": "on May 3rd, 2019 01:04 PM",
   "posted_at": "2019-05-03T13:04:00Z",
   "description": "Not really. How are you?\n\n______<snip>",
@@ -855,14 +855,14 @@ Views a specific note.
   "preceding_notes": [
     {
       "name": "Fender",
-      "profile_name": "https://furaffinity.net/user/fender/",
-      "profile": "fender",
+      "profile": "https://furaffinity.net/user/fender/",
+      "profile_name": "fender",
       "description": "Hey, do u rp?"
     },
     {
       "name": "John Oliver",
-      "profile_name": "https://furaffinity.net/user/john_oliver/",
-      "profile": "john_oliver",
+      "profile": "https://furaffinity.net/user/john_oliver/",
+      "profile_name": "john_oliver",
       "description": "Hello there!"
     }
   ]
