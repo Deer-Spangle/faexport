@@ -1083,7 +1083,7 @@ private
       raise FALoginError.new(url)
     end
     {
-        "name": name_elem.content.gsub(/^~/, ''),
+        "name": name_elem.content.strip.gsub(/^~/, ''),
         "profile": fa_url(name_elem['href'][1..-1]),
         "profile_name": last_path(name_elem['href'])
     }
