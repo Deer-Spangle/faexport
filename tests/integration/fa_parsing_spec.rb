@@ -434,9 +434,9 @@ describe 'FA parser' do
       check_avatar(sub[:avatar], sub[:profile_name])
       check_submission_link(sub[:link], sub_id)
       check_date(sub[:posted], sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
-      # For an image submission, full == download
-      expect(sub[:full]).to eql(sub[:download])
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
+      # Even for an image submission, full no longer equals download
+      expect(sub[:full]).not_to eql(sub[:download])
       check_thumbnail_link(sub[:thumbnail], sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
@@ -482,7 +482,7 @@ describe 'FA parser' do
       check_avatar(sub[:avatar], sub[:profile_name])
       check_submission_link(sub[:link], sub_id)
       check_date(sub[:posted], sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/stories\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/stories\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
       # For a story submission, full != download
       expect(sub[:full]).not_to be_blank
       expect(sub[:full]).not_to eql(sub[:download])
@@ -514,7 +514,7 @@ describe 'FA parser' do
       check_avatar(sub[:avatar], sub[:profile_name])
       check_submission_link(sub[:link], sub_id)
       check_date(sub[:posted], sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/music\/[0-9]+\/[0-9]+\..+\.(mp3|mid|wav|mpeg)/)
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/music\/[0-9]+\/[0-9]+\..+\.(mp3|mid|wav|mpeg)/)
       # For a music submission, full != download
       expect(sub[:full]).not_to be_blank
       expect(sub[:full]).not_to eql(sub[:download])
@@ -546,7 +546,7 @@ describe 'FA parser' do
       check_avatar(sub[:avatar], sub[:profile_name])
       check_submission_link(sub[:link], sub_id)
       check_date(sub[:posted], sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.swf/)
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.swf/)
       # For a flash submission, full is nil
       expect(sub[:full]).to be_nil
       check_thumbnail_link(sub[:thumbnail], sub_id)
@@ -577,7 +577,7 @@ describe 'FA parser' do
       check_avatar(sub[:avatar], sub[:profile_name])
       check_submission_link(sub[:link], sub_id)
       check_date(sub[:posted], sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/poetry\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/poetry\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
       # For a potery submission, full is nil
       expect(sub[:full]).not_to be_nil
       check_thumbnail_link(sub[:thumbnail], sub_id)
@@ -610,9 +610,9 @@ describe 'FA parser' do
       check_avatar(sub[:avatar], sub[:profile_name])
       check_submission_link(sub[:link], sub_id)
       check_date(sub[:posted], sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
-      # For an image submission, full == download
-      expect(sub[:full]).to eql(sub[:download])
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
+      # Even for an image submission, full does not equal download
+      expect(sub[:full]).not_to eql(sub[:download])
       check_thumbnail_link(sub[:thumbnail], sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
@@ -1980,7 +1980,7 @@ describe 'FA parser' do
 
   def check_date(date_string, iso_string)
     expect(date_string).not_to be_blank
-    expect(date_string).to match(/[A-Z][a-z]{2} [0-9]+[a-z]{2}, [0-9]{4} [0-9]{2}:[0-9]{2}/)
+    expect(date_string).to match(/[A-Z][a-z]{2} [0-9]+([a-z]{2})?, [0-9]{4},? [0-9]{2}:[0-9]{2}( ?[AP]M)?/)
     expect(iso_string).not_to be_blank
     expect(iso_string).to eql(Time.parse(date_string + ' UTC').iso8601)
   end
