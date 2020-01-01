@@ -1127,7 +1127,7 @@ private
     download_url = "https:" + actions_bar.select {|a| a.content == "Download" }.first['href']
     profile_url = html.at_css('td.cat a')['href'][1..-1]
     og_thumb = html.at_css('meta[property="og:image"]')
-    thumb_img = if og_thumb.nil? || og_thumb['content'].include?("/banners/fa_logo.png")
+    thumb_img = if og_thumb.nil? || og_thumb['content'].include?("/banners/fa_logo")
                   img ? "https:" + img['data-preview-src'] : nil
                 else
                   og_thumb['content'].sub! "http:", "https:"
