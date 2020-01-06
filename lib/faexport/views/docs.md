@@ -724,6 +724,15 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
     "profile": "https://furaffinity.net/user/fender/",
     "profile_name": "fender"
   },
+  "notification_counts": {
+    "submissions": 2213,
+    "comments": 17,
+    "journals": 187,
+    "favorites":  23,
+    "watchers":  8,
+    "notes": 1,
+    "trouble_tickets": 0
+  },
   "new_watches": [
     {
       "watch_id": "105721482",
