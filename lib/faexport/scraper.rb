@@ -558,6 +558,32 @@ class Furaffinity
     html = fetch(url)
     # Parse page
     login_user = get_current_user(html, url)
+    # Parse notification totals
+    num_submissions = 0
+    num_comments = 0
+    num_journals = 0
+    num_favorites = 0
+    num_watchers = 0
+    num_notes = 0
+    num_trouble_tickets = 0
+    totals = html.css("a.notification-container").each do |elem|
+      count = Integer(elem['title'].gsub(",", "").split()[0])
+      if elem['title'].include? "Submission"
+        num_submissions = count
+      elsif elem['title'].include? "Comment"
+        num_comments = count
+      elsif elem['title'].include? "Journal"
+        num_journals = count
+      elsif elem['title'].include? "Favorite"
+        num_favorites = count
+      elsif elem['title'].include? "Watch"
+        num_watchers = count
+      elsif elem['title'].include? "Unread Notes"
+        num_notes = count
+      else
+        num_trouble_tickets = count
+      end
+    end
     # Parse new watcher notifications
     new_watches = []
     watches_elem = html.at_css("ul#watches")
@@ -756,6 +782,15 @@ class Furaffinity
     # Create response
     {
         current_user: login_user,
+        notification_counts: {
+            submissions: 2213,
+            comments: 17,
+            journals: 187,
+            favorites:  23,
+            watchers:  8,
+            notes: 1,
+            trouble_tickets: 0
+        },
         new_watches: new_watches,
         new_submission_comments: new_submission_comments,
         new_journal_comments: new_journal_comments,

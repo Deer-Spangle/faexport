@@ -479,7 +479,6 @@ module FAExport
     # GET /notifications/others.xml
     get %r{/notifications/others\.(json|xml)} do |type|
       ensure_login!
-      # # TODO: write docs
       include_deleted = !!params[:include_deleted]
       set_content_type(type)
       cache("notifications:#{@user_cookie}:#{include_deleted}.#{type}") do

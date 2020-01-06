@@ -1542,6 +1542,28 @@ describe 'FA parser' do
       expect { @fa.notifications(false) }.to raise_error(FALoginError)
     end
 
+    it 'should display non-zero notification totals' do
+      @fa.login_cookie = COOKIE_TEST_USER_2
+      notifications = @fa.notifications(false)
+      expect(notifications).to have_key(:notification_counts)
+      counts = notifications[:notification_counts]
+      expect(counts).to have_key(:submissions)
+      expect(counts).to have_key(:comments)
+      expect(counts).to have_key(:journals)
+      expect(counts).to have_key(:favorites)
+      expect(counts).to have_key(:watchers)
+      expect(counts).to have_key(:notes)
+      expect(counts).to have_key(:trouble_tickets)
+
+      expect(counts[:submissions]).to be >= 0
+      expect(counts[:comments]).to be > 0
+      expect(counts[:journals]).to be >= 0
+      expect(counts[:favorites]).to be > 0
+      expect(counts[:watchers]).to be > 0
+      expect(counts[:notes]).to be > 0
+      expect(counts[:trouble_tickets]).to be >= 0
+    end
+
     it 'should contain all 6 types of notifications' do
       @fa.login_cookie = COOKIE_TEST_USER_2
       notifications = @fa.notifications(false)
