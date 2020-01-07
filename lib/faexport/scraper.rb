@@ -783,13 +783,13 @@ class Furaffinity
     {
         current_user: login_user,
         notification_counts: {
-            submissions: 2213,
-            comments: 17,
-            journals: 187,
-            favorites:  23,
-            watchers:  8,
-            notes: 1,
-            trouble_tickets: 0
+            submissions: num_submissions,
+            comments: num_comments,
+            journals: num_journals,
+            favorites:  num_favorites,
+            watchers:  num_watchers,
+            notes: num_notes,
+            trouble_tickets: num_trouble_tickets
         },
         new_watches: new_watches,
         new_submission_comments: new_submission_comments,
