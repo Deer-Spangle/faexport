@@ -175,7 +175,7 @@ describe 'FA parser' do
       expect(and_results).to be_different_results_to(or_results)
 
       expect(extended_or_results).to be_similar_results_to(or_results)
-      expect(extended_and_results).to be_similar_to(and_results)
+      expect(extended_and_results).to be_similar_results_to(and_results)
     end
 
     it 'can specify ratings to display, and honours that selection' do
