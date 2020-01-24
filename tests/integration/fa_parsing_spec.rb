@@ -1,5 +1,6 @@
 
 require './lib/faexport'
+require_relative 'check_helper'
 
 require 'rspec'
 
@@ -53,7 +54,9 @@ describe 'FA parser' do
       home.map do |type, submissions|
         expect(keys).to include(type)
         expect(submissions).not_to be_empty
-        submissions.map(&method(:check_submission))
+        submissions.each do |submission|
+          expect(submission).to be_valid_submission
+        end
       end
     end
 
@@ -81,14 +84,14 @@ describe 'FA parser' do
       expect(profile[:name]).to eql(TEST_USER)
       expect(profile[:profile]).to eql("https://www.furaffinity.net/user/#{TEST_USER}/")
       expect(profile[:account_type]).to eql("Member")
-      check_avatar(profile[:avatar], TEST_USER)
+      expect(profile[:avatar]).to be_valid_avatar_for_user(TEST_USER)
       expect(profile[:full_name]).not_to be_blank
       expect(profile[:artist_type]).not_to be_blank
       expect(profile[:user_title]).not_to be_blank
       expect(profile[:user_title]).to eql(profile[:artist_type])
       expect(profile[:current_mood]).to eql("accomplished")
       # Check registration date
-      check_date(profile[:registered_since], profile[:registered_at])
+      expect(profile[:registered_since]).to be_valid_date_and_match_iso(profile[:registered_at])
       # Check description
       expect(profile[:artist_profile]).not_to be_blank
       # Check numeric values
@@ -111,7 +114,7 @@ describe 'FA parser' do
     it 'shows featured submission' do
       profile = @fa.user(TEST_USER_2)
       expect(profile[:featured_submission]).not_to be_nil
-      check_submission profile[:featured_submission], true
+      expect(profile[:featured_submission]).to be_valid_submission(true)
     end
 
     it 'handles featured submission not being set' do
@@ -122,7 +125,7 @@ describe 'FA parser' do
     it 'shows profile id' do
       profile = @fa.user(TEST_USER_2)
       expect(profile[:profile_id]).not_to be_nil
-      check_submission profile[:profile_id], true, true
+      expect(profile[:profile_id]).to be_valid_submission(true, true)
     end
 
     it 'handles profile id not being set' do
@@ -176,7 +179,7 @@ describe 'FA parser' do
       expect(profile[:watchers][:recent]).to be_instance_of Array
       expect(profile[:watchers][:recent].length).to be <= profile[:watchers][:count]
       profile[:watchers][:recent].each do |item|
-        check_profile_link(item, true)
+        expect(item).to have_valid_profile_link(true)
       end
       list = profile[:watchers][:recent].map do |item|
         item[:profile_name]
@@ -192,7 +195,7 @@ describe 'FA parser' do
       expect(profile[:watching][:recent]).to be_instance_of Array
       expect(profile[:watching][:recent].length).to be <= profile[:watching][:count]
       profile[:watching][:recent].each do |item|
-        check_profile_link(item, true)
+        expect(item).to have_valid_profile_link(true)
       end
     end
   end
@@ -250,9 +253,9 @@ describe 'FA parser' do
       expect(shouts).to be_instance_of Array
       shouts.each do |shout|
         expect(shout[:id]).to match(/^shout-[0-9]+$/)
-        check_profile_link shout
-        check_avatar(shout[:avatar], shout[:profile_name])
-        check_date(shout[:posted], shout[:posted_at])
+        expect(shout).to have_valid_profile_link
+        expect(shout[:avatar]).to be_valid_avatar_for_user(shout[:profile_name])
+        expect(shout[:posted]).to be_valid_date_and_match_iso(shout[:posted_at])
         expect(shout[:text]).to be_instance_of String
         expect(shout[:text]).not_to be_blank
       end
@@ -285,7 +288,7 @@ describe 'FA parser' do
         expect(comm[:price]).not_to be_empty
         expect(comm[:description]).not_to be_empty
         expect(comm[:submission]).to be_instance_of Hash
-        check_submission(comm[:submission], true, true)
+        expect(comm[:submission]).to be_valid_submission(true, true)
       end
     end
 
@@ -304,7 +307,7 @@ describe 'FA parser' do
         expect(journal[:title]).not_to be_blank
         expect(journal[:description]).not_to be_blank
         expect(journal[:link]).to eql("https://www.furaffinity.net/journal/#{journal[:id]}/")
-        check_date(journal[:posted], journal[:posted_at])
+        expect(journal[:posted]).to be_valid_date_and_match_iso(journal[:posted_at])
       end
     end
 
@@ -336,7 +339,9 @@ describe 'FA parser' do
         submissions = @fa.submissions(TEST_USER_2, folder, {})
         expect(submissions).to be_instance_of Array
         expect(submissions).not_to be_empty
-        submissions.each(&method(:check_submission))
+        submissions.each do |submission|
+          expect(submission).to be_valid_submission
+        end
       end
 
       it 'fails when given a non-existent user' do
@@ -430,14 +435,14 @@ describe 'FA parser' do
       expect(sub[:title]).not_to be_blank
       expect(sub[:description]).not_to be_blank
       expect(sub[:description_body]).to eql(sub[:description])
-      check_profile_link(sub)
-      check_avatar(sub[:avatar], sub[:profile_name])
-      check_submission_link(sub[:link], sub_id)
-      check_date(sub[:posted], sub[:posted_at])
+      expect(sub).to have_valid_profile_link
+      expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
+      expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
+      expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
       # Even for an image submission, full no longer equals download
       expect(sub[:full]).not_to eql(sub[:download])
-      check_thumbnail_link(sub[:thumbnail], sub_id)
+      expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
@@ -478,15 +483,15 @@ describe 'FA parser' do
       expect(sub[:title]).not_to be_blank
       expect(sub[:description]).not_to be_blank
       expect(sub[:description_body]).to eql(sub[:description])
-      check_profile_link(sub)
-      check_avatar(sub[:avatar], sub[:profile_name])
-      check_submission_link(sub[:link], sub_id)
-      check_date(sub[:posted], sub[:posted_at])
+      expect(sub).to have_valid_profile_link
+      expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
+      expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
+      expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/stories\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
       # For a story submission, full != download
       expect(sub[:full]).not_to be_blank
       expect(sub[:full]).not_to eql(sub[:download])
-      check_thumbnail_link(sub[:thumbnail], sub_id)
+      expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
@@ -510,15 +515,15 @@ describe 'FA parser' do
       expect(sub[:title]).not_to be_blank
       expect(sub[:description]).not_to be_blank
       expect(sub[:description_body]).to eql(sub[:description])
-      check_profile_link(sub)
-      check_avatar(sub[:avatar], sub[:profile_name])
-      check_submission_link(sub[:link], sub_id)
-      check_date(sub[:posted], sub[:posted_at])
+      expect(sub).to have_valid_profile_link
+      expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
+      expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
+      expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/music\/[0-9]+\/[0-9]+\..+\.(mp3|mid|wav|mpeg)/)
       # For a music submission, full != download
       expect(sub[:full]).not_to be_blank
       expect(sub[:full]).not_to eql(sub[:download])
-      check_thumbnail_link(sub[:thumbnail], sub_id)
+      expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
@@ -542,14 +547,14 @@ describe 'FA parser' do
       expect(sub[:title]).not_to be_blank
       expect(sub[:description]).not_to be_blank
       expect(sub[:description_body]).to eql(sub[:description])
-      check_profile_link(sub)
-      check_avatar(sub[:avatar], sub[:profile_name])
-      check_submission_link(sub[:link], sub_id)
-      check_date(sub[:posted], sub[:posted_at])
+      expect(sub).to have_valid_profile_link
+      expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
+      expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
+      expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.swf/)
       # For a flash submission, full is nil
       expect(sub[:full]).to be_nil
-      check_thumbnail_link(sub[:thumbnail], sub_id)
+      expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
@@ -573,14 +578,14 @@ describe 'FA parser' do
       expect(sub[:title]).not_to be_blank
       expect(sub[:description]).not_to be_blank
       expect(sub[:description_body]).to eql(sub[:description])
-      check_profile_link(sub)
-      check_avatar(sub[:avatar], sub[:profile_name])
-      check_submission_link(sub[:link], sub_id)
-      check_date(sub[:posted], sub[:posted_at])
+      expect(sub).to have_valid_profile_link
+      expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
+      expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
+      expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/poetry\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
       # For a potery submission, full is nil
       expect(sub[:full]).not_to be_nil
-      check_thumbnail_link(sub[:thumbnail], sub_id)
+      expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
@@ -606,14 +611,14 @@ describe 'FA parser' do
       expect(sub[:title]).not_to be_blank
       expect(sub[:description]).not_to be_blank
       expect(sub[:description_body]).to eql(sub[:description])
-      check_profile_link(sub)
-      check_avatar(sub[:avatar], sub[:profile_name])
-      check_submission_link(sub[:link], sub_id)
-      check_date(sub[:posted], sub[:posted_at])
+      expect(sub).to have_valid_profile_link
+      expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
+      expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
+      expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
       # Even for an image submission, full does not equal download
       expect(sub[:full]).not_to eql(sub[:download])
-      check_thumbnail_link(sub[:thumbnail], sub_id)
+      expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
@@ -663,14 +668,14 @@ describe 'FA parser' do
       expect(sub[:title]).not_to be_blank
       expect(sub[:description]).not_to be_blank
       expect(sub[:description_body]).to eql(sub[:description])
-      check_profile_link(sub)
-      check_avatar(sub[:avatar], sub[:profile_name])
-      check_submission_link(sub[:link], sub_id)
-      check_date(sub[:posted], sub[:posted_at])
+      expect(sub).to have_valid_profile_link
+      expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
+      expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
+      expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
       # Even for an image submission, full is not equal to download
       expect(sub[:full]).not_to eql(sub[:download])
-      check_thumbnail_link(sub[:thumbnail], sub_id)
+      expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
@@ -749,10 +754,10 @@ describe 'FA parser' do
       expect(journal[:journal_header]).to be_nil
       expect(journal[:journal_body]).to eql("Curl Test")
       expect(journal[:journal_footer]).to be_nil
-      check_profile_link(journal)
-      check_avatar(journal[:avatar], journal[:profile_name])
+      expect(journal).to have_valid_profile_link
+      expect(journal[:avatar]).to be_valid_avatar_for_user(journal[:profile_name])
       expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
-      check_date(journal[:posted], journal[:posted_at])
+      expect(journal[:posted]).to be_valid_date_and_match_iso(journal[:posted_at])
     end
 
     it 'fails when given non-existent journal' do
@@ -773,10 +778,10 @@ describe 'FA parser' do
       expect(journal[:journal_header]).to eql("Example test header")
       expect(journal[:journal_body]).to eql("This is an example test journal, with header and footer")
       expect(journal[:journal_footer]).to eql("Example test footer")
-      check_profile_link(journal)
-      check_avatar(journal[:avatar], journal[:profile_name])
+      expect(journal).to have_valid_profile_link
+      expect(journal[:avatar]).to be_valid_avatar_for_user(journal[:profile_name])
       expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
-      check_date(journal[:posted], journal[:posted_at])
+      expect(journal[:posted]).to be_valid_date_and_match_iso(journal[:posted_at])
     end
 
     it 'handles non existent journal header' do
@@ -791,10 +796,10 @@ describe 'FA parser' do
       expect(journal[:journal_header]).to be_nil
       expect(journal[:journal_body]).to eql("Another test of journals, this one is for footer only")
       expect(journal[:journal_footer]).to eql("Footer, no header though")
-      check_profile_link(journal)
-      check_avatar(journal[:avatar], journal[:profile_name])
+      expect(journal).to have_valid_profile_link
+      expect(journal[:avatar]).to be_valid_avatar_for_user(journal[:profile_name])
       expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
-      check_date(journal[:posted], journal[:posted_at])
+      expect(journal[:posted]).to be_valid_date_and_match_iso(journal[:posted_at])
     end
   end
 
@@ -807,9 +812,9 @@ describe 'FA parser' do
         expect(comments).not_to be_empty
         comments.each do |comment|
           expect(comment[:id]).to match(/[0-9]+/)
-          check_profile_link(comment)
-          check_avatar(comment[:avatar], comment[:profile_name])
-          check_date(comment[:posted], comment[:posted_at])
+          expect(comment).to have_valid_profile_link
+          expect(comment[:avatar]).to be_valid_avatar_for_user(comment[:profile_name])
+          expect(comment[:posted]).to be_valid_date_and_match_iso(comment[:posted_at])
           expect(comment[:text]).not_to be_blank
           expect(comment[:reply_to]).to be_blank
           expect(comment[:reply_level]).to be 0
@@ -867,18 +872,18 @@ describe 'FA parser' do
         # Check first comment
         expect(comments[0][:id]).not_to be_blank
         expect(comments[0][:profile_name]).to eql(TEST_USER_3)
-        check_profile_link(comments[0])
-        check_avatar(comments[0][:avatar], comments[0][:profile_name])
-        check_date(comments[0][:posted], comments[0][:posted_at])
+        expect(comments[0]).to have_valid_profile_link
+        expect(comments[0][:avatar]).to be_valid_avatar_for_user(comments[0][:profile_name])
+        expect(comments[0][:posted]).to be_valid_date_and_match_iso(comments[0][:posted_at])
         expect(comments[0][:text]).to eql("Base comment")
         expect(comments[0][:reply_to]).to be_blank
         expect(comments[0][:reply_level]).to be 0
         # Check second comment
         expect(comments[1][:id]).not_to be_blank
         expect(comments[1][:profile_name]).to eql(TEST_USER_3)
-        check_profile_link(comments[1])
-        check_avatar(comments[1][:avatar], comments[1][:profile_name])
-        check_date(comments[1][:posted], comments[1][:posted_at])
+        expect(comments[1]).to have_valid_profile_link
+        expect(comments[1][:avatar]).to be_valid_avatar_for_user(comments[1][:profile_name])
+        expect(comments[1][:posted]).to be_valid_date_and_match_iso(comments[1][:posted_at])
         expect(comments[1][:text]).to eql("First reply")
         expect(comments[1][:reply_to]).not_to be_blank
         expect(comments[1][:reply_to]).to eql(comments[0][:id])
@@ -886,9 +891,9 @@ describe 'FA parser' do
         # Check third comment
         expect(comments[2][:id]).not_to be_blank
         expect(comments[2][:profile_name]).to eql("fafeed-no-watchers")
-        check_profile_link(comments[2])
-        check_avatar(comments[2][:avatar], comments[2][:profile_name])
-        check_date(comments[2][:posted], comments[2][:posted_at])
+        expect(comments[2]).to have_valid_profile_link
+        expect(comments[2][:avatar]).to be_valid_avatar_for_user(comments[2][:profile_name])
+        expect(comments[2][:posted]).to be_valid_date_and_match_iso(comments[2][:posted_at])
         expect(comments[2][:text]).to eql("Another reply")
         expect(comments[2][:reply_to]).not_to be_blank
         expect(comments[2][:reply_to]).to eql(comments[1][:id])
@@ -973,9 +978,9 @@ describe 'FA parser' do
         level = 0
         comments.each do |comment|
           expect(comment[:id]).to match(/[0-9]+/)
-          check_profile_link(comment)
-          check_avatar(comment[:avatar], comment[:profile_name])
-          check_date(comment[:posted], comment[:posted_at])
+          expect(comment).to have_valid_profile_link
+          expect(comment[:avatar]).to be_valid_avatar_for_user(comment[:profile_name])
+          expect(comment[:posted]).to be_valid_date_and_match_iso(comment[:posted_at])
           expect(comment[:text]).not_to be_blank
           expect(comment[:reply_to]).to eql(last_comment_id)
           expect(comment[:reply_level]).to be level
@@ -993,17 +998,17 @@ describe 'FA parser' do
         expect(comments.length).to be 2
         # Check edited comment
         expect(comments[0][:id]).to match(/[0-9]+/)
-        check_profile_link(comments[0])
-        check_avatar(comments[0][:avatar], comments[0][:profile_name])
-        check_date(comments[0][:posted], comments[0][:posted_at])
+        expect(comments[0]).to have_valid_profile_link
+        expect(comments[0][:avatar]).to be_valid_avatar_for_user(comments[0][:profile_name])
+        expect(comments[0][:posted]).to be_valid_date_and_match_iso(comments[0][:posted_at])
         expect(comments[0][:text]).not_to be_blank
         expect(comments[0][:reply_to]).to be_blank
         expect(comments[0][:reply_level]).to be 0
         # Check non-edited comment
         expect(comments[1][:id]).to match(/[0-9]+/)
-        check_profile_link(comments[1])
-        check_avatar(comments[1][:avatar], comments[1][:profile_name])
-        check_date(comments[1][:posted], comments[1][:posted_at])
+        expect(comments[1]).to have_valid_profile_link
+        expect(comments[1][:avatar]).to be_valid_avatar_for_user(comments[1][:profile_name])
+        expect(comments[1][:posted]).to be_valid_date_and_match_iso(comments[1][:posted_at])
         expect(comments[1][:text]).not_to be_blank
         expect(comments[1][:reply_to]).to be_blank
         expect(comments[1][:reply_level]).to be 0
@@ -1044,9 +1049,9 @@ describe 'FA parser' do
         expect(comments).not_to be_empty
         comments.each do |comment|
           expect(comment[:id]).to match(/[0-9]+/)
-          check_profile_link(comment)
-          check_avatar(comment[:avatar], comment[:profile_name])
-          check_date(comment[:posted], comment[:posted_at])
+          expect(comment).to have_valid_profile_link
+          expect(comment[:avatar]).to be_valid_avatar_for_user(comment[:profile_name])
+          expect(comment[:posted]).to be_valid_date_and_match_iso(comment[:posted_at])
           expect(comment[:text]).not_to be_blank
           expect(comment[:reply_to]).to be_blank
           expect(comment[:reply_level]).to be 0
@@ -1104,18 +1109,18 @@ describe 'FA parser' do
         # Check first comment
         expect(comments[0][:id]).not_to be_blank
         expect(comments[0][:profile_name]).to eql(TEST_USER_3)
-        check_profile_link(comments[0])
-        check_avatar(comments[0][:avatar], comments[0][:profile_name])
-        check_date(comments[0][:posted], comments[0][:posted_at])
+        expect(comments[0]).to have_valid_profile_link
+        expect(comments[0][:avatar]).to be_valid_avatar_for_user(comments[0][:profile_name])
+        expect(comments[0][:posted]).to be_valid_date_and_match_iso(comments[0][:posted_at])
         expect(comments[0][:text]).to eql("Base journal comment")
         expect(comments[0][:reply_to]).to be_blank
         expect(comments[0][:reply_level]).to be 0
         # Check second comments
         expect(comments[1][:id]).not_to be_blank
         expect(comments[1][:profile_name]).to eql(TEST_USER_3)
-        check_profile_link(comments[1])
-        check_avatar(comments[1][:avatar], comments[1][:profile_name])
-        check_date(comments[1][:posted], comments[1][:posted_at])
+        expect(comments[1]).to have_valid_profile_link
+        expect(comments[1][:avatar]).to be_valid_avatar_for_user(comments[1][:profile_name])
+        expect(comments[1][:posted]).to be_valid_date_and_match_iso(comments[1][:posted_at])
         expect(comments[1][:text]).to eql("Reply to journal comment")
         expect(comments[1][:reply_to]).not_to be_blank
         expect(comments[1][:reply_to]).to eql(comments[0][:id])
@@ -1123,9 +1128,9 @@ describe 'FA parser' do
         # Check third comments
         expect(comments[2][:id]).not_to be_blank
         expect(comments[2][:profile_name]).to eql("fafeed-no-watchers")
-        check_profile_link(comments[2])
-        check_avatar(comments[2][:avatar], comments[2][:profile_name])
-        check_date(comments[2][:posted], comments[2][:posted_at])
+        expect(comments[2]).to have_valid_profile_link
+        expect(comments[2][:avatar]).to be_valid_avatar_for_user(comments[2][:profile_name])
+        expect(comments[2][:posted]).to be_valid_date_and_match_iso(comments[2][:posted_at])
         expect(comments[2][:text]).to eql("Another reply on this journal")
         expect(comments[2][:reply_to]).not_to be_blank
         expect(comments[2][:reply_to]).to eql(comments[1][:id])
@@ -1210,9 +1215,9 @@ describe 'FA parser' do
         level = 0
         comments.each do |comment|
           expect(comment[:id]).to match(/[0-9]+/)
-          check_profile_link(comment)
-          check_avatar(comment[:avatar], comment[:profile_name])
-          check_date(comment[:posted], comment[:posted_at])
+          expect(comment).to have_valid_profile_link
+          expect(comment[:avatar]).to be_valid_avatar_for_user(comment[:profile_name])
+          expect(comment[:posted]).to be_valid_date_and_match_iso(comment[:posted_at])
           expect(comment[:text]).not_to be_blank
           expect(comment[:reply_to]).to eql(last_comment_id)
           expect(comment[:reply_level]).to be level
@@ -1230,17 +1235,17 @@ describe 'FA parser' do
         expect(comments.length).to be 2
         # Check edited comment
         expect(comments[0][:id]).to match(/[0-9]+/)
-        check_profile_link(comments[0])
-        check_avatar(comments[0][:avatar], comments[0][:profile_name])
-        check_date(comments[0][:posted], comments[0][:posted_at])
+        expect(comments[0]).to have_valid_profile_link
+        expect(comments[0][:avatar]).to be_valid_avatar_for_user(comments[0][:profile_name])
+        expect(comments[0][:posted]).to be_valid_date_and_match_iso(comments[0][:posted_at])
         expect(comments[0][:text]).not_to be_blank
         expect(comments[0][:reply_to]).to be_blank
         expect(comments[0][:reply_level]).to be 0
         # Check non-edited comment
         expect(comments[1][:id]).to match(/[0-9]+/)
-        check_profile_link(comments[1])
-        check_avatar(comments[1][:avatar], comments[1][:profile_name])
-        check_date(comments[1][:posted], comments[1][:posted_at])
+        expect(comments[1]).to have_valid_profile_link
+        expect(comments[1][:avatar]).to be_valid_avatar_for_user(comments[1][:profile_name])
+        expect(comments[1][:posted]).to be_valid_date_and_match_iso(comments[1][:posted_at])
         expect(comments[1][:text]).not_to be_blank
         expect(comments[1][:reply_to]).to be_blank
         expect(comments[1][:reply_level]).to be 0
@@ -1279,7 +1284,7 @@ describe 'FA parser' do
       @fa.login_cookie = COOKIE_TEST_USER_2
       new_subs = @fa.new_submissions(nil)
       expect(new_subs[:current_user][:name]).to eql(TEST_USER_2)
-      check_profile_link(new_subs[:current_user])
+      expect(new_subs[:current_user]).to have_valid_profile_link
     end
 
     it 'should handle zero notifications' do
@@ -1304,7 +1309,9 @@ describe 'FA parser' do
       new_subs = @fa.new_submissions(nil)
       expect(new_subs[:new_submissions]).to be_instance_of Array
       expect(new_subs[:new_submissions]).not_to be_empty
-      new_subs[:new_submissions].each(&method(:check_submission))
+      new_subs[:new_submissions].each do |sub|
+        expect(sub).to be_valid_submission
+      end
     end
 
     it 'handles paging correctly' do
@@ -1334,7 +1341,7 @@ describe 'FA parser' do
       @fa.login_cookie = COOKIE_TEST_USER_2
       notifications = @fa.notifications(false)
       expect(notifications[:current_user][:name]).to eql(TEST_USER_2)
-      check_profile_link(notifications[:current_user])
+      expect(notifications[:current_user]).to have_valid_profile_link
     end
 
     it 'should not return anything unless login cookie is given' do
@@ -1390,9 +1397,9 @@ describe 'FA parser' do
         expect(watchers).not_to be_empty
         watchers.each do |watcher|
           expect(watcher[:watch_id]).to match(/[0-9]+/)
-          check_profile_link(watcher)
-          check_avatar(watcher[:avatar], watcher[:profile_name])
-          check_date(watcher[:posted], watcher[:posted_at])
+          expect(watcher).to have_valid_profile_link
+          expect(watcher[:avatar]).to be_valid_avatar_for_user(watcher[:profile_name])
+          expect(watcher[:posted]).to be_valid_date_and_match_iso(watcher[:posted_at])
         end
       end
 
@@ -1443,7 +1450,7 @@ describe 'FA parser' do
         expect(notifications).not_to be_empty
         notifications.each do |comment_notification|
           expect(comment_notification[:comment_id]).to match(/[0-9]+/)
-          check_profile_link(comment_notification)
+          expect(comment_notification).to have_valid_profile_link
           expect(comment_notification[:is_reply]).to be_in([true, false])
           expect(comment_notification[:your_submission]).to be_in([true, false])
           expect(comment_notification[:their_submission]).to be_in([true, false])
@@ -1451,7 +1458,7 @@ describe 'FA parser' do
           expect(comment_notification[:your_submission] && comment_notification[:their_submission]).to be false
           expect(comment_notification[:submission_id]).to match(/[0-9]+/)
           expect(comment_notification[:title]).not_to be_blank
-          check_date(comment_notification[:posted], comment_notification[:posted_at])
+          expect(comment_notification[:posted]).to be_valid_date_and_match_iso(comment_notification[:posted_at])
         end
       end
 
@@ -1576,14 +1583,14 @@ describe 'FA parser' do
         expect(notifications).not_to be_empty
         notifications.each do |comment_notification|
           expect(comment_notification[:comment_id]).to match(/[0-9]+/)
-          check_profile_link(comment_notification)
+          expect(comment_notification).to have_valid_profile_link
           expect(comment_notification[:is_reply]).to be_in([true, false])
           expect(comment_notification[:your_journal]).to be_in([true, false])
           expect(comment_notification[:their_journal]).to be_in([true, false])
           expect(comment_notification[:your_journal] && comment_notification[:their_journal]).to be false
           expect(comment_notification[:journal_id]).to match(/[0-9]+/)
           expect(comment_notification[:title]).not_to be_blank
-          check_date(comment_notification[:posted], comment_notification[:posted_at])
+          expect(comment_notification[:posted]).to be_valid_date_and_match_iso(comment_notification[:posted_at])
         end
       end
 
@@ -1709,8 +1716,8 @@ describe 'FA parser' do
 
         notifications.each do |new_shout|
           expect(new_shout[:shout_id]).to match(/[0-9]+/)
-          check_profile_link(new_shout)
-          check_date(new_shout[:posted], new_shout[:posted_at])
+          expect(new_shout).to have_valid_profile_link
+          expect(new_shout[:posted]).to be_valid_date_and_match_iso(new_shout[:posted_at])
         end
       end
 
@@ -1755,10 +1762,10 @@ describe 'FA parser' do
 
         notifications.each do |new_fav|
           expect(new_fav[:favorite_notification_id]).to match(/[0-9]+/)
-          check_profile_link(new_fav)
+          expect(new_fav).to have_valid_profile_link
           expect(new_fav[:submission_id]).to match(/[0-9]+/)
           expect(new_fav[:submission_name]).not_to be_blank
-          check_date(new_fav[:posted], new_fav[:posted_at])
+          expect(new_fav[:posted]).to be_valid_date_and_match_iso(new_fav[:posted_at])
         end
       end
 
@@ -1807,8 +1814,8 @@ describe 'FA parser' do
         notifications.each do |new_journal|
           expect(new_journal[:journal_id]).to match(/[0-9]+/)
           expect(new_journal[:title]).not_to be_blank
-          check_profile_link(new_journal)
-          check_date(new_journal[:posted], new_journal[:posted_at])
+          expect(new_journal).to have_valid_profile_link
+          expect(new_journal[:posted]).to be_valid_date_and_match_iso(new_journal[:posted_at])
         end
       end
     end
@@ -1863,8 +1870,8 @@ describe 'FA parser' do
           expect(note[:is_inbound]).to eql(true)
           expect(note[:is_read]).to be_in([true, false])
           expect(note[:profile]).not_to eql(TEST_USER_2)
-          check_profile_link(note)
-          check_date(note[:posted], note[:posted_at])
+          expect(note).to have_valid_profile_link
+          expect(note[:posted]).to be_valid_date_and_match_iso(note[:posted_at])
         end
       end
 
@@ -1901,8 +1908,8 @@ describe 'FA parser' do
           expect(note[:is_inbound]).to eql(false)
           expect(note[:is_read]).to be_in([true, false])
           expect(note[:profile]).not_to eql(TEST_USER_2)
-          check_profile_link(note)
-          check_date(note[:posted], note[:posted_at])
+          expect(note).to have_valid_profile_link
+          expect(note[:posted]).to be_valid_date_and_match_iso(note[:posted_at])
         end
       end
 
@@ -1921,8 +1928,8 @@ describe 'FA parser' do
             expect(note[:is_inbound]).to be_in([true, false])
             expect(note[:is_read]).to be_in([true, false])
             expect(note[:profile]).not_to eql(TEST_USER_2)
-            check_profile_link(note)
-            check_date(note[:posted], note[:posted_at])
+            expect(note).to have_valid_profile_link
+            expect(note[:posted]).to be_valid_date_and_match_iso(note[:posted_at])
           end
         end
       end
@@ -1939,8 +1946,8 @@ describe 'FA parser' do
         expect(note[:subject]).not_to be_blank
         expect(note[:is_inbound]).to eql(true)
         expect(note[:profile]).not_to eql(TEST_USER_2)
-        check_profile_link(note)
-        check_date(note[:posted], note[:posted_at])
+        expect(note).to have_valid_profile_link
+        expect(note[:posted]).to be_valid_date_and_match_iso(note[:posted_at])
         expect(note[:description]).to be_instance_of String
         expect(note[:description]).not_to be_blank
         expect(note[:description_body]).to be_instance_of String
@@ -1960,8 +1967,8 @@ describe 'FA parser' do
         expect(note[:subject]).not_to be_blank
         expect(note[:is_inbound]).to be_in([true, false])
         expect(note[:profile]).not_to eql(TEST_USER_2)
-        check_profile_link(note)
-        check_date(note[:posted], note[:posted_at])
+        expect(note).to have_valid_profile_link
+        expect(note[:posted]).to be_valid_date_and_match_iso(note[:posted_at])
         expect(note[:description]).to be_instance_of String
         expect(note[:description]).not_to be_blank
         expect(note[:description_body]).to be_instance_of String
@@ -1971,7 +1978,7 @@ describe 'FA parser' do
         expect(note[:preceding_notes].length).to eql(1)
         expect(note[:preceding_notes][0][:description]).to be_instance_of String
         expect(note[:preceding_notes][0][:description]).not_to be_blank
-        check_profile_link(note[:preceding_notes][0])
+        expect(note[:preceding_notes][0]).to have_valid_profile_link
         expect(note[:preceding_notes][0][:profile]).not_to eql(TEST_USER_2)
       end
 
@@ -1986,23 +1993,31 @@ describe 'FA parser' do
     it 'returns a list of submissions' do
       submissions = @fa.browse({"page" => "1"})
 
-      submissions.map(&method(:check_submission))
+      submissions.each do |submission|
+        expect(submission).to be_valid_submission
+      end
     end
 
     it 'returns a second page, different to the first' do
       submissions_1 = @fa.browse({"page" => "1"})
       submissions_2 = @fa.browse({"page" => "2"})
 
-      submissions_1.map(&method(:check_submission))
-      submissions_2.map(&method(:check_submission))
+      submissions_1.each do |submission|
+        expect(submission).to be_valid_submission
+      end
+      submissions_2.each do |submission|
+        expect(submission).to be_valid_submission
+      end
 
-      check_results_lists_are_different(submissions_1, submissions_2)
+      expect(submissions_1).to be_different_results_to(submissions_2)
     end
 
     it 'defaults to 72 results' do
       submissions = @fa.browse({})
 
-      submissions.map(&method(:check_submission))
+      submissions.each do |submission|
+        expect(submission).to be_valid_submission
+      end
       expect(submissions.length).to eql(72)
     end
 
@@ -2020,7 +2035,7 @@ describe 'FA parser' do
       only_adult = @fa.browse({"perpage" => 24, "rating" => "adult"})
       only_sfw_or_mature = @fa.browse({"perpage" => 24, "rating" => "mature,general"})
 
-      check_results_lists_are_different(only_adult, only_sfw_or_mature)
+      expect(only_adult).to be_different_results_to(only_sfw_or_mature)
 
       only_adult[0..5].each do |submission|
         full_submission = @fa.submission(submission[:id])
@@ -2038,7 +2053,7 @@ describe 'FA parser' do
     it 'displays the usual status information' do
       status = @fa.status
 
-      check_status_result(status)
+      expect(status).to be_valid_status_data
     end
 
     it 'displays status information after another page load' do
@@ -2046,97 +2061,8 @@ describe 'FA parser' do
       @fa.home
       status_2 = @fa.status
 
-      check_status_result(status_1)
-      check_status_result(status_2)
+      expect(status_1).to be_valid_status_data
+      expect(status_2).to be_valid_status_data
     end
-  end
-
-  private
-
-  # noinspection RubyResolve
-  def check_submission(submission, blank_profile=false, blank_title=false)
-    # Check ID
-    expect(submission[:id]).to match(/^[0-9]+$/)
-    # Check title
-    if blank_title
-      expect(submission[:title]).to be_blank, "Title of submission #{submission[:id]} was not meant to be blank"
-    else
-      expect(submission[:title]).not_to be_blank
-    end
-    # Check thumbnail
-    check_thumbnail_link(submission[:thumbnail], submission[:id])
-    # Check link
-    check_submission_link(submission[:link], submission[:id])
-    # Check profile
-    if blank_profile
-      expect(submission[:name]).to be_blank
-      expect(submission[:profile]).to be_blank
-      expect(submission[:profile_name]).to be_blank
-    else
-      check_profile_link submission
-    end
-  end
-
-  def check_profile_link(item, watch_list=false)
-    expect(item[:name]).not_to be_blank
-    expect(item[watch_list ? :link : :profile]).to eql "https://www.furaffinity.net/user/#{item[:profile_name]}/"
-    expect(item[:profile_name]).to match(FAExport::Application::USER_REGEX)
-  end
-
-  def check_date(date_string, iso_string)
-    expect(date_string).not_to be_blank
-    expect(date_string).to match(/[A-Z][a-z]{2} [0-9]+([a-z]{2})?, [0-9]{4},? [0-9]{2}:[0-9]{2}( ?[AP]M)?/)
-    expect(iso_string).not_to be_blank
-    expect(iso_string).to eql(Time.parse(date_string + ' UTC').iso8601)
-  end
-
-  def check_avatar(avatar_link, username)
-    expect(avatar_link).to match(/^https:\/\/a.facdn.net\/[0-9]+\/#{username}.gif$/)
-  end
-
-  def check_submission_link(link, id)
-    expect(link).to match(/^https:\/\/www.furaffinity.net\/view\/#{id}\/?$/)
-  end
-
-  def check_thumbnail_link(link, id)
-    expect(link).to match(/^https:\/\/t.facdn.net\/#{id}@[0-9]{2,3}-[0-9]+.jpg$/)
-  end
-
-  def check_results_lists_are_similar(results1, result2)
-    results1_ids = results1.map{|result| result[:id]}
-    results2_ids = result2.map{|result| result[:id]}
-    intersection = results1_ids & results2_ids
-
-    threshold = [results1_ids.length, results2_ids.length].max * 0.9
-    expect(intersection.length).to be >= threshold
-  end
-
-  def check_results_lists_are_different(results1, results2)
-    results1_ids = results1.map{|result| result[:id]}
-    results2_ids = results2.map{|result| result[:id]}
-    intersection = results1_ids & results2_ids
-
-    threshold = [results1_ids.length, results2_ids.length].max * 0.1
-    expect(intersection.length).to be <= threshold
-  end
-
-  def check_status_result(status)
-    expect(status).to have_key("online")
-    expect(status["online"]).to have_key("guests")
-    expect(status["online"]["guests"]).to be_instance_of Integer
-    expect(status["online"]).to have_key("registered")
-    expect(status["online"]["registered"]).to be_instance_of Integer
-    expect(status["online"]).to have_key("other")
-    expect(status["online"]["other"]).to be_instance_of Integer
-    expect(status["online"]).to have_key("total")
-    expect(status["online"]["total"]).to be_instance_of Integer
-    expect(status["online"]["total"]).to eql(status["online"]["guests"] + status["online"]["registered"] + status["online"]["other"])
-
-    expect(status).to have_key("fa_server_time")
-    expect(status["fa_server_time"]).to be_instance_of String
-    expect(status["fa_server_time"]).not_to be_blank
-    expect(status).to have_key("fa_server_time_at")
-    expect(status["fa_server_time_at"]).to be_instance_of String
-    expect(status["fa_server_time_at"]).not_to be_blank
   end
 end
