@@ -43,8 +43,10 @@ RSpec::Matchers.define :be_valid_date_and_match_iso do |iso_string|
   end
 end
 
-RSpec::Matchers.define :be_valid_avatar_for_user do |avatar_link, username|
-  /^https:\/\/a.facdn.net\/[0-9]+\/#{username}.gif$/.match(avatar_link)
+RSpec::Matchers.define :be_valid_avatar_for_user do |username|
+  match do |avatar_link|
+    /^https:\/\/a.facdn.net\/[0-9]+\/#{username}.gif$/.match(avatar_link)
+  end
 end
 
 RSpec::Matchers.define :be_valid_link_for_sub_id do |id|
