@@ -5,10 +5,11 @@ services:
   - redis-server
 install:
   - bundle install
-script:
-  - bundle exec "rspec spec tests/ --exclude-pattern tests/**/search_spec.rb"
 jobs:
   include:
+    - stage: "Scraper regression tests"
+      script: bundle exec "rspec spec tests/ --exclude-pattern tests/**/search_spec.rb"
+      name: "API (non-search) tests"
     - stage: "Unreliable tests"
       script: bundle exec "rspec spec tests/**/search_spec.rb"
       name: "Search API tests"
