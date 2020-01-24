@@ -1003,7 +1003,7 @@ private
       raise FASystemError.new(url)
     end
 
-    # Parse and save the status, every page should have this.
+    # Parse and save the status, most pages have this, but watcher lists do not.
     parse_status(html)
 
     html
