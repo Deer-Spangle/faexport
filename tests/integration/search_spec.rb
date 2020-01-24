@@ -74,7 +74,7 @@ describe 'FA parser' do
       expect(results2).to be_instance_of Array
       expect(results2).not_to be_empty
       # Check they're different enough
-      expect(results1).to be_similar_results_to(results2)
+      expect(results1).to be_different_results_to(results2)
     end
 
     it 'works when making the same search twice' do
@@ -182,7 +182,7 @@ describe 'FA parser' do
       only_adult = @fa.search({"q" => "ych", "perpage" => 24, "rating" => "adult"})
       only_sfw_or_mature = @fa.search({"q" => "ych", "perpage" => 24, "rating" => "mature,general"})
 
-      expect(only_adult).to be_similar_results_to(only_sfw_or_mature)
+      expect(only_adult).to be_different_results_to(only_sfw_or_mature)
 
       only_adult.each do |submission|
         full_submission = @fa.submission(submission[:id])
