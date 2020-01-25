@@ -3,6 +3,13 @@ rvm:
   - 2.5.3
 services:
   - redis-server
-script:
+install:
   - bundle install
-  - bundle exec "rspec spec tests/"
+jobs:
+  include:
+    - stage: "Scraper regression tests"
+      script: bundle exec "rspec spec tests/ --exclude-pattern tests/**/search_spec.rb"
+      name: "API (non-search) tests"
+    - stage: "Unreliable tests"
+      script: bundle exec "rspec spec tests/**/search_spec.rb"
+      name: "Search API tests"
