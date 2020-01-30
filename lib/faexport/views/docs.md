@@ -17,7 +17,7 @@ document.cookie.split('; ').filter(function(x){return/^[ab]=/.test(x)}).sort().r
 
 The output should look something like this:
 
-~~~javascript
+~~~
 "b=3a485360-d203-4a38-97e8-4ff7cdfa244c; a=b1b985c4-d73e-492a-a830-ad238a3693ef"
 ~~~
 
@@ -135,6 +135,67 @@ Fetches all the latest posts from the home page
     },
     <snip>
   ]
+}
+~~~
+
+### GET /browse
+
+Fetches all the recent uploads on the browse page.
+The following parameters can be provided:
+
+* **page**: Page of results to display.  Defaults to: `1`.
+* **perpage**: How many results to display per page.  Can be one of: `24`, `48` or `72`.  Defaults to: `72`.
+* **rating**: what rating levels are included.  Can be any of: `general`, `mature` and `adult` separated by commas.  Defaults to: `general,mature,adult`.
+
+The API does not yet allow specifying category, type, species or gender, as FA requires hard coding these by number.
+
+~~~json
+[
+  {
+    "id": "33050174",
+    "title": "YCH REMINDER",
+    "thumbnail": "https://t.facdn.net/33050174@200-1568543823.jpg",
+    "link": "https://www.furaffinity.net/view/33050174/",
+    "name": "KoiiAdopts",
+    "profile": "https://www.furaffinity.net/user/koiiadopts/",
+    "profile_name": "koiiadopts"
+  },
+  {
+    "id": "33050173",
+    "title": "Yote At The Grainery",
+    "thumbnail": "https://t.facdn.net/33050173@200-1568543817.jpg",
+    "link": "https://www.furaffinity.net/view/33050173/",
+    "name": "RocketT.Coyote",
+    "profile": "https://www.furaffinity.net/user/rockett.coyote/",
+    "profile_name": "rockett.coyote"
+  },
+  {
+    "id": "33050172",
+    "title": "Troopashroom Powerup 2/2",
+    "thumbnail": "https://t.facdn.net/33050172@300-1568543811.jpg",
+    "link": "https://www.furaffinity.net/view/33050172/",
+    "name": "Blueballs",
+    "profile": "https://www.furaffinity.net/user/blueballs/",
+    "profile_name": "blueballs"
+  },
+  <snip>
+]
+~~~
+
+### GET /status
+
+Returns the FA status information, usually displayed on the bottom of every page
+
+~~~json
+{
+  "online": {
+    "guests": "1346",
+    "registered": "8586",
+    "other": "17273",
+    "total": "27205"
+  },
+  "fa_server_time": "Sep 15th, 2019 08:11 AM",
+  "fa_server_time_at": "2019-09-15T08:11:00Z"
 }
 ~~~
 
@@ -377,14 +438,14 @@ If you want more information, pass `?full=1` to retrieve more fields.
 
 Gets the the first few submissions from the specified folder.
 Options for `{folder}` are `gallery`, `scraps` and `favorites`.
-By default, the first 60 submissions are returned.
+By default, the first 72 submissions are returned.
 
-If this is `gallery` or `scraps`, you can pass a parameter `?page=2` to load more.
+If this is `gallery` or `scraps`, you can pass a parameter `?page=2` to load more
 
 **BREAKING CHANGE**
 
 Due to FA changing the way it handles pagination on favorites using `page` will no longer work.
-Instead, all favorites all now come with a `fav_id` field (assuing `?full=1` is used) that can be used with `next` and `prev`.
+Instead, all favorites all now come with a `fav_id` field (assuming `?full=1` is used) that can be used with `next` and `prev`.
 For instance if the last favorite fetched has an `fav_id` of `29980`, we can set `?next=29980` to
 load the next set of favorites that come after it.
 Likewise we can also use `?prev=29980` to load the set of favorites directly before it.
@@ -399,7 +460,7 @@ By default, this only returns the id of each submission.
   "11157906",
   "10796676",
   <snip>
-}
+]
 ~~~
 
 If you want more information, pass `?full=1` to retrieve more fields.
@@ -432,7 +493,7 @@ If you want more information, pass `?full=1` to retrieve more fields.
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
     "profile_name": "fender"
-  }
+  },
   <snip>
 ]
 ~~~
@@ -456,6 +517,8 @@ Deleted submissions are displayed in the following format:
 
 Retrieves information about the submission with the specified id.
 Note: the "full" and "thumbnail" members are parsed from the image viewer javascript snippet, the "download" is parsed from the "Download" link. When getting a non-image submission, the "thumbnail" and "full" members are null, but the "download" is guaranteed to point to the submission.
+
+If you supply a login cookie, you will get two additional keys in the results: `fav_status` will be a boolean, specifying whether this submission is marked as a favourite. `fav_key` will be the key required to change whether the submission is marked as a favourite.
 
 *Formats:* `json`, `xml`
 
@@ -495,6 +558,20 @@ Note: the "full" and "thumbnail" members are parsed from the image viewer javasc
 }
 ~~~
 
+### POST /submission/*{id}*/favorite
+
+*Formats:* `json`, `query`
+
+Login cookie required.
+
+Updates the favorited-status of a submission.
+The following parameters must be provided:
+
+* **fav_status**: A boolean, indicating whether the submission should be made a favorite.
+* **fav_key**: A key obtained from the submission page.
+
+The response will be the same as the submission request for this submission.
+
 ### GET /journal/*{id}*
 
 Retrieves information about the journal with the specified id.
@@ -520,7 +597,7 @@ Retrieves information about the journal with the specified id.
 
 ### GET /submission/*{id}*/comments <br/> GET /journal/*{id}*/comments
 
-Retrivies a list of comments made on the submission or journal with the specified id.
+Retrieves a list of comments made on the submission or journal with the specified id.
 
 *Formats:* `json`, `xml`
 
@@ -534,9 +611,10 @@ Retrivies a list of comments made on the submission or journal with the specifie
     "avatar": "http://a.facdn.net/1424258659/anotherartist.gif",
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
-    "text": "Wow, I love the way you do light and shadow."
+    "text": "Wow, I love the way you do light and shadow.",
     "reply_to": "",
-    "reply_level": 0
+    "reply_level": 0,
+    "is_deleted": false
   },
   {
     "id": "252377",
@@ -546,43 +624,46 @@ Retrivies a list of comments made on the submission or journal with the specifie
     "avatar": "http://a.facdn.net/1424258659/annoyingsalamander.gif",
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
-    "text": "This drawing sucks."
+    "text": "This drawing sucks.",
     "reply_to": "260397",
-    "reply_level": 1
+    "reply_level": 1,
+    "is_deleted": false
   },
   {
     "id": "236568",
     "name": "afreshcat001",
     "profile": "http://www.furaffinity.net/user/afreshcat001/",
-    "profile": "afreshcat001",
+    "profile_name": "afreshcat001",
     "avatar": "http://a.facdn.net/1424258659/afreshcat001.gif",
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",
-    "text": "You stole my OC, REPORTED!"
+    "text": "You stole my OC, REPORTED!",
     "reply_to": "",
-    "reply_level": 0
+    "reply_level": 0,
+    "is_deleted": false
   },
   <snip>
 ]
 ~~~
 
-Any replies to a hidden comment will contain `"reply_to": "hidden"`.
 By default, hidden comments are not included.
 If you would like hidden comments to show up, pass `?include_hidden=1`.
 Hidden comments are displayed in the following format:
 
 ~~~json
 {
+  "id": "96269",
   "text": "Comment hidden by its author",
   "reply_to": "96267",
-  "reply_level": 9
+  "reply_level": 9,
+  "is_deleted": true
 }
 
 ~~~
 
 ### GET /search
 
-Perfoms a site wide search of Furaffinity.
+Performs a site wide search of Furaffinity.
 The following parameters can be provided:
 
 * **q**: Words to search for.
@@ -605,7 +686,7 @@ By default, this only returns the id of each submission.
   "11157906",
   "10796676",
   <snip>
-}
+]
 ~~~
 
 If you want more information, pass `&full=1` to retrieve more fields.
@@ -638,7 +719,7 @@ If you want more information, pass `&full=1` to retrieve more fields.
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
     "profile_name": "fender"
-  }
+  },
   <snip>
 ]
 ~~~
@@ -653,7 +734,7 @@ Retrieves a list of new submission notifications.
 
 The way that FA handles paging in submission notifications is that you specify the ID of a submission in your notifications, and it will display that submission, and all the ones after it.
 You can specify the submission ID to start from with the `from=` parameter in the URL.
-Paging through submissions without overlap can be achieved by taking the last submission, adding 1 to the ID, and supplying that using the `from` parameter.
+Paging through submissions without overlap can be achieved by taking the last submission, subtracting 1 from the ID, and supplying that using the `from` parameter.
 
 ~~~json
 {
@@ -689,10 +770,10 @@ Paging through submissions without overlap can be achieved by taking the last su
       "name": "feve",
       "profile": "https://sfw.furaffinity.net/user/feve/",
       "profile_name": "feve"
-    }
+    },
     <snip>
   ]
-]
+}
 ~~~
 ### GET /notifications/others
 
@@ -703,14 +784,15 @@ Login cookie required.
 Retrieves a dictionary of all current (non-submission) notifications. RSS feeds are available for each individual notification type.
 
 While json and xml formats are available as a combined endpoint at /notifications/others, rss feeds are separated into 6 different endpoints:
-- /notifications/watches.rss
-- /notifications/submission_comments.rss
-- /notifications/journal_comments.rss
-- /notifications/shouts.rss
-- /notifications/favorites.rss
-- /notifications/journals.rss
+* /notifications/watches.rss
+* /notifications/submission_comments.rss
+* /notifications/journal_comments.rss
+* /notifications/shouts.rss
+* /notifications/favorites.rss
+* /notifications/journals.rss
 
 To include deleted notifications as well, pass `?include_deleted=1`.
+As deleted journal notifications are hidden on FA now, you cannot display these using the `include_deleted` parameter.
 
 ~~~json
 {
@@ -718,6 +800,15 @@ To include deleted notifications as well, pass `?include_deleted=1`.
     "name": "Fender",
     "profile": "https://furaffinity.net/user/fender/",
     "profile_name": "fender"
+  },
+  "notification_counts": {
+    "submissions": 2213,
+    "comments": 17,
+    "journals": 187,
+    "favorites":  23,
+    "watchers":  8,
+    "notes": 1,
+    "trouble_tickets": 0
   },
   "new_watches": [
     {
@@ -739,7 +830,8 @@ To include deleted notifications as well, pass `?include_deleted=1`.
       "profile_name": "scruffythedeer",
       "is_reply": true,
       "your_submission": false,
-      "submission_id": "#cid:138134657",
+      "their_submission": true,
+      "submission_id": "31400974",
       "title": "[CM] Willow Shafted (internal)",
       "posted": "on May 3rd, 2019 09:02 AM",
       "posted_at": "2019-05-03T09:02:00Z"
@@ -754,11 +846,13 @@ To include deleted notifications as well, pass `?include_deleted=1`.
       "profile_name": "jeevestheroo",
       "is_reply": true,
       "your_journal": false,
+      "their_journal": true,
       "journal_id": "9130470",
       "title": "Confuzzled 2019!! Say hello to me if you're going!",
       "posted": "on May 3rd, 2019 01:04 PM",
       "posted_at": "2019-05-03T13:04:00Z"
-    }
+    },
+    <snip>
   ],
   "new_shouts": [
     {
@@ -795,6 +889,68 @@ To include deleted notifications as well, pass `?include_deleted=1`.
       "posted_at": "2019-05-03T13:04:00Z"
     },
     <snip>
+  ]
+}
+~~~
+
+### GET /notes/{folder}
+
+*Formats:* `json`, `xml`, `rss`
+
+Login cookie required.
+
+Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox`, `unread`, `archive`, `trash`, `high`, `medium`, or `low`.
+
+~~~json
+[
+  {
+    "note_id": 123,
+    "subject": "No subject",
+    "is_inbound": true,
+    "is_read": false,
+    "name": "John Oliver",
+    "profile": "https://furaffinity.net/user/john_oliver/",
+    "profile_name": "john_oliver",
+    "posted": "on May 3rd, 2019 01:04 PM",
+    "posted_at": "2019-05-03T13:04:00Z"
+  },
+  <snip>
+]
+~~~
+
+### GET /note/{id}
+
+*Formats:* `json`, `xml`
+
+Login cookie required.
+
+Views a specific note.
+
+~~~json
+{
+  "note_id": 125,
+  "subject": "Re: No subject",
+  "is_inbound": true,
+  "name": "John Oliver",
+  "profile": "https://furaffinity.net/user/john_oliver/",
+  "profile_name": "john_oliver",
+  "posted": "on May 3rd, 2019 01:04 PM",
+  "posted_at": "2019-05-03T13:04:00Z",
+  "description": "Not really. How are you?\n\n______<snip>",
+  "description_body": "Not really. How are you?",
+  "preceding_notes": [
+    {
+      "name": "Fender",
+      "profile": "https://furaffinity.net/user/fender/",
+      "profile_name": "fender",
+      "description": "Hey, do u rp?"
+    },
+    {
+      "name": "John Oliver",
+      "profile": "https://furaffinity.net/user/john_oliver/",
+      "profile_name": "john_oliver",
+      "description": "Hello there!"
+    }
   ]
 }
 ~~~

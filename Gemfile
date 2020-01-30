@@ -9,3 +9,7 @@ gem 'redcarpet'
 gem 'builder'
 gem 'nokogiri'
 gem 'activesupport'
+
+group :test do
+  gem 'rspec'
+end
