@@ -439,9 +439,9 @@ describe 'FA parser' do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
-      # Even for an image submission, full no longer equals download
-      expect(sub[:full]).not_to eql(sub[:download])
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
+      # For an image submission, full == download
+      expect(sub[:full]).to eql(sub[:download])
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
@@ -487,7 +487,7 @@ describe 'FA parser' do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/stories\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/stories\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
       # For a story submission, full != download
       expect(sub[:full]).not_to be_blank
       expect(sub[:full]).not_to eql(sub[:download])
@@ -519,7 +519,7 @@ describe 'FA parser' do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/music\/[0-9]+\/[0-9]+\..+\.(mp3|mid|wav|mpeg)/)
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/music\/[0-9]+\/[0-9]+\..+\.(mp3|mid|wav|mpeg)/)
       # For a music submission, full != download
       expect(sub[:full]).not_to be_blank
       expect(sub[:full]).not_to eql(sub[:download])
@@ -582,7 +582,7 @@ describe 'FA parser' do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/poetry\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/poetry\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
       # For a potery submission, full is nil
       expect(sub[:full]).not_to be_nil
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
@@ -615,9 +615,9 @@ describe 'FA parser' do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/download\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
-      # Even for an image submission, full does not equal download
-      expect(sub[:full]).not_to eql(sub[:download])
+      expect(sub[:download]).to match(/https:\/\/d.facdn.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
+      # For an image submission, full == download
+      expect(sub[:full]).to eql(sub[:download])
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
       # Info box
       expect(sub[:category]).not_to be_blank
