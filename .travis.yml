@@ -4,6 +4,7 @@ rvm:
 services:
   - redis-server
 install:
+  - gem update --system
   - bundle install
 jobs:
   include:
