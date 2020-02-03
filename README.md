@@ -36,7 +36,30 @@ bundle install
 bundle exec rackup config.ru
 ~~~
 
-Deploying
+Deploying - Docker
+---------
+This application is available as a docker image, so that you don't need to install ruby, and bundler and packages and such.
+The docker image is available on docker hub here:
+https://hub.docker.com/r/deerspangle/furaffinity-api
+
+You can pull the docker image with this command:
+```shell
+docker pull deerspangle/furaffinity-api
+```
+
+And then run the image like so, specifying your FA cookie in the environment variable passed into the image.
+```shell script
+docker run \
+-e FA_COOKIE="b=..; a=.." \
+-p 80:9292 \
+--name fa_api
+deerspangle/furaffinity-api
+```
+
+Internal to the docker image, the API exposes port 9292, you can forward that to whichever port you want outside with the `-p` option, in the case above, we're forwarding port 80 into it.
+
+
+Deploying - Heroku
 ---------
 
 This application can be run on Heroku, just add an instance of 'Redis To Go' for caching.
