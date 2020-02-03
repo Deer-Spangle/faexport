@@ -42,20 +42,18 @@ This application is available as a docker image, so that you don't need to insta
 The docker image is available on docker hub here:
 https://hub.docker.com/r/deerspangle/furaffinity-api
 
-You can pull the docker image with this command:
-```shell
-docker pull deerspangle/furaffinity-api
-```
-
-And then run the image like so, specifying your FA cookie in the environment variable passed into the image.
+You can run the docker image like so, starting up the redis container, then starting the FA API container and specifying your FA cookie in the environment variable passed into the image.
 ```shell script
-docker run \
--e FA_COOKIE="b=..; a=.." \
--p 80:9292 \
---name fa_api
-deerspangle/furaffinity-api
-```
+docker run --name redis_container -d redis 
 
+docker run \
+  -e FA_COOKIE="b=..; a=.." \
+  -e REDIS_URL="redis://redis:6379/0"
+  -p 80:9292 \
+  --name fa_api \
+  --link redis_container:redis \
+  deerspangle/furaffinity-api
+```
 Internal to the docker image, the API exposes port 9292, you can forward that to whichever port you want outside with the `-p` option, in the case above, we're forwarding port 80 into it.
 
 

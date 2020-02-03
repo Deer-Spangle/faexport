@@ -2,7 +2,7 @@ FROM alpine:3.10
 MAINTAINER Deer Spangle <deer@spangle.org.uk>
 
 ENV BUILD_PACKAGES bash curl-dev ruby-dev build-base
-ENV RUBY_PACKAGES redis ruby ruby-dev ruby-bigdecimal ruby-json ruby-io-console ruby-bundler
+ENV RUBY_PACKAGES ruby ruby-dev ruby-bigdecimal ruby-json ruby-io-console ruby-bundler
 
 # Update and install all of the required packages.
 # At the end, remove the apk cache
