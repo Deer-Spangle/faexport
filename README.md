@@ -1,5 +1,6 @@
 FAExport
 ========
+[![Build Status](https://travis-ci.org/Deer-Spangle/faexport.svg?branch=master)](https://travis-ci.org/Deer-Spangle/faexport)![Docker Build Status](https://img.shields.io/docker/build/deerspangle/furaffinity-api)
 
 Simple data export and feeds from FA.
 Check out the [documentation](http://faexport.boothale.net/docs) for a full list of functionality.
