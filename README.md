@@ -3,8 +3,11 @@ FAExport
 [![Build Status](https://travis-ci.org/Deer-Spangle/faexport.svg?branch=master)](https://travis-ci.org/Deer-Spangle/faexport)![Docker Build Status](https://img.shields.io/docker/build/deerspangle/furaffinity-api)
 
 Simple data export and feeds from FA.
-Check out the [documentation](http://faexport.boothale.net/docs) for a full list of functionality.
+Check out the [documentation](http://faexport.spangle.org.uk/docs) for a full list of functionality.
 The file `lib/faexport/scraper.rb` contains all the code required to access data from FA.
+
+This API was originally developed by [boothale](https://github.com/boothale/), but after he had been missing and not 
+responding to emails for many months, deer-spangle has forked it and taken care of it instead.
 
 Development Setup
 -----------------
