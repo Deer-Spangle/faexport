@@ -47,3 +47,6 @@ dd {
     font-size: 21px;
 }
 
+a.disabled {
+    color: #BBBBBB;
+}
