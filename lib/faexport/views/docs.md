@@ -3,7 +3,7 @@ In the case that the markup on FA changes in a way that prevents this API from f
 a best effort will be made to update and maintain it (aka uptime not guaranteed).
 All requests and data returned from FA are cached for 30 seconds so spamming requests won't do anything.
 Be aware that this service runs on limited hardware and is not intended for heavy usage.
-Please send any questions, comments or ramblings to [erra@boothale.net](mailto:erra@boothale.net).
+Please send any questions, comments or ramblings to [deer@spangle.org.uk](mailto:deer@spangle.org.uk).
 
 ## Security
 

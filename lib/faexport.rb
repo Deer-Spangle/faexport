@@ -1,6 +1,7 @@
 # faexport.rb - Simple data export and feeds from FA
 #
 # Copyright (C) 2015 Erra Boothale <erra@boothale.net>
+# Further work: 2020 Deer Spangle <deer@spangle.org.uk>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -54,7 +55,7 @@ module FAExport
 
     USER_REGEX = /((?:[a-zA-Z0-9\-_~.]|%5B|%5D|%60)+)/
     ID_REGEX = /([0-9]+)/
-    COOKIE_REGEX = /^b=[a-z0-9\-]+; a=[a-z0-9\-]+$/
+    COOKIE_REGEX = /^([ab])=[a-z0-9\-]+; ?(?!\1)[ab]=[a-z0-9\-]+$/
     NOTE_FOLDER_REGEX = /(inbox|outbox|unread|archive|trash|high|medium|low)/
 
     def initialize(app, config = {})
