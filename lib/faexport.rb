@@ -101,7 +101,8 @@ module FAExport
       def ensure_login!
         unless @user_cookie
           raise FALoginCookieError,
-            "You must provide a valid login cookie in the header 'FA_COOKIE'"
+            "You must provide a valid login cookie in the header 'FA_COOKIE'.
+Please note this is a header, not a cookie."
         end
       end
     end
