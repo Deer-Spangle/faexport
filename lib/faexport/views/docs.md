@@ -8,20 +8,18 @@ Please send any questions, comments or ramblings to [deer@spangle.org.uk](mailto
 ## Security
 
 When accessing routes that view or modify account specific data,
-you will need to provide a login cookie in the header `FA_COOKIE`.
-Run this code in the console of any FA page to get one.
+you will need to provide a login cookie in the header `FA_COOKIE`.  
+The cookie `a` and `b` values can be obtained by checking your browser's storage inspector while on any FA page.  
+The storage inspector can be opened by pressing `Shift+F9` on Firefox, and on Chrome, by opening the developer tools with `F12` and then selecting the "Application" tab, and then "Cookies".  
+You may want to do this in a private browsing session as logging out of your account will invalidate
+the cookie and break the scraper.
 
-~~~javascript
-document.cookie.split('; ').filter(function(x){return/^[ab]=/.test(x)}).sort().reverse().join('; ')
-~~~
+The resulting FA_COOKIE header string should look something like this:
 
-The output should look something like this:
-
-~~~
+```
 "b=3a485360-d203-4a38-97e8-4ff7cdfa244c; a=b1b985c4-d73e-492a-a830-ad238a3693ef"
-~~~
+```
 
-If you're having trouble with this, check out [issue 17](https://github.com/boothale/faexport/issues/17).
 
 ## Status Codes
 
