@@ -27,6 +27,7 @@ describe 'FA parser' do
   COOKIE_TEST_USER_NO_NOTIFICATIONS = COOKIE_TEST_USER_HIDDEN_FAVS
   TEST_USER_JOURNAL_DUMP = TEST_USER_3
   COOKIE_TEST_USER_JOURNAL_DUMP = COOKIE_TEST_USER_3
+  COOKIE_NOT_CLASSIC = ENV["test_cookie_not_classic"]
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
@@ -37,6 +38,17 @@ describe 'FA parser' do
 
   after do
     # Do nothing
+  end
+
+  context 'when browsing any page' do
+    it 'returns FASystemError if a user has disabled their account' do
+      expect { @fa.user("drowsylynx") }.to raise_error(FASystemError)
+    end
+
+    it 'returns FAStyleError if the current user is not in classic style' do
+      @fa.login_cookie = COOKIE_NOT_CLASSIC
+      expect { @fa.home() }.to raise_error(FAStyleError)
+    end
   end
 
   context 'when getting home page data' do

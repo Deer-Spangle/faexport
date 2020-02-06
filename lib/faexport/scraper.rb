@@ -128,6 +128,17 @@ class FASystemError < FAError
   end
 end
 
+class FAStyleError < FAError
+  def initialize(url)
+    super(url)
+  end
+
+  def to_s
+    "FA is not currently set to classic theme. Unfortunately this API currently only works if the authenticated
+account is using classic theme. Please change your style to classic and try again."
+  end
+end
+
 class FALoginError < FAError
   def initialize(url)
     super(url)
@@ -1001,6 +1012,11 @@ private
 
     if page.include?('This user has voluntarily disabled access to their userpage.')
       raise FASystemError.new(url)
+    end
+
+    stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
+    unless stylesheet.start_with?("/themes/classic/")
+      raise FAStyleError.new(url)
     end
 
     # Parse and save the status, most pages have this, but watcher lists do not.
