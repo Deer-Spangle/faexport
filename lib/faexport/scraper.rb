@@ -1010,7 +1010,7 @@ private
       raise FALoginError.new(url)
     end
 
-    if page.include?('This user has voluntarily disabled access to their userpage.')
+    if page.include?('has voluntarily disabled access to their account and all of its contents.')
       raise FASystemError.new(url)
     end
 
