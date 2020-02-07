@@ -1014,6 +1014,10 @@ private
       raise FASystemError.new(url)
     end
 
+    if page.include?('<a href="/register"><strong>Create an Account</strong></a>')
+      raise FALoginError.new(url)
+    end
+
     stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
     unless stylesheet.start_with?("/themes/classic/")
       raise FAStyleError.new(url)
