@@ -4,7 +4,7 @@ require_relative 'check_helper'
 
 require 'rspec'
 
-describe 'FA parser search endpoint' do
+describe 'FA search parser' do
   COOKIE_DEFAULT = ENV['test_cookie']
 
   before do
