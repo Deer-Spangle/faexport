@@ -48,9 +48,9 @@ describe 'FA user profile parser' do
     end
 
     it 'handles square brackets in profile name' do
-      profile_with_underscores = TEST_USER_WITH_BRACKETS
-      profile = @fa.user(profile_with_underscores)
-      expect(profile[:name].downcase).to eql(profile_with_underscores)
+      profile_with_brackets = "l[i]s"
+      profile = @fa.user(profile_with_brackets)
+      expect(profile[:name].downcase).to eql(profile_with_brackets)
     end
 
     it 'shows featured submission' do
