@@ -34,6 +34,7 @@ require 'net/http'
 require 'nokogiri'
 require 'open-uri'
 require 'redis'
+require 'faexport/fetcher'
 
 USER_AGENT = 'FAExport'
 SEARCH_OPTIONS = {
@@ -130,7 +131,9 @@ class Furaffinity
 
   def status
     json = @cache.add("#status", false) do
-      parse_status fetch('')
+      fetcher = Fetcher.new(@cache, @login_cookie)
+      html = fetcher.fetch_html ""
+      fetcher.parse_status html
     end
     JSON.parse json
   end
@@ -845,43 +848,13 @@ private
   end
 
   def fetch(path, extra_cookie = nil)
-    url = fa_url(path)
-    raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
-      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "#{@login_cookie};#{extra_cookie}") do |response|
-        if response.status[0] != '200'
-          raise FAStatusError.new(url, response.status.join(' '))
-        end
-        response.read
-      end
-    end
 
-    html = Nokogiri::HTML(raw)
-
-    head = html.xpath('//head//title').first
-    if !head || head.content == 'System Error'
-      raise FASystemError.new(url)
-    end
-
-    page = html.to_s
-    if page.include?('has elected to make their content available to registered users only.')
-      raise FALoginError.new(url)
-    end
-
-    if page.include?('has voluntarily disabled access to their account and all of its contents.')
-      raise FASystemError.new(url)
-    end
-
-    if page.include?('<a href="/register"><strong>Create an Account</strong></a>')
-      raise FALoginError.new(url)
-    end
-
-    stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
-    unless stylesheet.start_with?("/themes/classic/")
+    fetcher = Fetcher.new(@cache, @login_cookie)
+    html = fetcher.fetch_html(path, extra_cookie)
+    style = fetcher.identify_style(html)
+    if style != :style_classic
       raise FAStyleError.new(url)
     end
-
-    # Parse and save the status, most pages have this, but watcher lists do not.
-    parse_status(html)
 
     html
   end
@@ -999,35 +972,6 @@ private
         "profile": fa_url(name_elem['href'][1..-1]),
         "profile_name": last_path(name_elem['href'])
     }
-  end
-
-  def parse_status(html)
-    footer = html.css('.footer')
-    center = footer.css('center')
-
-    if footer.length == 0
-        return
-    end
-    timestamp_line = footer[0].inner_html.split("\n").select{|line| line.strip.start_with? "Server Local Time: "}
-    timestamp = timestamp_line[0].to_s.split("Time:")[1].strip
-
-    counts = center.to_s.scan(/([0-9]+)\s*<b>/).map{|d| d[0].to_i}
-
-    status = {
-        online: {
-            guests: counts[1],
-            registered: counts[2],
-            other: counts[3],
-            total: counts[0]
-        },
-        fa_server_time: timestamp,
-        fa_server_time_at: to_iso8601(timestamp)
-    }
-    status_json = JSON.pretty_generate status
-    @cache.save_status(status_json)
-    status_json
-  rescue
-    # If we fail to read and save status, it's no big deal
   end
 
   def parse_submission_page(id, html, is_login)
