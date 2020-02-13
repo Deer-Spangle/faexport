@@ -35,6 +35,7 @@ require 'nokogiri'
 require 'open-uri'
 require 'redis'
 require 'faexport/fetcher'
+require 'faexport/parsers/user_profile_parser'
 
 USER_AGENT = 'FAExport'
 SEARCH_OPTIONS = {
@@ -140,7 +141,7 @@ class Furaffinity
 
   def user(name)
     fetcher = Fetcher.new(@cache, @login_cookie)
-    parser = UserProfileParser.new(fetcher, escape(name))
+    parser = UserProfileParser.new(fetcher, name)
     parser.get_result
   end
 
@@ -760,52 +761,6 @@ private
 
   def to_iso8601(date)
     Time.parse(date + ' UTC').iso8601
-  end
-
-  def html_field(info, field)
-    (info[/<b[^>]*>#{field}:<\/b>(.+?)<br>/, 1] || '').gsub(%r{</?[^>]+?>}, '').strip
-  end
-
-  def html_long_field(info, field)
-    (info[/<b[^>]*>#{field}:<\/b><br>(.+)/m, 1] || '').strip
-  end
-
-  def select_artist_info(elem)
-    elem = elem.at_css('td.alt1') if elem
-    return nil unless elem
-    info = {}
-    elem.children.to_s.scan(/<strong>\s*(.*?)\s*<\/strong>\s*:\s*(.*?)\s*<\/div>/).each do |match|
-      info[match[0]] = match[1]
-    end
-    info
-  end
-
-  def select_contact_info(elem)
-    elem = elem.at_css('td.alt1') if elem
-    return nil unless elem
-    elem.css('div.classic-contact-info-item').map do |item|
-      link_elem = item.at_css('a')
-      {
-        title: item.at_css('strong').content.gsub(/:\s*$/, ''),
-        name: (link_elem || item.xpath('child::text()').to_s.squeeze(' ').strip),
-        link: link_elem ? link_elem['href'] : ''
-      }
-    end
-  end
-
-  def select_watchers_info(elem, selector)
-    users = elem.css("##{selector} a").map do |user|
-      link = fa_url(user['href'][1..-1])
-      {
-        name: user.at_css('.artist_name').content.strip,
-        profile_name: last_path(link),
-        link: link
-      }
-    end
-    {
-      count: elem.at_css('td.cat a').content[/([0-9]+)/, 1].to_i,
-      recent: users
-    }
   end
 
   def escape(name)
