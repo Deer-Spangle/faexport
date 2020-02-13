@@ -22,6 +22,27 @@ class RedisCache
     end
   end
 
+  def add_hash(key, wait_long = false)
+    get_and_parse(key) ||
+        begin
+          value = yield
+          @redis.set(key, value.to_json)
+          @redis.expire(key, wait_long ? @long_expire : @expire)
+          value
+        end
+  rescue Redis::BaseError => e
+    if e.message.include? 'OOM'
+      raise CacheError.new('The page returned from FA was too large to fit in the cache')
+    else
+      raise CacheError.new("Error accessing Redis Cache: #{e.message}")
+    end
+  end
+
+  def get_and_parse(key)
+    json_data = @redis.get(key)
+    JSON.parse(json_data, :symbolize_names => true) unless json_data.nil?
+  end
+
   def save_status(status)
     @redis.set("#status", status)
     @redis.expire("#status", @expire)
