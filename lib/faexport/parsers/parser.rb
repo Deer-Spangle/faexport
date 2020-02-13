@@ -10,6 +10,10 @@ class Parser
     nil
   end
 
+  def escape(name)
+    CGI::escape(name)
+  end
+
   def get_result
     url = self.get_url
     html = @fetcher.fetch_html(url)
@@ -38,24 +42,3 @@ class Parser
     nil
   end
 end
-
-
-class UserProfileParser < Parser
-
-  def initialize(fetcher, username)
-    super(fetcher)
-    @username = username
-  end
-
-  def get_url
-    "/users/#{@username}"
-  end
-
-  def parse_classic(html)
-    {}
-  end
-end
-
-fetcher = Fetcher.new(nil, nil)
-parser = UserProfileParser.new(fetcher, "username")
-p parser.get_result
