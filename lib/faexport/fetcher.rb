@@ -5,10 +5,10 @@
 class Fetcher
   attr_accessor :cache
 
-  def initialize(cache, cookie)
+  def initialize(cache, cookie, safe_for_work)
     @cache = cache
     @cookie = cookie
-    @safe_for_work = false
+    @safe_for_work = safe_for_work
   end
 
   def fetch_html(path, extra_cookie = nil)

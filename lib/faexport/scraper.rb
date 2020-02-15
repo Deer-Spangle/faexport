@@ -140,7 +140,7 @@ class Furaffinity
   end
 
   def user(name)
-    fetcher = Fetcher.new(@cache, @login_cookie)
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
     parser = UserProfileParser.new(fetcher, name)
     parser.get_result
   end
@@ -769,7 +769,7 @@ private
 
   def fetch(path, extra_cookie = nil)
 
-    fetcher = Fetcher.new(@cache, @login_cookie)
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
     html = fetcher.fetch_html(path, extra_cookie)
     style = fetcher.identify_style(html)
     if style != :style_classic
