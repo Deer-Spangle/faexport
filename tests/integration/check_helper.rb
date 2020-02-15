@@ -1,5 +1,27 @@
 require 'rspec/expectations'
 
+COOKIE_DEFAULT = ENV['test_cookie']
+COOKIE_TEST_USER_2 = ENV['test_cookie_user_2']
+COOKIE_TEST_USER_3 = ENV['test_cookie_user_3']
+COOKIE_TEST_USER_HIDDEN_FAVS = ENV['test_cookie_hidden_favs']
+COOKIE_TEST_USER_NO_NOTIFICATIONS = COOKIE_TEST_USER_HIDDEN_FAVS
+COOKIE_TEST_USER_JOURNAL_DUMP = COOKIE_TEST_USER_3
+COOKIE_NOT_CLASSIC = ENV["test_cookie_not_classic"]
+TEST_USER = "fafeed"
+TEST_USER_2 = "fafeed-2"
+TEST_USER_3 = "fafeed-3"
+# Specific test user cases
+TEST_USER_NOT_EXIST = "fafeed-does-not-exist"
+TEST_USER_NO_WATCHERS = "fafeed-no-watchers"
+TEST_USER_NO_JOURNALS = TEST_USER_NO_WATCHERS
+TEST_USER_NO_SHOUTS = TEST_USER_NO_WATCHERS
+TEST_USER_OVER_200_WATCHERS = "fender"
+TEST_USER_OVER_25_JOURNALS = TEST_USER_OVER_200_WATCHERS
+TEST_USER_EMPTY_GALLERIES = TEST_USER_NO_WATCHERS
+TEST_USER_2_PAGES_GALLERY = "rajii"
+TEST_USER_HIDDEN_FAVS = TEST_USER_NO_WATCHERS
+TEST_USER_2_PAGES_FAVS = TEST_USER_2_PAGES_GALLERY
+TEST_USER_JOURNAL_DUMP = TEST_USER_3
 
 RSpec::Matchers.define :be_valid_submission do |blank_profile=false, blank_title=false|
   match do |submission|

@@ -5,8 +5,6 @@ require_relative 'check_helper'
 require 'rspec'
 
 describe 'FA watchlist parser' do
-  COOKIE_DEFAULT = ENV['test_cookie']
-  TEST_USER_OVER_200_WATCHERS = "fender"
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}

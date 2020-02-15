@@ -5,7 +5,6 @@ require_relative 'check_helper'
 require 'rspec'
 
 describe 'FA comments parser' do
-  COOKIE_DEFAULT = ENV['test_cookie']
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}

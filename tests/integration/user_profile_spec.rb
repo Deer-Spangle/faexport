@@ -5,12 +5,6 @@ require_relative 'check_helper'
 require 'rspec'
 
 describe 'FA user profile parser' do
-  COOKIE_DEFAULT = ENV['test_cookie']
-  TEST_USER = "fafeed"
-  TEST_USER_2 = "fafeed-2"
-  TEST_USER_NOT_EXIST = "fafeed-does-not-exist"
-  TEST_USER_NO_WATCHERS = "fafeed-no-watchers"
-  TEST_USER_NO_SHOUTS = TEST_USER_NO_WATCHERS
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
