@@ -52,6 +52,10 @@ private
     Time.parse(date + ' UTC').iso8601
   end
 
+  def pick_date(tag)
+    tag.content.include?('ago') ? tag['title'] : tag.content
+  end
+
   def last_path(path)
     path.split('/').last
   end

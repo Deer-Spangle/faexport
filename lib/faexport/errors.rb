@@ -111,3 +111,14 @@ class CacheError < FAError
     @message
   end
 end
+
+class FAInputError < FAError
+  def initialize(message)
+    super(nil)
+    @message = message
+  end
+
+  def to_s
+    @message
+  end
+end
