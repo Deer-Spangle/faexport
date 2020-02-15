@@ -78,7 +78,7 @@ private
           thumbnail: "https:#{elem.at_css('img')['src']}",
           link: @fetcher.fa_url(elem.at_css('a')['href'][1..-1]),
           name: author_elem ? author_elem.content : '',
-          profile: author_elem ? fa_url(author_elem['href'][1..-1]) : '',
+          profile: author_elem ? @fetcher.fa_url(author_elem['href'][1..-1]) : '',
           profile_name: author_elem ? last_path(author_elem['href']) : ''
       }
       sub[:fav_id] = elem['data-fav-id'] if elem['data-fav-id']

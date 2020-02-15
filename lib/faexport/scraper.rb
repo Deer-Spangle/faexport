@@ -37,6 +37,9 @@ require 'redis'
 require_relative 'fetcher'
 require_relative 'parsers/user_profile_parser'
 require_relative 'parsers/comments_parser'
+require_relative 'parsers/home_parser'
+require_relative 'errors.rb'
+require_relative 'redis_cache.rb'
 
 USER_AGENT = 'FAExport'
 SEARCH_OPTIONS = {
@@ -61,9 +64,6 @@ SEARCH_DEFAULTS = {
 }
 SEARCH_MULTIPLE = %w(rating type)
 
-require_relative 'errors.rb'
-require_relative 'redis_cache.rb'
-
 
 class Furaffinity
   attr_accessor :login_cookie, :safe_for_work
@@ -86,17 +86,9 @@ class Furaffinity
   end
 
   def home
-    html = fetch('')
-    groups = html.css('#frontpage > .old-table-emulation')
-    data = groups.map do |group|
-      group.css('figure').map{|art| build_submission(art)}
-    end
-    {
-      artwork: data[0],
-      writing: data[1],
-      music: data[2],
-      crafts: data[3]
-    }
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
+    parser = HomeParser.new(fetcher)
+    parser.get_result
   end
 
   def browse(params)
