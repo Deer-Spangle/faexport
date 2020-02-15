@@ -42,7 +42,9 @@ class Fetcher
     end
 
     # Parse and save the status, most pages have this, but watcher lists do not.
-    parse_status(html)
+    @cache.add_hash("#status", false) do
+      parse_status html
+    end
 
     html
   end
@@ -70,7 +72,7 @@ class Fetcher
 
     counts = center.to_s.scan(/([0-9]+)\s*<b>/).map{|d| d[0].to_i}
 
-    status = {
+    {
         online: {
             guests: counts[1],
             registered: counts[2],
@@ -80,11 +82,12 @@ class Fetcher
         fa_server_time: timestamp,
         fa_server_time_at: to_iso8601(timestamp)
     }
-    status_json = JSON.pretty_generate status
-    @cache.save_status(status_json)
-    status_json
   rescue
     # If we fail to read and save status, it's no big deal
+  end
+
+  def to_iso8601(date)
+    Time.parse(date + ' UTC').iso8601
   end
 
   def identify_style(html)

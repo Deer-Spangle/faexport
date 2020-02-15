@@ -131,12 +131,11 @@ class Furaffinity
   end
 
   def status
-    json = @cache.add("#status", false) do
-      fetcher = Fetcher.new(@cache, @login_cookie)
-      html = fetcher.fetch_html ""
-      fetcher.parse_status html
+    @cache.add_hash("#status", false) do
+      fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
+      html = p fetcher.fetch_html ""
+      p fetcher.parse_status html
     end
-    JSON.parse json
   end
 
   def user(name)
