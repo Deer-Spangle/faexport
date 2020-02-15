@@ -38,6 +38,7 @@ require_relative 'fetcher'
 require_relative 'parsers/user_profile_parser'
 require_relative 'parsers/comments_parser'
 require_relative 'parsers/home_parser'
+require_relative 'parsers/journal_parser'
 require_relative 'errors.rb'
 require_relative 'redis_cache.rb'
 
@@ -171,28 +172,9 @@ class Furaffinity
   end
 
   def journal(id)
-    html = fetch("journal/#{id}/")
-    date = pick_date(html.at_css('td.cat .journal-title-box .popup_date'))
-    profile_url = html.at_css('td.cat .journal-title-box a')['href'][1..-1]
-    journal_header = nil
-    journal_header = html.at_css('.journal-header').children[0..-3].to_s.strip unless html.at_css('.journal-header').nil?
-    journal_footer = nil
-    journal_footer = html.at_css('.journal-footer').children[2..-1].to_s.strip unless html.at_css('.journal-footer').nil?
-
-    {
-      title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
-      description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
-      journal_header: journal_header,
-      journal_body: html.at_css('.journal-body').children.to_s.strip,
-      journal_footer: journal_footer,
-      name: html.at_css('td.cat .journal-title-box a').content,
-      profile: fa_url(profile_url),
-      profile_name: last_path(profile_url),
-      avatar: "https:#{html.at_css("img.avatar")['src']}",
-      link: fa_url("journal/#{id}/"),
-      posted: date,
-      posted_at: to_iso8601(date)
-    }
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
+    parser = JournalParser.new(fetcher, id)
+    parser.get_result
   end
 
   def submissions(user, folder, offset)
