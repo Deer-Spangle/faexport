@@ -1,5 +1,5 @@
 
-require './lib/faexport'
+require_relative '../../lib/faexport'
 require_relative 'check_helper'
 
 require 'rspec'

@@ -1,4 +1,4 @@
-require 'faexport/parsers/parser'
+require_relative 'parser'
 
 class UserProfileParser < Parser
 

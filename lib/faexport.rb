@@ -33,7 +33,7 @@ $:<< File.dirname(__FILE__)
 require 'active_support'
 require 'active_support/core_ext'
 require 'builder'
-require 'faexport/scraper'
+require_relative 'faexport/scraper'
 require 'redcarpet'
 require 'sinatra/base'
 require 'sinatra/json'

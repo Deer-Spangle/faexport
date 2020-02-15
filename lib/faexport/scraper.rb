@@ -34,8 +34,8 @@ require 'net/http'
 require 'nokogiri'
 require 'open-uri'
 require 'redis'
-require 'faexport/fetcher'
-require 'faexport/parsers/user_profile_parser'
+require_relative 'fetcher'
+require_relative 'parsers/user_profile_parser'
 
 USER_AGENT = 'FAExport'
 SEARCH_OPTIONS = {
