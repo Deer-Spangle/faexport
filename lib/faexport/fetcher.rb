@@ -18,7 +18,7 @@ class Fetcher
         if response.status[0] != '200'
           raise FAStatusError.new(url, response.status.join(' '))
         end
-        response.read
+        response.read.encode('UTF-8', :invalid => :replace, :undef => :replace)
       end
     end
 

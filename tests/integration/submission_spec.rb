@@ -243,4 +243,9 @@ describe 'FA submission page parser' do
     expect(submission[:fav_key]).to be_instance_of String
     expect(submission[:fav_key]).not_to be_empty
   end
+
+  it 'handles submissions with non-UTF-8 encoding correctly' do
+    submission = @fa.submission("35041190")
+    expect(submission).not_to be_nil
+  end
 end
