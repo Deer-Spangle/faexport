@@ -772,7 +772,7 @@ private
     html = fetcher.fetch_html(path, extra_cookie)
     style = fetcher.identify_style(html)
     if style != :style_classic
-      raise FAStyleError.new(url)
+      raise FAStyleError.new(path)
     end
 
     html
