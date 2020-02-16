@@ -39,6 +39,7 @@ require_relative 'parsers/user_profile_parser'
 require_relative 'parsers/comments_parser'
 require_relative 'parsers/home_parser'
 require_relative 'parsers/journal_parser'
+require_relative 'parsers/notes_folder_parser'
 require_relative 'errors.rb'
 require_relative 'redis_cache.rb'
 
@@ -616,47 +617,9 @@ class Furaffinity
   end
 
   def notes(folder)
-    note_cookie = {
-        inbox: "inbox",
-        outbox: "outbox",
-        unread: "unread",
-        archive: "archive",
-        trash: "trash",
-        high: "high_prio",
-        medium: "medium_prio",
-        low: "low_prio"
-    }[folder.to_sym]
-    html = fetch("msg/pms/", "folder=#{note_cookie}")
-    notes_table = html.at_css("table#notes-list")
-    notes_table.css("tr.note").map do |note|
-      subject = note.at_css("td.subject")
-      profile_from = note.at_css("td.col-from")
-      profile_to = note.at_css("td.col-to")
-      date = pick_date(note.at_css("span.popup_date"))
-      if profile_to.nil?
-        is_inbound = true
-        profile = profile_from.at_css("a")
-      else
-        if profile_from.nil?
-          is_inbound = false
-          profile = profile_to.at_css("a")
-        else
-          is_inbound = profile_to.content.strip == "me"
-          profile = is_inbound ? profile_from.at_css("a") : profile_to.at_css("a")
-        end
-      end
-      {
-          note_id: note.at_css("input")['value'].to_i,
-          subject: subject.at_css("a.notelink").content,
-          is_inbound: is_inbound,
-          is_read: subject.at_css("a.notelink.note-unread").nil?,
-          name: profile.content,
-          profile: fa_url(profile['href'][1..-1]),
-          profile_name: last_path(profile['href']),
-          posted: date,
-          posted_at: to_iso8601(date)
-      }
-    end
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
+    parser = NotesFolderParser.new(fetcher, folder, 1)
+    parser.get_result
   end
 
   def note(id)

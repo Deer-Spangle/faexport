@@ -3,7 +3,7 @@
 :style_modern
 
 class Fetcher
-  attr_accessor :cache
+  attr_accessor :cache, :cookie
 
   def initialize(cache, cookie, safe_for_work)
     @cache = cache

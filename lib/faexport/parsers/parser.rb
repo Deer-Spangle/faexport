@@ -10,6 +10,10 @@ class Parser
     nil
   end
 
+  def get_extra_cookie
+    nil
+  end
+
   def get_cache_key
     raise NotImplementedError
   end
@@ -17,7 +21,7 @@ class Parser
   def get_result
     path = self.get_path
     @fetcher.cache.add_hash("data:#{get_cache_key}") do
-      html = @fetcher.fetch_html(path)
+      html = @fetcher.fetch_html(path, get_extra_cookie)
       style = @fetcher.identify_style(html)
       data =
           case style

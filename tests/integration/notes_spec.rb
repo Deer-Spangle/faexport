@@ -4,7 +4,7 @@ require_relative 'check_helper'
 
 require 'rspec'
 
-describe 'FA parser home page endpoint' do
+describe 'FA notes parser endpoint' do
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
