@@ -91,4 +91,16 @@ private
       nil
     end
   end
+
+  def get_current_user_classic(html, url)
+    name_elem = html.at_css("a#my-username")
+    if name_elem.nil?
+      raise FALoginError.new(url)
+    end
+    {
+        "name": name_elem.content.strip.gsub(/^~/, ''),
+        "profile": @fetcher.fa_url(name_elem['href'][1..-1]),
+        "profile_name": last_path(name_elem['href'])
+    }
+  end
 end
