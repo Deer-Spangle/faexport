@@ -1,15 +1,15 @@
 services:
   fa_api:
     environment:
-      - CF_BYPASS="http://cf_bypass:4999"
-      - CY_BYPASS_SFW="http://cf_bypass_sfw:4999"
+      - CF_BYPASS=http://cf_bypass:4999
+      - CY_BYPASS_SFW=http://cf_bypass_sfw:4999
   cf_bypass:
     image: "joshcoales/cloudflare_bypass"
     environment:
-      - WEB_DOMAIN="https://furaffinity.net"
+      - WEB_DOMAIN=https://furaffinity.net
       - PORT=4999
   cf_bypass_sfw:
     image: "joshcoales/cloudflare_bypass"
     environment:
-      - WEB_DOMAIN="https://sfw.furaffinity.net"
+      - WEB_DOMAIN=https://sfw.furaffinity.net
       - PORT=4999
