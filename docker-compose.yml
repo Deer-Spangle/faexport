@@ -1,0 +1,11 @@
+version: '3'
+services:
+  fa_api:
+    build: .
+    ports:
+      - "9292:9292"
+    environment:
+      - FA_COOKIE=${FA_COOKIE}
+      - REDIS_URL="redis://redis_container:6379/0"
+  redis_container:
+    image: "redis"

@@ -22,6 +22,14 @@ run: build fa_cookie
 	--link redis_container:redis \
 	$(PROJECT)
 
+install_local:
+	sudo apt-get install redis-server ruby ruby-dev
+	sudo gem install bundler
+	bundle install
+
+run_local: install_local
+	bundle exec rackup config.ru
+
 start: fa_cookie
 	docker run \
 	-e FA_COOKIE="$(FA_COOKIE)" \
@@ -47,6 +55,12 @@ deploy: fa_cookie
 	--name fa_api \
 	--link $(REDIS_CONTAINER):redis \
 	$(DOCKER_HUB_NAME)
+
+compose_deploy: fa_cookie
+	docker compose up
+
+compose_deploy_bypass: fa_cookie
+	docker compose up -f docker-compose-cfbypass.yml
 
 publish: build
 	docker push $(PROJECT) $(DOCKER_HUB_NAME):$(VERSION)
