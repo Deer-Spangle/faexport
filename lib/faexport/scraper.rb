@@ -906,7 +906,9 @@ class Furaffinity
 
 private
   def fa_address
-    if ENV["CF_BYPASS"]
+    if ENV["CF_BYPASS_SFW"] and @safe_for_work
+      ENV["CF_BYPASS_SFW"]
+    elsif ENV["CF_BYPASS"]
       ENV["CF_BYPASS"]
     else
       "https://#{safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
@@ -1036,7 +1038,7 @@ private
   def post(path, params)
     uri = URI.parse(fa_address)
     http = Net::HTTP.new(uri.host, uri.port)
-    unless ENV["CF_BYPASS"]
+    unless ENV["CF_BYPASS"] or ENV["CF_BYPASS_SFW"]
       http.use_ssl = true
     end
     request = Net::HTTP::Post.new(path)
