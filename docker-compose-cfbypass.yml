@@ -1,3 +1,4 @@
+version: '3'
 services:
   fa_api:
     environment:
@@ -6,10 +7,10 @@ services:
   cf_bypass:
     image: "joshcoales/cloudflare_bypass"
     environment:
-      - WEB_DOMAIN=https://furaffinity.net
+      - web_domain=https://furaffinity.net
       - PORT=4999
   cf_bypass_sfw:
     image: "joshcoales/cloudflare_bypass"
     environment:
-      - WEB_DOMAIN=https://sfw.furaffinity.net
+      - web_domain=https://sfw.furaffinity.net
       - PORT=4999

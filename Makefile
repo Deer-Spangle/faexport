@@ -57,10 +57,10 @@ deploy: fa_cookie
 	$(DOCKER_HUB_NAME)
 
 compose_deploy: fa_cookie
-	docker compose up
+	docker-compose up
 
 compose_deploy_bypass: fa_cookie
-	docker compose up -f docker-compose-cfbypass.yml
+	docker-compose -f docker-compose.yml -f docker-compose-cfbypass.yml up
 
 publish: build
 	docker push $(PROJECT) $(DOCKER_HUB_NAME):$(VERSION)
