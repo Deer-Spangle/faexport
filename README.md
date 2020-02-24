@@ -66,6 +66,7 @@ docker run \
 ```
 Internal to the docker image, the API exposes port 9292, you can forward that to whichever port you want outside with the `-p` option, in the case above, we're forwarding port 80 into it.
 
+If cloudflare protection is online, you can specify an environment variable "CF_BYPASS" as a URL to a cloudflare bypass proxy.
 
 ## Deploying - Heroku
 

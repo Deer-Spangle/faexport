@@ -906,7 +906,11 @@ class Furaffinity
 
 private
   def fa_address
-    "https://#{safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
+    if ENV["CF_BYPASS"]
+      ENV["CF_BYPASS"]
+    else
+      "https://#{safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
+    end
   end
 
   def html_strip(html_s)
@@ -1032,7 +1036,9 @@ private
   def post(path, params)
     uri = URI.parse(fa_address)
     http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
+    unless ENV["CF_BYPASS"]
+      http.use_ssl = true
+    end
     request = Net::HTTP::Post.new(path)
     request.add_field('Content-Type', 'application/x-www-form-urlencoded')
     request.add_field('Origin', fa_address)
