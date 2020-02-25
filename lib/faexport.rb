@@ -42,6 +42,8 @@ require 'tilt'
 
 Tilt.register Tilt::RedcarpetTemplate, 'markdown', 'md'
 
+VERSION = "2020.02.5"
+
 module FAExport
   class << self
     attr_accessor :config
@@ -130,11 +132,11 @@ Please note this is a header, not a cookie."
     end
 
     get '/' do
-      haml :index, layout: :page
+      haml :index, layout: :page, :locals => {:version => VERSION}
     end
 
     get '/docs' do
-      haml :page do
+      haml :page, :locals => {:version => VERSION} do
         markdown :docs
       end
     end
