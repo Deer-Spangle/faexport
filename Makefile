@@ -5,16 +5,16 @@ REDIS_CONTAINER = redis_container
 PORT = 80
 
 FA_COOKIE:
-	ifndef FA_COOKIE
-		@echo Warning: FA_COOKIE isn\'t defined\; continue? [Y/n]
-		@read line; if [ $$line == "n" ]; then echo aborting; exit 1 ; fi
-	endif
+ifndef FA_COOKIE
+	@echo Warning: FA_COOKIE isn\'t defined\; continue? [Y/n]
+	@read line; if [ $$line = "n" ]; then echo aborting; exit 1 ; fi
+endif
 
 VERSION:
-	ifndef VERSION
-		@echo Warning: VERSION isn\'t defined\; continue? [Y/n]
-		@read line; if [ $$line == "n" ]; then echo aborting; exit 1 ; fi
-	endif
+ifndef VERSION
+	@echo Warning: VERSION isn\'t defined\; continue? [Y/n]
+	@read line; if [ $$line = "n" ]; then echo aborting; exit 1 ; fi
+endif
 
 docker_build:
 	docker build -t $(PROJECT) .
