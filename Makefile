@@ -44,8 +44,10 @@ run: install
 	bundle exec rackup config.ru -p $(PORT) --host 0.0.0.0
 
 publish: clean docker_build VERSION
+	sed -i 's/^VERSION = "[^"]\+"/VERSION = "$(VERSION)"/g' lib/faexport.rb
+	git commit -m "Publishing version $(VERSION)"
 	git tag $(VERSION)
-	git push origin --tags
+	git push origin --follow-tags
 	docker tag $(PROJECT) $(DOCKER_HUB_NAME):$(VERSION)
 	docker push $(DOCKER_HUB_NAME):$(VERSION)
 	docker tag $(PROJECT) $(DOCKER_HUB_NAME):latest
