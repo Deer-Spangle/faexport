@@ -45,6 +45,7 @@ run: install
 
 publish: clean docker_build VERSION
 	sed -i 's/^VERSION = "[^"]\+"/VERSION = "$(VERSION)"/g' lib/faexport.rb
+	git add lib/faexport.rb
 	git commit -m "Publishing version $(VERSION)"
 	git tag $(VERSION)
 	git push origin --follow-tags
