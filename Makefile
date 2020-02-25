@@ -2,18 +2,23 @@ PROJECT = furaffinity-api
 DOCKER_HUB_NAME = deerspangle/furaffinity-api
 CONTAINER_NAME = fa_api
 REDIS_CONTAINER = redis_container
-VERSION = "2020.02.0"
 
-fa_cookie:
-	ifndef ENV_VAR
+FA_COOKIE:
+	ifndef FA_COOKIE
 		@echo Warning: FA_COOKIE isn\'t defined\; continue? [Y/n]
 		@read line; if [ $$line == "n" ]; then echo aborting; exit 1 ; fi
 	endif
 
-build:
+VERSION:
+	ifndef VERSION
+		@echo Warning: VERSION isn\'t defined\; continue? [Y/n]
+		@read line; if [ $$line == "n" ]; then echo aborting; exit 1 ; fi
+	endif
+
+docker_build:
 	docker build -t $(PROJECT) .
 
-run: build fa_cookie
+docker_run: docker_build FA_COOKIE
 	docker run \
 	-e FA_COOKIE="$(FA_COOKIE)" \
 	-e REDIS_URL="redis://redis:6379/0" \
@@ -22,54 +27,42 @@ run: build fa_cookie
 	--link redis_container:redis \
 	$(PROJECT)
 
-install_local:
-	sudo apt-get install redis-server ruby ruby-dev
-	sudo gem install bundler
-	bundle install
-
-run_local: install_local
-	bundle exec rackup config.ru
-
-start: fa_cookie
-	docker run \
-	-e FA_COOKIE="$(FA_COOKIE)" \
-	-e REDIS_URL="redis://redis:6379/0" \
-	-p 80:9292 \
-	--name $(CONTAINER_NAME) \
-	--link $(REDIS_CONTAINER):redis -d \
-	$(PROJECT)
-
-start_standalone: fa_cookie
+docker_run_standalone: docker_build FA_COOKIE
 	docker run \
 	-e FA_COOKIE="$(FA_COOKIE)" \
 	-p 80:9292 \
 	--name $(CONTAINER_NAME) -d \
 	$(PROJECT)
 
-deploy: fa_cookie
-	docker run \
-	-e FA_COOKIE="$(FA_COOKIE)" \
-	-e REDIS_URL="redis://redis:6379/0" \
-	-p 80:9292 \
-	--restart=always \
-	--name fa_api \
-	--link $(REDIS_CONTAINER):redis \
-	$(DOCKER_HUB_NAME)
+install:
+	sudo apt-get install redis-server ruby ruby-dev
+	sudo gem install bundler
+	bundle install
 
-compose_deploy: fa_cookie
-	docker-compose up
+run: install
+	bundle exec rackup config.ru
 
-compose_deploy_bypass: fa_cookie
-	docker-compose -f docker-compose.yml -f docker-compose-cfbypass.yml up
+publish: clean docker_build VERSION
+	git tag $(VERSION)
+	git push origin --tags
+	docker tag $(PROJECT) $(DOCKER_HUB_NAME):$(VERSION)
+	docker push $(DOCKER_HUB_NAME):$(VERSION)
+	docker tag $(PROJECT) $(DOCKER_HUB_NAME):latest
+	docker push $(DOCKER_HUB_NAME):latest
 
-publish: build
-	docker push $(PROJECT) $(DOCKER_HUB_NAME):$(VERSION)
+deploy: FA_COOKIE
+	FA_COOKIE=$(FA_COOKIE) docker-compose up
 
-stop:
-	docker stop $(PROJECT)
+deploy_bypass: FA_COOKIE
+	FA_COOKIE=$(FA_COOKIE) docker-compose -f docker-compose.yml -f docker-compose-cfbypass.yml up
 
-clean:
+clean_docker:
 	docker kill -s 9 $(PROJECT) || true
 	docker rm $(PROJECT) || true
 	docker rmi -f $(PROJECT) || true
+
+clean: clean_docker
+	git reset -- .
+	git checkout -- .
+	git clean -df
 	rm -rf venv
