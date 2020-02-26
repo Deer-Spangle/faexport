@@ -913,21 +913,35 @@ class Furaffinity
   end
 
   def fa_url(path)
-    if path.to_s.start_with? "/"
-      path = path[1..-1]
-    end
+    path = strip_leading_slash(path)
     "#{fa_address}/#{path}"
   end
 
+  def fetch_url(path)
+    path = strip_leading_slash(path)
+    "#{fa_fetch_address}/#{path}"
+  end
+
+  def strip_leading_slash(path)
+    while path.to_s.start_with? "/"
+      path = path[1..-1]
+    end
+    path
+  end
+
 private
-  def fa_address
+  def fa_fetch_address
     if ENV["CF_BYPASS_SFW"] and @safe_for_work
       ENV["CF_BYPASS_SFW"]
     elsif ENV["CF_BYPASS"]
       ENV["CF_BYPASS"]
     else
-      "https://#{safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
+      fa_address
     end
+  end
+
+  def fa_address
+    "https://#{safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
   end
 
   def html_strip(html_s)
@@ -1009,7 +1023,7 @@ private
   end
 
   def fetch(path, extra_cookie = nil)
-    url = fa_url(path)
+    url = fetch_url(path)
     raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
       open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "#{@login_cookie};#{extra_cookie}") do |response|
         if response.status[0] != '200'
