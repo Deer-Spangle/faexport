@@ -776,7 +776,22 @@ class Furaffinity
     journals_elem = html.at_css("ul#journals")
     if journals_elem
       journals_elem.css("li:not(.section-controls)").each do |elem|
-        # No "deleted journal" handling, because FA doesn't display those anymore, it just removes the notification.
+        # Deleted journals are only displayed when the poster's page has been deactivated
+        if elem.at_css("input")['checked'] == "checked"
+          if include_deleted
+            new_journals << {
+                favorite_notification_id: "",
+                name: "This journal has been removed by the poster",
+                profile: "",
+                profile_name: "",
+                submission_id: "",
+                submission_name: "This journal has been removed by the poster",
+                posted: "",
+                posted_at: ""
+            }
+          end
+          next
+        end
         elem_links = elem.css("a")
         date = pick_date(elem.at_css('.popup_date'))
         new_journals << {
