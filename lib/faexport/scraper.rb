@@ -1065,7 +1065,7 @@ private
   end
 
   def post(path, params)
-    uri = URI.parse(fa_address)
+    uri = URI.parse(fa_fetch_address)
     http = Net::HTTP.new(uri.host, uri.port)
     unless ENV["CF_BYPASS"] or ENV["CF_BYPASS_SFW"]
       http.use_ssl = true
