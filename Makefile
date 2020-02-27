@@ -51,6 +51,7 @@ publish: clean docker_build VERSION
 	git tag v$(VERSION)
 	git push origin --follow-tags
 	git push origin --tags
+	docker login
 	docker tag $(PROJECT) $(DOCKER_HUB_NAME):version-$(VERSION)
 	docker push $(DOCKER_HUB_NAME):version-$(VERSION)
 	docker tag $(PROJECT) $(DOCKER_HUB_NAME):latest
