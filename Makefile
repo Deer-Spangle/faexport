@@ -56,10 +56,10 @@ publish: clean docker_build VERSION
 	docker push $(DOCKER_HUB_NAME):latest
 
 deploy: FA_COOKIE
-	FA_COOKIE=$(FA_COOKIE) PORT=${PORT} docker-compose up
+	FA_COOKIE=$(FA_COOKIE) PORT=${PORT} APP_ENV=production docker-compose up
 
 deploy_bypass: FA_COOKIE
-	FA_COOKIE=$(FA_COOKIE) PORT=${PORT} docker-compose -f docker-compose.yml -f docker-compose-cfbypass.yml up
+	FA_COOKIE=$(FA_COOKIE) PORT=${PORT} APP_ENV=production docker-compose -f docker-compose.yml -f docker-compose-cfbypass.yml up
 
 clean_docker:
 	docker kill -s 9 $(PROJECT) || true
