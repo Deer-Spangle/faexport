@@ -518,6 +518,12 @@ class Furaffinity
     end
     # Parse search results
     html = Nokogiri::HTML(raw)
+    # Get search results. Even a search with no matches gives this div.
+    results = html.at_css("#search-results")
+    # If form fails to submit, this div will not be there.
+    if results.nil?
+      raise FAFormError.new(fa_url('/search/'))
+    end
     html.css('.gallery > figure').map{|art| build_submission(art)}
   end
 
