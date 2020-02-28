@@ -29,7 +29,7 @@ class UserProfileParser < Parser
     {
         id: nil,
         name: html.at_css('.addpad.lead b').content[1..-1],
-        profile: @fetcher.fa_url(get_path),
+        profile: fa_url(get_path),
         account_type: html.at_css('.addpad.lead').content[/\((.+?)\)/,1].strip,
         avatar: "https:#{html.at_css('td.addpad img')['src']}",
         full_name: html.at_css("title").content[/Userpage of(.+?)--/,1].strip,
@@ -88,7 +88,7 @@ class UserProfileParser < Parser
 
   def select_watchers_info_classic(elem, selector)
     users = elem.css("##{selector} a").map do |user|
-      link = @fetcher.fa_url(user['href'][1..-1])
+      link = fa_url(user['href'][1..-1])
       {
           name: user.at_css('.artist_name').content.strip,
           profile_name: last_path(link),

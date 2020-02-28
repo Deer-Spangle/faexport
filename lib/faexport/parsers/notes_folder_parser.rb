@@ -54,7 +54,7 @@ class NotesFolderParser < Parser
           is_inbound: is_inbound,
           is_read: subject.at_css("a.notelink.note-unread").nil?,
           name: profile.content,
-          profile: @fetcher.fa_url(profile['href'][1..-1]),
+          profile: fa_url(profile['href'][1..-1]),
           profile_name: last_path(profile['href']),
           posted: date,
           posted_at: to_iso8601(date)

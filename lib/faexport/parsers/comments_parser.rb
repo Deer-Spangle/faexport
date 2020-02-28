@@ -47,7 +47,7 @@ class CommentsParser < Parser
         {
             id: id,
             name: comment.at_css('.replyto-name').content.strip,
-            profile: @fetcher.fa_url(profile_url),
+            profile: fa_url(profile_url),
             profile_name: last_path(profile_url),
             avatar: "https:#{comment.at_css('.icon img')['src']}",
             posted: date,

@@ -30,10 +30,10 @@ class JournalParser < Parser
         journal_body: html.at_css('.journal-body').children.to_s.strip,
         journal_footer: journal_footer,
         name: html.at_css('td.cat .journal-title-box a').content,
-        profile: @fetcher.fa_url(profile_url),
+        profile: fa_url(profile_url),
         profile_name: last_path(profile_url),
         avatar: "https:#{html.at_css("img.avatar")['src']}",
-        link: @fetcher.fa_url("journal/#{@journal_id}/"),
+        link: fa_url("journal/#{@journal_id}/"),
         posted: date,
         posted_at: to_iso8601(date)
     }

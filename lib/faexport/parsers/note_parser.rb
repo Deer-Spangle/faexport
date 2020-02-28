@@ -16,7 +16,7 @@ class NoteParser < Parser
   end
 
   def parse_classic(html)
-    url = @fetcher.fa_url(get_path)
+    url = fa_url(get_path)
     current_user = get_current_user_classic(html, url)
     note_table = html.at_css(".note-view-container table.maintable table.maintable")
     if note_table.nil?
@@ -35,7 +35,7 @@ class NoteParser < Parser
         subject: note_header.at_css("em.title").content,
         is_inbound: is_inbound,
         name: profile.content,
-        profile: @fetcher.fa_url(profile['href'][1..-1]),
+        profile: fa_url(profile['href'][1..-1]),
         profile_name: last_path(profile['href']),
         posted: date,
         posted_at: to_iso8601(date),
@@ -47,7 +47,7 @@ class NoteParser < Parser
           profile = note_html.at_css("a.linkusername")
           {
               name: profile.content.to_s,
-              profile: @fetcher.fa_url(profile['href'][1..-1]+"/"),
+              profile: fa_url(profile['href'][1..-1]+"/"),
               profile_name: last_path(profile['href']),
               description: note,
               description_body: html_strip(note.to_s.split("</a>:")[1..-1].join("</a>:"))

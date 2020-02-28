@@ -64,6 +64,11 @@ private
     path.split('/').last
   end
 
+  def fa_url(path)
+    path = @fetcher.strip_leading_slash(path)
+    "#{@fetcher.fa_address}/#{path}"
+  end
+
   def build_submission_classic(elem)
     if elem
       id = elem['id']
@@ -80,9 +85,9 @@ private
           id: id ? id.gsub(/sid[-_]/, '') : '',
           title: title,
           thumbnail: "https:#{elem.at_css('img')['src']}",
-          link: @fetcher.fa_url(elem.at_css('a')['href'][1..-1]),
+          link: fa_url(elem.at_css('a')['href'][1..-1]),
           name: author_elem ? author_elem.content : '',
-          profile: author_elem ? @fetcher.fa_url(author_elem['href'][1..-1]) : '',
+          profile: author_elem ? fa_url(author_elem['href'][1..-1]) : '',
           profile_name: author_elem ? last_path(author_elem['href']) : ''
       }
       sub[:fav_id] = elem['data-fav-id'] if elem['data-fav-id']
@@ -99,7 +104,7 @@ private
     end
     {
         "name": name_elem.content.strip.gsub(/^~/, ''),
-        "profile": @fetcher.fa_url(name_elem['href'][1..-1]),
+        "profile": fa_url(name_elem['href'][1..-1]),
         "profile_name": last_path(name_elem['href'])
     }
   end

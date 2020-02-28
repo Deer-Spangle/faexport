@@ -49,21 +49,11 @@ class Fetcher
     html
   end
 
-  def fa_url(path)
-    if path.to_s.start_with? "/"
-      path = path[1..-1]
-    end
-    "#{fa_address}/#{path}"
-  end
-
   def fetch_url(path)
     path = strip_leading_slash(path)
     "#{fa_fetch_address}/#{path}"
   end
 
-  def fa_address
-    "https://#{@safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
-  end
   def fa_fetch_address
     if ENV["CF_BYPASS_SFW"] and @safe_for_work
       ENV["CF_BYPASS_SFW"]
@@ -72,6 +62,10 @@ class Fetcher
     else
       fa_address
     end
+  end
+
+  def fa_address
+    "https://#{@safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
   end
 
   def parse_status(html)
