@@ -186,22 +186,9 @@ class Furaffinity
   end
 
   def shouts(user)
-    html = fetch("user/#{escape(user)}/")
-    html.xpath('//table[starts-with(@id, "shout")]').map do |shout|
-      name = shout.at_css('td.lead.addpad a')
-      date = pick_date(shout.at_css('.popup_date'))
-      profile_url = name['href'][1..-1]
-      {
-        id: shout.attr('id'),
-        name: name.content,
-        profile: fa_url(profile_url),
-        profile_name: last_path(profile_url),
-        avatar: "https:#{shout.at_css('td.alt1.addpad img')['src']}",
-        posted: date,
-        posted_at: to_iso8601(date),
-        text: shout.css('.no_overflow.alt1')[0].children.to_s.strip
-      }
-    end
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
+    parser = ShoutsParser.new(fetcher, user)
+    parser.get_result
   end
 
   def commissions(user)
