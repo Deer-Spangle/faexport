@@ -192,19 +192,9 @@ class Furaffinity
   end
 
   def commissions(user)
-    html = fetch("commissions/#{escape(user)}")
-    unless html.at_css('#no-images')
-      html.css('table.types-table tr').map do |com|
-        {
-          title: com.at_css('.info dt').content.strip,
-          price: com.at_css('.info dd span').next.content.strip,
-          description: com.at_css('.desc').children.to_s.strip,
-          submission: build_submission(com.at_css('b'))
-        }
-      end
-    else
-      []
-    end
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
+    parser = CommissionInfoParser.new(fetcher, user)
+    parser.get_result
   end
 
   def submission_comments(id, include_hidden)
