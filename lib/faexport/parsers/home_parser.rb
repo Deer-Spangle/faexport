@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-# scraper.rb - Quick and dirty API for scraping data from FA
-#
 # Copyright (C) 2015 Erra Boothale <erra@boothale.net>
 # Further work: 2020 Deer Spangle <deer@spangle.org.uk>
 # All rights reserved.
