@@ -584,11 +584,6 @@ class Furaffinity
     "#{fa_address}/#{path}"
   end
 
-  def fetch_url(path)
-    path = strip_leading_slash(path)
-    "#{fa_fetch_address}/#{path}"
-  end
-
   def strip_leading_slash(path)
     while path.to_s.start_with? "/"
       path = path[1..-1]
@@ -633,10 +628,6 @@ private
 
   def to_iso8601(date)
     Time.parse(date + ' UTC').iso8601
-  end
-
-  def escape(name)
-    CGI::escape(name)
   end
 
   def fetch(path, extra_cookie = nil)
