@@ -69,7 +69,7 @@ class GalleryParser < Parser
   end
 
   def get_cache_key
-    "home"
+    "gallery:#{get_path}"
   end
 
   def parse_classic(html)
