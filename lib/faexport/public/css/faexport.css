@@ -34,6 +34,10 @@ dd {
     margin-right: 10px;
 }
 
+#menu li#version {
+    color: #999999;
+}
+
 #menu a {
     text-decoration: none;
     color: #000000;

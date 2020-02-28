@@ -324,6 +324,12 @@ class Furaffinity
     end
     # Parse search results
     html = Nokogiri::HTML(raw)
+    # Get search results. Even a search with no matches gives this div.
+    results = html.at_css("#search-results")
+    # If form fails to submit, this div will not be there.
+    if results.nil?
+      raise FAFormError.new(fa_url('/search/'))
+    end
     html.css('.gallery > figure').map{|art| build_submission(art)}
   end
 
@@ -582,7 +588,22 @@ class Furaffinity
     journals_elem = html.at_css("ul#journals")
     if journals_elem
       journals_elem.css("li:not(.section-controls)").each do |elem|
-        # No "deleted journal" handling, because FA doesn't display those anymore, it just removes the notification.
+        # Deleted journals are only displayed when the poster's page has been deactivated
+        if elem.at_css("input")['checked'] == "checked"
+          if include_deleted
+            new_journals << {
+                favorite_notification_id: "",
+                name: "This journal has been removed by the poster",
+                profile: "",
+                profile_name: "",
+                submission_id: "",
+                submission_name: "This journal has been removed by the poster",
+                posted: "",
+                posted_at: ""
+            }
+          end
+          next
+        end
         elem_links = elem.css("a")
         date = pick_date(elem.at_css('.popup_date'))
         new_journals << {
@@ -630,13 +651,33 @@ class Furaffinity
   end
 
   def fa_url(path)
-    if path.to_s.start_with? "/"
-      path = path[1..-1]
-    end
+    path = strip_leading_slash(path)
     "#{fa_address}/#{path}"
   end
 
+  def fetch_url(path)
+    path = strip_leading_slash(path)
+    "#{fa_fetch_address}/#{path}"
+  end
+
+  def strip_leading_slash(path)
+    while path.to_s.start_with? "/"
+      path = path[1..-1]
+    end
+    path
+  end
+
 private
+  def fa_fetch_address
+    if ENV["CF_BYPASS_SFW"] and @safe_for_work
+      ENV["CF_BYPASS_SFW"]
+    elsif ENV["CF_BYPASS"]
+      ENV["CF_BYPASS"]
+    else
+      fa_address
+    end
+  end
+
   def fa_address
     "https://#{safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
   end
@@ -682,9 +723,11 @@ private
   end
 
   def post(path, params)
-    uri = URI.parse(fa_address)
+    uri = URI.parse(fa_fetch_address)
     http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
+    unless ENV["CF_BYPASS"] or ENV["CF_BYPASS_SFW"]
+      http.use_ssl = true
+    end
     request = Net::HTTP::Post.new(path)
     request.add_field('Content-Type', 'application/x-www-form-urlencoded')
     request.add_field('Origin', fa_address)
