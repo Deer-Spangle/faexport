@@ -174,39 +174,9 @@ class Furaffinity
   end
 
   def submissions(user, folder, offset)
-    if offset.size > 1
-      raise FAOffsetError.new(
-        fa_url("#{folder}/#{escape(user)}/"),
-        "You may only provide one of 'page', 'next' or 'prev' as a parameter")
-    elsif folder == 'favorites' && offset[:page]
-      raise FAOffsetError.new(
-        fa_url("#{folder}/#{escape(user)}/"),
-        "Due to a change by Furaffinity, favorites can no longer be accessed by page. See http://faexport.boothale.net/docs#get-user-name-folder for more details.")
-    elsif folder != 'favorites' && (offset[:next] || offset[:prev])
-      raise FAOffsetError.new(
-        fa_url("#{folder}/#{escape(user)}/"),
-        "The options 'next' and 'prev' are only usable on favorites. Use 'page' instead with a page number")
-    end
-    
-    url = if offset[:page]
-      "#{folder}/#{escape(user)}/#{offset[:page]}/"
-    elsif offset[:next]
-      "#{folder}/#{escape(user)}/#{offset[:next]}/next"
-    elsif offset[:prev]
-      "#{folder}/#{escape(user)}/#{offset[:prev]}/prev"
-    else
-      "#{folder}/#{escape(user)}/"
-    end
-
-    html = fetch(url)
-    error_msg = html.at_css("table.maintable td.alt1 b")
-    if !error_msg.nil? &&
-      (error_msg.text == "The username \"#{user}\" could not be found." ||
-          error_msg.text == "User \"#{user}\" was not found in our database.")
-      raise FASystemError.new(url)
-    end
-
-    html.css('.gallery > figure').map {|art| build_submission(art)}
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
+    parser = GalleryParser.new(fetcher, user, folder, offset)
+    parser.get_result
   end
 
   def journals(user, page)
