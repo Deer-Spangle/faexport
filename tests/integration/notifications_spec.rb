@@ -249,6 +249,7 @@ end
   end
 
   context 'journal comment notifications' do
+    # TODO: add a test for deleted journals. (Only available if user deactivates account)
     it 'should handle zero journal comment notifications' do
       @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
       notifications = @fa.notifications(false)[:new_journal_comments]

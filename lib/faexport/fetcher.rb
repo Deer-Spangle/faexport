@@ -12,7 +12,7 @@ class Fetcher
   end
 
   def fetch_html(path, extra_cookie = nil)
-    url = fa_url(path)
+    url = fetch_url(path)
     raw = @cache.add("url:#{url}:#{@cookie}:#{extra_cookie}") do
       open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "#{@cookie};#{extra_cookie}") do |response|
         if response.status[0] != '200'
@@ -56,8 +56,22 @@ class Fetcher
     "#{fa_address}/#{path}"
   end
 
+  def fetch_url(path)
+    path = strip_leading_slash(path)
+    "#{fa_fetch_address}/#{path}"
+  end
+
   def fa_address
     "https://#{@safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
+  end
+  def fa_fetch_address
+    if ENV["CF_BYPASS_SFW"] and @safe_for_work
+      ENV["CF_BYPASS_SFW"]
+    elsif ENV["CF_BYPASS"]
+      ENV["CF_BYPASS"]
+    else
+      fa_address
+    end
   end
 
   def parse_status(html)
