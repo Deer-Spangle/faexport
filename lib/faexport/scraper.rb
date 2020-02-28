@@ -180,21 +180,9 @@ class Furaffinity
   end
 
   def journals(user, page)
-    html = fetch("journals/#{escape(user)}/#{page}")
-    html.xpath('//table[starts-with(@id, "jid")]').map do |j|
-      title = j.at_css('.cat a')
-      contents = j.at_css('.alt1 table')
-      info = contents.at_css('.ldot table')
-      date = pick_date(info.at_css('.popup_date'))
-      {
-        id: j['id'].gsub('jid:', ''),
-        title: title.content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
-        description: contents.at_css('div.no_overflow').children.to_s.strip,
-        link: fa_url(title['href'][1..-1]),
-        posted: date,
-        posted_at: to_iso8601(date)
-      }
-    end
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
+    parser = JournalListParser.new(fetcher, user, page)
+    parser.get_result
   end
 
   def shouts(user)
