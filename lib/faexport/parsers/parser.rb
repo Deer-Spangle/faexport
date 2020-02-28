@@ -33,6 +33,7 @@ class Parser
 
   def initialize(fetcher)
     @fetcher = fetcher
+    @login_required = false
   end
 
   def get_path
@@ -47,9 +48,22 @@ class Parser
     raise NotImplementedError
   end
 
-  def get_result
+  def get_result(login_cookie = nil)
+    # If we need a login, and no cookie is given, we must return an error
+    if @login_required && !login_cookie.nil?
+      raise FALoginError.new(fa_url(get_path))
+    end
+
+    # Cache key needs prefix if login cookie is given
+    cache_key = if login_cookie.nil?
+                  get_cache_key
+                else
+                  "login:#{login_cookie}:#{get_cache_key}"
+                end
+
+    # Get the data from subclass parsing, cache
     path = self.get_path
-    @fetcher.cache.add_hash("data:#{get_cache_key}") do
+    @fetcher.cache.add_hash("data:#{cache_key}") do
       html = @fetcher.fetch_html(path, get_extra_cookie)
       style = @fetcher.identify_style(html)
       data =

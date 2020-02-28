@@ -287,21 +287,9 @@ class Furaffinity
   end
 
   def new_submissions(from_id)
-    # Set pagination
-    url = "msg/submissions/new"
-    if from_id
-      url << "~#{from_id}@72/"
-    end
-
-    # Get page code
-    html = fetch(url)
-
-    login_user = get_current_user(html, url)
-    submissions = html.css('.gallery > figure').map{|art| build_submission_notification(art)}
-    {
-        "current_user": login_user,
-        "new_submissions": submissions
-    }
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
+    parser = NewSubmissionsParser.new(fetcher, from_id)
+    parser.get_result(@login_cookie)  # TODO: Neaten when refactor pulls fetcher out.
   end
 
   def notifications(include_deleted)
