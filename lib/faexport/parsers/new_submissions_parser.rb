@@ -47,7 +47,7 @@ class NewSubmissionsParser < Parser
   end
 
   def parse_classic(html)
-    login_user = get_current_user(html, url)
+    login_user = get_current_user_classic(html, fa_url(get_path))
     submissions = html.css('.gallery > figure').map{|art| build_submission_notification(art)}
     {
         "current_user": login_user,

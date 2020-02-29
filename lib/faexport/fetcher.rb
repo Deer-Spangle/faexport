@@ -100,6 +100,13 @@ class Fetcher
     "https://#{@safe_for_work ? 'sfw' : 'www'}.furaffinity.net"
   end
 
+  def strip_leading_slash(path)
+    while path.to_s.start_with? "/"
+      path = path[1..-1]
+    end
+    path
+  end
+
   def parse_status(html)
     footer = html.css('.footer')
     center = footer.css('center')
