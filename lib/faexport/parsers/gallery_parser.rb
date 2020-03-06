@@ -55,11 +55,11 @@ class GalleryParser < Parser
   end
 
   def get_path
-    if offset[:page]
+    if @offset[:page]
       "#{@folder}/#{escape(@user)}/#{@offset[:page]}/"
-    elsif offset[:next]
+    elsif @offset[:next]
       "#{@folder}/#{escape(@user)}/#{@offset[:next]}/next"
-    elsif offset[:prev]
+    elsif @offset[:prev]
       "#{@folder}/#{escape(@user)}/#{@offset[:prev]}/prev"
     else
       "#{@folder}/#{escape(@user)}/"

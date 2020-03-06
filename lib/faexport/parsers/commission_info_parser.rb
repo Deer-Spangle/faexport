@@ -38,7 +38,7 @@ class CommissionInfoParser < Parser
   end
 
   def get_path
-    "commissions/#{escape(user)}"
+    "commissions/#{escape(@user)}"
   end
 
   def get_cache_key

@@ -39,7 +39,7 @@ class JournalListParser < Parser
   end
 
   def get_path
-    "journals/#{escape(user)}/#{page}"
+    "journals/#{escape(@user)}/#{page}"
   end
 
   def get_cache_key
