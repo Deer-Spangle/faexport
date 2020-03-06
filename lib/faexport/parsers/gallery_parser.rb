@@ -78,6 +78,6 @@ class GalleryParser < Parser
       raise FASystemError.new(fa_url(get_path))
     end
 
-    html.css('.gallery > figure').map {|art| build_submission(art)}
+    html.css('.gallery > figure').map {|art| build_submission_classic(art)}
   end
 end

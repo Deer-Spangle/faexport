@@ -52,7 +52,7 @@ class WatcherListParser < Parser
   def parse_classic(html, is_login)
     error_msg = html.at_css("table.maintable td.alt1 b")
     if !error_msg.nil? && error_msg.content == "Provided username not found in the database."
-      raise FASystemError.new(url)
+      raise FASystemError.new(get_path)
     end
 
     html.css('.artist_name').map{|elem| elem.content}

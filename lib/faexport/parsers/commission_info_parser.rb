@@ -54,7 +54,7 @@ class CommissionInfoParser < Parser
             title: com.at_css('.info dt').content.strip,
             price: com.at_css('.info dd span').next.content.strip,
             description: com.at_css('.desc').children.to_s.strip,
-            submission: build_submission(com.at_css('b'))
+            submission: build_submission_classic(com.at_css('b'))
         }
       end
     end
