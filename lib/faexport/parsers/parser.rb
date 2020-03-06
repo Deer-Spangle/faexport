@@ -28,6 +28,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+require_relative '../errors'
 
 class Parser
 
@@ -54,6 +55,7 @@ class Parser
       raise FALoginError.new(fa_url(get_path))
     end
 
+    is_login = !login_cookie.nil?
     # Cache key needs prefix if login cookie is given
     cache_key = if login_cookie.nil?
                   get_cache_key
@@ -69,9 +71,9 @@ class Parser
       data =
           case style
           when :style_classic
-            parse_classic(html)
+            parse_classic(html, is_login)
           when :style_modern
-            parse_modern(html)
+            parse_modern(html, is_login)
           else
             nil
           end
@@ -82,11 +84,11 @@ class Parser
     end
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login = false)
     nil
   end
 
-  def parse_modern(html)
+  def parse_modern(html, is_login = false)
     nil
   end
 

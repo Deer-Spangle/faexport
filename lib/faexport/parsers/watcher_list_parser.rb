@@ -49,7 +49,7 @@ class WatcherListParser < Parser
     "#{mode}:#{@user}:#{@page}"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     error_msg = html.at_css("table.maintable td.alt1 b")
     if !error_msg.nil? && error_msg.content == "Provided username not found in the database."
       raise FASystemError.new(url)

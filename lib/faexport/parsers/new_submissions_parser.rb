@@ -39,14 +39,14 @@ class NewSubmissionsParser < Parser
   end
 
   def get_path
-    "msg/submissions/new" + ("~#{@from_id}@72/" unless @from_id.nil?)
+    "msg/submissions/new" + (if @from_id.nil? then "" else "~#{@from_id}@72/" end)
   end
 
   def get_cache_key
-    "new_submissions" + (":from:#{@from_id}" unless @from_id.nil?)
+    "new_submissions" + (if @from_id.nil? then "" else ":from:#{@from_id}" end)
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     login_user = get_current_user_classic(html, fa_url(get_path))
     submissions = html.css('.gallery > figure').map{|art| build_submission_notification(art)}
     {

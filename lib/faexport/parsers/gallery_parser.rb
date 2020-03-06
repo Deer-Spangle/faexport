@@ -70,7 +70,7 @@ class GalleryParser < Parser
     "gallery:#{get_path}"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     error_msg = html.at_css("table.maintable td.alt1 b")
     if !error_msg.nil? &&
         (error_msg.text == "The username \"#{@user}\" could not be found." ||

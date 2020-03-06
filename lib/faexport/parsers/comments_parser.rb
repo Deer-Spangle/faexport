@@ -56,7 +56,7 @@ class CommentsParser < Parser
     "comments:#{@page_type}:#{@page_id}:#{@include_hidden}"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     comments = html.css('table.container-comment')
     reply_stack = []
     comments.map do |comment|

@@ -45,7 +45,7 @@ class ShoutsParser < Parser
     "shouts:#{@user}"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     html.xpath('//table[starts-with(@id, "shout")]').map do |shout|
       name = shout.at_css('td.lead.addpad a')
       date = pick_date(shout.at_css('.popup_date'))

@@ -44,7 +44,7 @@ class HomeParser < Parser
     "home"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     groups = html.css('#frontpage > .old-table-emulation')
     data = groups.map do |group|
       group.css('figure').map{|art| build_submission_classic(art)}

@@ -59,7 +59,7 @@ class NotesFolderParser < Parser
     "notes_folder:#{@folder_str}:#{@page}:#{@fetcher.cookie}"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     notes_table = html.at_css("table#notes-list")
     notes_table.css("tr.note").map do |note|
       subject = note.at_css("td.subject")

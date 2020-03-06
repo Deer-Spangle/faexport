@@ -43,10 +43,10 @@ class NotificationsParser < Parser
   end
 
   def get_cache_key
-    "notifications" + (":inc_deleted" if @include_deleted)
+    "notifications" + (if @include_deleted then ":inc_deleted" else "" end)
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     notification_counts = html.css("a.notification-container").each do |elem|
       {
           title: elem['title'],

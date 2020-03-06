@@ -45,7 +45,7 @@ class JournalParser < Parser
     "journal:#{@journal_id}"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     date = pick_date(html.at_css('td.cat .journal-title-box .popup_date'))
     profile_url = html.at_css('td.cat .journal-title-box a')['href'][1..-1]
     journal_header = nil

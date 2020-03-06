@@ -45,7 +45,7 @@ class NoteParser < Parser
     "note:#{@note_id}:#{@fetcher.cookie}"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     url = fa_url(get_path)
     current_user = get_current_user_classic(html, url)
     note_table = html.at_css(".note-view-container table.maintable table.maintable")

@@ -46,7 +46,7 @@ class JournalListParser < Parser
     "journals:#{@user}:#{@page}"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     html.xpath('//table[starts-with(@id, "jid")]').map do |j|
       title = j.at_css('.cat a')
       contents = j.at_css('.alt1 table')

@@ -42,10 +42,10 @@ class CommissionInfoParser < Parser
   end
 
   def get_cache_key
-    "commission_info:#{user}"
+    "commission_info:#{@user}"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     if html.at_css('#no-images')
       []
     else

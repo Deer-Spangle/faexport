@@ -41,6 +41,14 @@ require_relative 'parsers/home_parser'
 require_relative 'parsers/journal_parser'
 require_relative 'parsers/notes_folder_parser'
 require_relative 'parsers/note_parser'
+require_relative 'parsers/submission_parser'
+require_relative 'parsers/notifications_parser'
+require_relative 'parsers/new_submissions_parser'
+require_relative 'parsers/commission_info_parser'
+require_relative 'parsers/gallery_parser'
+require_relative 'parsers/journal_list_parser'
+require_relative 'parsers/shouts_parser'
+require_relative 'parsers/watcher_list_parser'
 require_relative 'errors.rb'
 require_relative 'redis_cache.rb'
 
@@ -147,14 +155,9 @@ class Furaffinity
   end
 
   def submission(id, is_login=false)
-    url = "view/#{id}/"
-    html = fetch(url)
-    error_msg = html.at_css("table.maintable td.alt1")
-    if !error_msg.nil? && error_msg.content.strip == "You are not allowed to view this image due to the content filter settings."
-      raise FASystemError.new(url)
-    end
-
-    parse_submission_page(id, html, is_login)
+    fetcher = Fetcher.new(@cache, @login_cookie, @safe_for_work)
+    parser = SubmissionParser.new(fetcher, id)
+    parser.get_result(is_login ? @login_cookie : nil)
   end
 
   def favorite_submission(id, fav_status, fav_key)

@@ -45,7 +45,7 @@ class UserProfileParser < Parser
     "user_profile:#{@username}"
   end
 
-  def parse_classic(html)
+  def parse_classic(html, is_login)
     info = html.css('.ldot')[0].children.to_s
     stats = html.css('.ldot')[1].children.to_s
     date = html_field(info, 'Registered Since')
