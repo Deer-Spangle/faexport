@@ -78,7 +78,7 @@ class Parser
             nil
           end
       if data.nil?
-        raise FAStyleError(style)
+        raise FAStyleError.new(style)
       end
       data
     end
