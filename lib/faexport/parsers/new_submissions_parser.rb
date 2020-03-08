@@ -54,6 +54,21 @@ class NewSubmissionsParser < Parser
         "new_submissions": submissions
     }
   end
+
+private
+  def build_submission_notification(elem)
+    title_link = elem.css('a')[1]
+    uploader_link = elem.css('a')[2]
+    {
+        id: last_path(title_link['href']),
+        title: title_link.content.to_s,
+        thumbnail: "https:#{elem.at_css('img')['src']}",
+        link: fa_url(title_link['href'][1..-1]),
+        name: uploader_link.content.to_s,
+        profile: fa_url(uploader_link['href'][1..-1]),
+        profile_name: last_path(uploader_link['href'])
+    }
+  end
 end
 
 

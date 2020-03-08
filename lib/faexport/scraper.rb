@@ -421,20 +421,6 @@ private
     end
   end
 
-  def build_submission_notification(elem)
-    title_link = elem.css('a')[1]
-    uploader_link = elem.css('a')[2]
-    {
-      id: last_path(title_link['href']),
-      title: title_link.content.to_s,
-      thumbnail: "https:#{elem.at_css('img')['src']}",
-      link: fa_url(title_link['href'][1..-1]),
-      name: uploader_link.content.to_s,
-      profile: fa_url(uploader_link['href'][1..-1]),
-      profile_name: last_path(uploader_link['href'])
-    }
-  end
-
   def parse_submission_page(id, html, is_login)
     submission = html.css('div#page-submission table.maintable table.maintable')[-1]
     submission_title = submission.at_css(".classic-submission-title")

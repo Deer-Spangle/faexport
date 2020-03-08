@@ -208,6 +208,7 @@ private
         }
       end
     end
+    new_shouts
   end
 
   def classic_new_favorites(html)
@@ -244,6 +245,7 @@ private
         }
       end
     end
+    new_favorites
   end
 
   def classic_new_journals(html)
@@ -280,5 +282,6 @@ private
         }
       end
     end
+    new_journals
   end
 end
