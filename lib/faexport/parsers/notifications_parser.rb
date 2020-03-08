@@ -47,7 +47,7 @@ class NotificationsParser < Parser
   end
 
   def parse_classic(html, is_login)
-    notification_counts = html.css("a.notification-container").each do |elem|
+    notification_counts = html.css("a.notification-container").map do |elem|
       {
           title: elem['title'],
           count: Integer(elem['title'].gsub(",", "").split[0])
@@ -86,7 +86,7 @@ private
     watches_elem = html.at_css("ul#watches")
     if watches_elem
       new_watches = []
-      watches_elem.css("li:not(.section-controls)").each do |elem|
+      watches_elem.css("li:not(.section-controls)").map do |elem|
         if elem.at_css("input")['checked'] == "checked"
           if @include_deleted
             new_watches << {
@@ -121,7 +121,7 @@ private
   def classic_new_submission_comments(html)
     submission_comments_elem = html.at_css("fieldset#messages-comments-submission")
     if submission_comments_elem
-      submission_comments_elem.css("li:not(.section-controls)").each do |elem|
+      submission_comments_elem.css("li:not(.section-controls)").map do |elem|
         classic_comment_notification(elem, "submission")
       end.compact
     else
@@ -132,7 +132,7 @@ private
   def classic_new_journal_comments(html)
     journal_comments_elem = html.at_css("fieldset#messages-comments-journal")
     if journal_comments_elem
-      journal_comments_elem.css("li:not(.section-controls)").each do |elem|
+      journal_comments_elem.css("li:not(.section-controls)").map do |elem|
         classic_comment_notification(elem, "journal")
       end.compact
     else
@@ -175,7 +175,7 @@ private
         title: elem_links[1].content,
         posted: date,
         posted_at: to_iso8601(date)
-    }
+      }
     end
   end
 
@@ -183,7 +183,7 @@ private
     new_shouts = []
     shouts_elem = html.at_css("fieldset#messages-shouts")
     if shouts_elem
-      shouts_elem.css("li:not(.section-controls)").each do |elem|
+      shouts_elem.css("li:not(.section-controls)").map do |elem|
         if elem.at_css("input")['checked'] == "checked"
           if @include_deleted
             new_shouts << {
@@ -214,7 +214,7 @@ private
     new_favorites = []
     favorites_elem = html.at_css("ul#favorites")
     if favorites_elem
-      favorites_elem.css("li:not(.section-controls)").each do |elem|
+      favorites_elem.css("li:not(.section-controls)").map do |elem|
         if elem.at_css("input")['checked'] == "checked"
           if @include_deleted
             new_favorites << {
@@ -250,7 +250,7 @@ private
     new_journals = []
     journals_elem = html.at_css("ul#journals")
     if journals_elem
-      journals_elem.css("li:not(.section-controls)").each do |elem|
+      journals_elem.css("li:not(.section-controls)").map do |elem|
         # Deleted journals are only displayed when the poster's page has been deactivated
         if elem.at_css("input")['checked'] == "checked"
           if @include_deleted
