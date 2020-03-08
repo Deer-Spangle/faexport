@@ -65,8 +65,8 @@ class Parser
 
     # Get the data from subclass parsing, cache
     path = self.get_path
-    @fetcher.cache.add_hash("data:#{@fetcher.safe_for_work}:#{cache_key}") do
-      html = @fetcher.fetch_html(path, get_extra_cookie)
+    @fetcher.cache.add_hash(p "data:#{@fetcher.safe_for_work}:#{cache_key}") do
+      html = @fetcher.fetch_html(path, extra_cookie: get_extra_cookie, login_cookie: login_cookie)
       style = @fetcher.identify_style(html)
       data =
           case style

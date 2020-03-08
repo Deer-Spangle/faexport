@@ -43,10 +43,14 @@ class Fetcher
     @safe_for_work = safe_for_work
   end
 
-  def fetch_html(path, extra_cookie = nil)
+  def fetch_html(path, extra_cookie: nil, login_cookie: nil)
+    full_cookie = login_cookie.nil? ? @cookie : login_cookie
+    unless extra_cookie.nil?
+      full_cookie << ";#{extra_cookie}"
+    end
     url = fetch_url(path)
-    raw = @cache.add("url:#{url}:#{@cookie}:#{extra_cookie}") do
-      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "#{@cookie};#{extra_cookie}") do |response|
+    raw = @cache.add("url:#{url}:#{full_cookie}") do
+      open(url, 'User-Agent' => USER_AGENT, 'Cookie' => "#{full_cookie}") do |response|
         if response.status[0] != '200'
           raise FAStatusError.new(url, response.status.join(' '))
         end
