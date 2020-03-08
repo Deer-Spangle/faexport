@@ -51,7 +51,7 @@ class Parser
 
   def get_result(login_cookie = nil)
     # If we need a login, and no cookie is given, we must return an error
-    if @login_required && !login_cookie.nil?
+    if @login_required && login_cookie.nil?
       raise FALoginError.new(fa_url(get_path))
     end
 
