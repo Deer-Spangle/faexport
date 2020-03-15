@@ -42,7 +42,7 @@ require 'tilt'
 
 Tilt.register Tilt::RedcarpetTemplate, 'markdown', 'md'
 
-VERSION = "2020.03.1"
+VERSION = "2020.02.2"
 
 module FAExport
   class << self
