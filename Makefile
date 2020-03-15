@@ -43,7 +43,7 @@ install:
 run: install
 	bundle exec rackup config.ru -p $(PORT) --host 0.0.0.0
 
-publish: VERSION clean docker_build
+publish: VERSION clean
 	sed -i 's/^VERSION = "[^"]\+"/VERSION = "$(VERSION)"/g' lib/faexport.rb
 	git add lib/faexport.rb
 	git diff lib/faexport.rb
@@ -51,6 +51,7 @@ publish: VERSION clean docker_build
 	git tag v$(VERSION)
 	git push origin --follow-tags
 	git push origin --tags
+	docker build -t $(PROJECT) .
 	docker login
 	docker tag $(PROJECT) $(DOCKER_HUB_NAME):version-$(VERSION)
 	docker push $(DOCKER_HUB_NAME):version-$(VERSION)
