@@ -534,7 +534,7 @@ class Furaffinity
     raise FALoginError.new(fa_url(url)) unless login_cookie
 
     html = fetch(url)
-    key = html.at_css('input[name="key"]')['value']
+    key = html.at_css('form#MsgForm input[name="key"]')['value']
     response = post('/controls/journal/', {
       'id' => '',
       'key' => key,
@@ -1073,7 +1073,7 @@ private
   def post(path, params)
     uri = URI.parse(fa_fetch_address)
     http = Net::HTTP.new(uri.host, uri.port)
-    unless ENV["CF_BYPASS"] or ENV["CF_BYPASS_SFW"]
+    if fa_fetch_address.start_with?("https")
       http.use_ssl = true
     end
     request = Net::HTTP::Post.new(path)
