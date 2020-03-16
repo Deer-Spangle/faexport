@@ -4,6 +4,13 @@ CONTAINER_NAME = fa_api
 REDIS_CONTAINER = redis_container
 PORT = 80
 
+ifdef VERSION
+	CONTAINER_TAG := "version-$(VERSION)"
+else
+	CONTAINER_TAG := "latest"
+endif
+
+
 FA_COOKIE:
 ifndef FA_COOKIE
 	@echo Warning: FA_COOKIE isn\'t defined\; continue? [Y/n]
@@ -59,10 +66,10 @@ publish: VERSION clean
 	docker push $(DOCKER_HUB_NAME):latest
 
 deploy: FA_COOKIE
-	FA_COOKIE=$(FA_COOKIE) PORT=${PORT} APP_ENV=production docker-compose up
+	FA_COOKIE=$(FA_COOKIE) PORT=${PORT} VERSION=${CONTAINER_TAG} APP_ENV=production docker-compose up
 
 deploy_bypass: FA_COOKIE
-	FA_COOKIE=$(FA_COOKIE) PORT=${PORT} APP_ENV=production docker-compose -f docker-compose.yml -f docker-compose-cfbypass.yml up
+	FA_COOKIE=$(FA_COOKIE) PORT=${PORT} VERSION=${CONTAINER_TAG} APP_ENV=production docker-compose -f docker-compose.yml -f docker-compose-cfbypass.yml up
 
 clean_docker:
 	docker kill -s 9 $(PROJECT) || true

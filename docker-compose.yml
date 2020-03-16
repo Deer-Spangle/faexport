@@ -1,7 +1,7 @@
 version: '3'
 services:
   fa_api:
-    build: .
+    image: "deerspangle/furaffinity-api:${VERSION:-latest}"
     ports:
       - "${PORT:-80}:9292"
     environment:
