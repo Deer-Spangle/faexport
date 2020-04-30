@@ -54,8 +54,8 @@ module FAExport
       enable :logging
       log_filename = ENV['LOG_FILE'] || "logs/faexport.log"
       log_file = File.new(log_filename, "a+")
-      log_file.sync
-      use Rack::CommonLogger, file
+      log_file.sync = true
+      use Rack::CommonLogger, log_file
     end
 
     set :public_folder, File.join(File.dirname(__FILE__), 'faexport', 'public')
