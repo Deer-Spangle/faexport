@@ -72,6 +72,7 @@ deploy_bypass: FA_COOKIE
 	FA_COOKIE=$(FA_COOKIE) PORT=${PORT} VERSION=${CONTAINER_TAG} APP_ENV=production docker-compose -f docker-compose.yml -f docker-compose-cfbypass.yml up
 
 clean_docker:
+	docker-compose down -v --rmi all --remove-orphans || true
 	docker kill -s 9 $(PROJECT) || true
 	docker rm $(PROJECT) || true
 	docker rmi -f $(PROJECT) || true
