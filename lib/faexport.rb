@@ -50,13 +50,16 @@ module FAExport
   end
 
   class Application < Sinatra::Base
+    log_directory = ENV['LOG_DIR'] || "logs/"
+    FileUtils.mkdir_p(log_directory)
+    access_log = File.new("#{log_directory}/access.log", "a+")
+    access_log.sync = true
+    error_log = File.new("#{log_directory}/error.log", "a+")
+    error_log.sync = true
+
     configure do
       enable :logging
-      log_filename = ENV['LOG_FILE'] || "logs/faexport.log"
-      FileUtils.mkdir_p(File.dirname(log_filename))
-      log_file = File.new(log_filename, "a+")
-      log_file.sync = true
-      use Rack::CommonLogger, log_file
+      use Rack::CommonLogger, access_log
     end
 
     set :public_folder, File.join(File.dirname(__FILE__), 'faexport', 'public')
@@ -118,6 +121,7 @@ Please note this is a header, not a cookie."
     end
 
     before do
+      env["rack.errors"] = error_log
       @user_cookie = request.env['HTTP_FA_COOKIE']
       if @user_cookie
         if @user_cookie =~ COOKIE_REGEX
