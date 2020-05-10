@@ -1,4 +1,4 @@
-PROJECT = furaffinity-api
+PROJECT = deerspangle/furaffinity-api
 DOCKER_HUB_NAME = deerspangle/furaffinity-api
 CONTAINER_NAME = fa_api
 REDIS_CONTAINER = redis_container
