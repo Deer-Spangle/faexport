@@ -48,7 +48,7 @@ install:
 	bundle install
 
 run: install
-	bundle exec rackup config.ru -p $(PORT) --host 0.0.0.0
+	bundle exec thin -R config.ru --threaded -p $(PORT)
 
 publish: VERSION clean
 	sed -i 's/^VERSION = "[^"]\+"/VERSION = "$(VERSION)"/g' lib/faexport.rb
