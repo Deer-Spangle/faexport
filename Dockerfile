@@ -25,5 +25,4 @@ COPY . /usr/faexport
 
 EXPOSE 9292/tcp
 
-#CMD bundle exec rackup config.ru -p 9292 --host 0.0.0.0
 ENTRYPOINT ["sh","/usr/faexport/entrypoint.sh"]
