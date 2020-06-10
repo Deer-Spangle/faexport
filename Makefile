@@ -48,7 +48,7 @@ install:
 	bundle install
 
 run: install
-	bundle exec thin -R config.ru --threaded -p $(PORT)
+	bundle exec thin -R config.ru --threaded -p $(PORT) start
 
 publish: VERSION clean
 	sed -i 's/^VERSION = "[^"]\+"/VERSION = "$(VERSION)"/g' lib/faexport.rb
