@@ -1,6 +1,6 @@
 # FAExport
 
-[![Build Status](https://travis-ci.org/Deer-Spangle/faexport.svg?branch=master)](https://travis-ci.org/Deer-Spangle/faexport)
+[![Build Status](https://travis-ci.com/Deer-Spangle/faexport.svg?branch=master)](https://travis-ci.com/Deer-Spangle/faexport)
 [![Docker Build Status](https://img.shields.io/docker/cloud/build/deerspangle/furaffinity-api)](https://hub.docker.com/r/deerspangle/furaffinity-api)
 [![Uptime Robot status](https://img.shields.io/uptimerobot/status/m784269615-b492eb3eab4a670e1cd8ab89)](http://faexport.spangle.org.uk)
 
