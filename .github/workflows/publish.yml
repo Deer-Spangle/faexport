@@ -1,0 +1,39 @@
+name: "Publish new version"
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version being published"
+        required: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Write version
+        run: sed -i 's/^VERSION = "[^"]\+"/VERSION = "${{ github.event.inputs.verson }}"/g' lib/faexport.rb
+      - name: Commit and push git version
+        uses: EndBug/add-and-commit@v7
+        with:
+          add: "lib/faexport.rb"
+          message: "Publishing version ${{ github.event.inputs.version }}"
+          tag: "${{ github.event.inputs.version }}"
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            deerspangle/furaffinity-api:version-${{ github.event.inputs.version}}
+            deerspangle/furaffinity-api:latest
+        run: |
+          docker build -t $(PROJECT) .
+          docker login
+          docker tag $(PROJECT) $(DOCKER_HUB_NAME):version-$(VERSION)
+          docker push $(DOCKER_HUB_NAME):version-$(VERSION)
+          docker tag $(PROJECT) $(DOCKER_HUB_NAME):latest
+          docker push $(DOCKER_HUB_NAME):latest
