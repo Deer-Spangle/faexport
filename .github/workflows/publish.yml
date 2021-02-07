@@ -30,10 +30,3 @@ jobs:
           tags: |
             deerspangle/furaffinity-api:version-${{ github.event.inputs.version}}
             deerspangle/furaffinity-api:latest
-        run: |
-          docker build -t $(PROJECT) .
-          docker login
-          docker tag $(PROJECT) $(DOCKER_HUB_NAME):version-$(VERSION)
-          docker push $(DOCKER_HUB_NAME):version-$(VERSION)
-          docker tag $(PROJECT) $(DOCKER_HUB_NAME):latest
-          docker push $(DOCKER_HUB_NAME):latest
