@@ -667,6 +667,33 @@ describe 'FA parser' do
       expect(submission[:fav_key]).to be_instance_of String
       expect(submission[:fav_key]).not_to be_empty
     end
+    
+    it 'should give a non-null thumbnail link for sfw submissions' do
+      submission = @fa.submission("32006442")
+      expect(submission).to have_key(:thumbnail)
+      expect(submission[:thumbnail]).not_to be_nil
+      expect(submission[:rating]).to eql("General")
+    end
+
+    it 'should give a non-null thumbnail link for nsfw submissions' do
+      submission = @fa.submission("32011278")
+      expect(submission).to have_key(:thumbnail)
+      expect(submission[:thumbnail]).not_to be_nil
+      expect(submission[:rating]).to eql("Adult")
+    end
+
+    it 'should give a non-null thumbnail link for stories' do
+      submission = @fa.submission("20438216")
+      expect(submission).to have_key(:thumbnail)
+      expect(submission[:thumbnail]).not_to be_nil
+      expect(submission[:rating]).to eql("General")
+    end
+
+    it 'should give a non-null thumbnail link for stories without a set image' do
+      submission = @fa.submission("572932")
+      expect(submission).to have_key(:thumbnail)
+      expect(submission[:thumbnail]).not_to be_nil
+    end
   end
 
   context 'when updating favorite status of a submission' do
