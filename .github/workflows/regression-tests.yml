@@ -22,6 +22,10 @@ jobs:
       - name: Install dependencies
         run: bundle install
       - name: API (non-search) tests
+        env:
+          TEST_COOKIE: ${{ secrets.TEST_COOKIE}}
         run: bundle exec "rspec spec tests/ --exclude-pattern tests/**/search_spec.rb"
       - name: Search API tests
+        env:
+          TEST_COOKIE: ${{ secrets.TEST_COOKIE}}
         run: bundle exec "rspec spec tests/**/search_spec.rb"
