@@ -1231,7 +1231,7 @@ private
     thumb_img = if og_thumb.nil? || og_thumb['content'].include?("/banners/fa_logo")
                   img ? "https:" + img['data-preview-src'] : nil
                 else
-                  og_thumb['content'].sub! "http:", "https:"
+                  og_thumb['content'].sub "http:", "https:"
                 end
 
     submission = {
