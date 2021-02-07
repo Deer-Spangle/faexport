@@ -1,0 +1,25 @@
+name: regression-tests
+on: [push, pull_request]
+jobs:
+  scraper-regression-tests:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.5.3
+      - name: Install dependencies
+        run: bundle install
+      - name: API (non-search) tests
+        run: bundle exec "rspec spec tests/ --exclude-pattern tests/**/search_spec.rb"
+      - name: Search API tests
+        run: bundle exec "rspec spec tests/**/search_spec.rb"
