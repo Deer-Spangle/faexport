@@ -1,0 +1,43 @@
+name: regression-tests
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 0 * * *"
+jobs:
+  scraper-regression-tests:
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.5.3
+      - name: Install dependencies
+        run: bundle install
+      - name: API (non-search) tests
+        env:
+          test_cookie: ${{ secrets.TEST_COOKIE}}
+          test_cookie_user_2: ${{ secrets.COOKIE_FAFEED_2 }}
+          test_cookie_user_3: ${{ secrets.COOKIE_FAFEED_3 }}
+          test_cookie_hidden_favs: ${{ secrets.COOKIE_NO_WATCHERS }}
+          test_cookie_not_classic: ${{ secrets.COOKIE_MODERN_THEME }}
+        run: bundle exec "rspec spec tests/ --exclude-pattern tests/**/search_spec.rb"
+      - name: Search API tests
+        env:
+          test_cookie: ${{ secrets.TEST_COOKIE}}
+          test_cookie_user_2: ${{ secrets.COOKIE_FAFEED_2 }}
+          test_cookie_user_3: ${{ secrets.COOKIE_FAFEED_3 }}
+          test_cookie_hidden_favs: ${{ secrets.COOKIE_NO_WATCHERS }}
+          test_cookie_not_classic: ${{ secrets.COOKIE_MODERN_THEME }}
+        run: bundle exec "rspec spec tests/**/search_spec.rb"
