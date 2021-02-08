@@ -40,7 +40,7 @@ variable.
 
 You can customise the FA_COOKIE value and PORT by passing them like so:
 ```
-make FA_COOKIE="b=...; a=..." PORT=9292 run
+make FA_COOKIE="b\=...\;a\=..." PORT=9292 run
 ```
 
 
@@ -59,20 +59,20 @@ https://hub.docker.com/r/deerspangle/furaffinity-api
 
 But to deploy a redis image and furaffinity API docker container, linked together, you can run
 ```shell script
-FA_COOKIE="b=...; a=..." docker-compose up
+FA_COOKIE="b\=...\;a\=..." docker-compose up
 ```
 or simple
 ```shell script
-make FA_COOKIE="b=...; a=..." deploy
+make FA_COOKIE="b\=...\;a\=..." deploy
 ```
 It will default to being exposed on port 80, but you can customise this by passing in the PORT environment variable.
 ```shell script
-make FA_COOKIE="b=...; a=..." PORT=9292 deploy
+make FA_COOKIE="b\=...\;a\=..." PORT=9292 deploy
 ```
 
 If cloudflare protection is online, you can launch a pair of cloudflare bypass containers alongside the API rather easily:
 ```shell script
-make FA_COOKIE="b=...; a=..." deploy_bypass
+make FA_COOKIE="b\=...\;a\=..." deploy_bypass
 ```
 
 ## Deploying - Heroku
