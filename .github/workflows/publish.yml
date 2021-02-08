@@ -17,7 +17,7 @@ jobs:
         with:
           add: "lib/faexport.rb"
           message: "Publishing version ${{ github.event.inputs.version }}"
-          tag: "${{ github.event.inputs.version }}"
+          tag: "v${{ github.event.inputs.version }}"
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
