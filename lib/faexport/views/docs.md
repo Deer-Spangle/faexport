@@ -89,7 +89,7 @@ Fetches all the latest posts from the home page
     {
       "id": "27085784",
       "title": "Stress relief",
-      "thumbnail": "http://t.facdn.net/27085784@200-1524291669.jpg",
+      "thumbnail": "http://t.furaffinity.net/27085784@200-1524291669.jpg",
       "link": "https://www.furaffinity.net/view/27085784/",
       "name": "valvi_369",
       "profile": "https://www.furaffinity.net/user/valvi369/",
@@ -101,7 +101,7 @@ Fetches all the latest posts from the home page
     {
       "id": "27085745",
       "title": "Fate: chapter 1, bonus",
-      "thumbnail": "http://t.facdn.net/27085745@400-1524291268.jpg",
+      "thumbnail": "http://t.furaffinity.net/27085745@400-1524291268.jpg",
       "link": "https://www.furaffinity.net/view/27085745/",
       "name": "Chronos213",
       "profile": "https://www.furaffinity.net/user/chronos213/",
@@ -113,7 +113,7 @@ Fetches all the latest posts from the home page
     {
       "id": "27085580",
       "title": "os_v2.5",
-      "thumbnail": "http://t.facdn.net/27085580@75-1524289114.jpg",
+      "thumbnail": "http://t.furaffinity.net/27085580@75-1524289114.jpg",
       "link": "https://www.furaffinity.net/view/27085580/",
       "name": "nexuswolf96",
       "profile": "https://www.furaffinity.net/user/nexuswolf96/",
@@ -125,7 +125,7 @@ Fetches all the latest posts from the home page
     {
       "id": "27085767",
       "title": "Kamadan wearing the Amazing Spider-Man Mk.4 Suit/Armor",
-      "thumbnail": "http://t.facdn.net/27085767@400-1524291459.jpg",
+      "thumbnail": "http://t.furaffinity.net/27085767@400-1524291459.jpg",
       "link": "https://www.furaffinity.net/view/27085767/",
       "name": "lyctiger",
       "profile": "https://www.furaffinity.net/user/lyctiger/",
@@ -152,7 +152,7 @@ The API does not yet allow specifying category, type, species or gender, as FA r
   {
     "id": "33050174",
     "title": "YCH REMINDER",
-    "thumbnail": "https://t.facdn.net/33050174@200-1568543823.jpg",
+    "thumbnail": "https://t.furaffinity.net/33050174@200-1568543823.jpg",
     "link": "https://www.furaffinity.net/view/33050174/",
     "name": "KoiiAdopts",
     "profile": "https://www.furaffinity.net/user/koiiadopts/",
@@ -161,7 +161,7 @@ The API does not yet allow specifying category, type, species or gender, as FA r
   {
     "id": "33050173",
     "title": "Yote At The Grainery",
-    "thumbnail": "https://t.facdn.net/33050173@200-1568543817.jpg",
+    "thumbnail": "https://t.furaffinity.net/33050173@200-1568543817.jpg",
     "link": "https://www.furaffinity.net/view/33050173/",
     "name": "RocketT.Coyote",
     "profile": "https://www.furaffinity.net/user/rockett.coyote/",
@@ -170,7 +170,7 @@ The API does not yet allow specifying category, type, species or gender, as FA r
   {
     "id": "33050172",
     "title": "Troopashroom Powerup 2/2",
-    "thumbnail": "https://t.facdn.net/33050172@300-1568543811.jpg",
+    "thumbnail": "https://t.furaffinity.net/33050172@300-1568543811.jpg",
     "link": "https://www.furaffinity.net/view/33050172/",
     "name": "Blueballs",
     "profile": "https://www.furaffinity.net/user/blueballs/",
@@ -213,7 +213,7 @@ FA has removed the user id number from the profile page now, which means that "i
   "name": "Fender",
   "profile": "https://www.furaffinity.net/user/fender/",
   "account_type": "Administrator",
-  "avatar": "https://a.facdn.net/1424255659/fender.gif",
+  "avatar": "https://a.furaffinity.net/1424255659/fender.gif",
   "full_name": "Fender!",
   "artist_type": "Watcher",
   "user_title": "Watcher",
@@ -230,7 +230,7 @@ FA has removed the user id number from the profile page now, which means that "i
   "featured_submission": {
     "id": "4483888",
     "title": "Fender (Character Sheet)",
-    "thumbnail": "https://t.facdn.net/4483888@200-1284661300.jpg",
+    "thumbnail": "https://t.furaffinity.net/4483888@200-1284661300.jpg",
     "link": "https://www.furaffinity.net/view/4483888/",
     "name": "",
     "profile": "",
@@ -239,7 +239,7 @@ FA has removed the user id number from the profile page now, which means that "i
   "profile_id": {
     "id": "1345722",
     "title": "",
-    "thumbnail": "https://t.facdn.net/1345722@300-1212292592.jpg",
+    "thumbnail": "https://t.furaffinity.net/1345722@300-1212292592.jpg",
     "link": "https://www.furaffinity.net/view/1345722/",
     "name": "",
     "profile": "",
@@ -313,7 +313,7 @@ All shouts that are visible on a user's page.
     "name": "SomeArtist",
     "profile": "http://www.furaffinity.net/user/someartist/",
     "profile_name": "someartist",
-    "avatar": "http://a.facdn.net/1424258659/someartist.gif",
+    "avatar": "http://a.furaffinity.net/1424258659/someartist.gif",
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
     "text": "Thanks for the watch!"
@@ -323,7 +323,7 @@ All shouts that are visible on a user's page.
     "name": "AssConnoisseur",
     "profile": "http://www.furaffinity.net/user/assconnoisseur/",
     "profile_name": "assconnoisseur",
-    "avatar": "http://a.facdn.net/1449252689/assconnoisseur.gif",
+    "avatar": "http://a.furaffinity.net/1449252689/assconnoisseur.gif",
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
     "text": "You have a very fine rear end"
@@ -333,7 +333,7 @@ All shouts that are visible on a user's page.
     "name": "HyperSquirrel",
     "profile": "http://www.furaffinity.net/user/hypersquirrel/",
     "profile_name": "hypersquirrel",
-    "avatar": "http://a.facdn.net/6442272989/hypersquirrel.gif",
+    "avatar": "http://a.furaffinity.net/6442272989/hypersquirrel.gif",
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",
     "text": "OMG yr cute, wanna RP"
@@ -357,7 +357,7 @@ Returns all the information listed on a users Commission Info page.
     "submission": {
       "id": "",
       "title": "",
-      "thumbnail": "http://t.facdn.net/404_thumbnail.gif",
+      "thumbnail": "http://t.furaffinity.net/404_thumbnail.gif",
       "link": "http://www.furaffinity.net/",
       "name": "",
       "profile": "",
@@ -371,7 +371,7 @@ Returns all the information listed on a users Commission Info page.
     "submission": {
       "id": "12921627",
       "title": "",
-      "thumbnail": "http://t.facdn.net/12921627@200-1394373667.jpg",
+      "thumbnail": "http://t.furaffinity.net/12921627@200-1394373667.jpg",
       "link": "http://www.furaffinity.net/view/12921627",
       "name": "",
       "profile": "",
@@ -468,7 +468,7 @@ If you want more information, pass `?full=1` to retrieve more fields.
   {
     "id": "3277777",
     "title": "Epic Five Year Post of Maximum Relaxation (and Carnage)",
-    "thumbnail": "http://t.facdn.net/3277777@200-1263612598.jpg",
+    "thumbnail": "http://t.furaffinity.net/3277777@200-1263612598.jpg",
     "link": "http://www.furaffinity.net/view/3277777/",
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
@@ -477,7 +477,7 @@ If you want more information, pass `?full=1` to retrieve more fields.
   {
     "id": "1896964",
     "title": "Epic Four Year Post of City Crunching Havoc",
-    "thumbnail": "http://t.facdn.net/1896964@200-1232143532.jpg",
+    "thumbnail": "http://t.furaffinity.net/1896964@200-1232143532.jpg",
     "link": "http://www.furaffinity.net/view/1896964/",
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
@@ -486,7 +486,7 @@ If you want more information, pass `?full=1` to retrieve more fields.
   {
     "id": "1010790",
     "title": "Epic Three Year Post of Tie Wearing Destruction",
-    "thumbnail": "http://t.facdn.net/1010790@200-1200494770.jpg",
+    "thumbnail": "http://t.furaffinity.net/1010790@200-1200494770.jpg",
     "link": "http://www.furaffinity.net/view/1010790/",
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
@@ -528,13 +528,13 @@ If you supply a login cookie, you will get two additional keys in the results: `
   "name": "Fender",
   "profile": "https://www.furaffinity.net/user/fender/",
   "profile_name": "fender",
-  "avatar": "https://a.facdn.net/1424255659/fender.gif",
+  "avatar": "https://a.furaffinity.net/1424255659/fender.gif",
   "link": "https://www.furaffinity.net/view/4483888/",
   "posted": "Sep 16th, 2010 06:21 PM",
   "posted_at": "2010-09-16T18:21:00Z",
-  "download": "http://d.facdn.net/art/fender/1284661300/1284661300.fender_fender.png",
-  "full": "http://d.facdn.net/art/fender/1284661300/1284661300.fender_fender.png",
-  "thumbnail": "http://t.facdn.net/4483888@400-1284661300.jpg",
+  "download": "http://d.furaffinity.net/art/fender/1284661300/1284661300.fender_fender.png",
+  "full": "http://d.furaffinity.net/art/fender/1284661300/1284661300.fender_fender.png",
+  "thumbnail": "http://t.furaffinity.net/4483888@400-1284661300.jpg",
   "category": "Artwork (Digital)",
   "theme": "Doodle",
   "species": "Unspecified / Any",
@@ -586,7 +586,7 @@ Retrieves information about the journal with the specified id.
   "name": "Fender",
   "profile": "http://www.furaffinity.net/user/fender/",
   "profile_name": "fender",
-  "avatar": "https://a.facdn.net/1424255659/fender.gif",
+  "avatar": "https://a.furaffinity.net/1424255659/fender.gif",
   "link": "http://www.furaffinity.net/journal/6534234/",
   "posted": "February 26th, 2015 07:53 PM",
   "posted_at": "2015-02-26T19:53:00Z"
@@ -606,7 +606,7 @@ Retrieves a list of comments made on the submission or journal with the specifie
     "name": "AnotherArtist",
     "profile": "http://www.furaffinity.net/user/anotherartist/",
     "profile_name": "anotherartist",
-    "avatar": "http://a.facdn.net/1424258659/anotherartist.gif",
+    "avatar": "http://a.furaffinity.net/1424258659/anotherartist.gif",
     "posted": "March 2nd, 2015 02:30 AM",
     "posted_at": "2015-03-02T02:30:00Z",
     "text": "Wow, I love the way you do light and shadow.",
@@ -619,7 +619,7 @@ Retrieves a list of comments made on the submission or journal with the specifie
     "name": "AnnoyingSalamander",
     "profile": "http://www.furaffinity.net/user/annoyingsalamander/",
     "profile_name": "annoyingsalamander",
-    "avatar": "http://a.facdn.net/1424258659/annoyingsalamander.gif",
+    "avatar": "http://a.furaffinity.net/1424258659/annoyingsalamander.gif",
     "posted": "March 1st, 2015 03:16 PM",
     "posted_at": "2015-03-01T15:16:00Z",
     "text": "This drawing sucks.",
@@ -632,7 +632,7 @@ Retrieves a list of comments made on the submission or journal with the specifie
     "name": "afreshcat001",
     "profile": "http://www.furaffinity.net/user/afreshcat001/",
     "profile_name": "afreshcat001",
-    "avatar": "http://a.facdn.net/1424258659/afreshcat001.gif",
+    "avatar": "http://a.furaffinity.net/1424258659/afreshcat001.gif",
     "posted": "February 28th, 2015 06:33 AM",
     "posted_at": "2015-02-28T06:33:00Z",
     "text": "You stole my OC, REPORTED!",
@@ -694,7 +694,7 @@ If you want more information, pass `&full=1` to retrieve more fields.
   {
     "id": "3277777",
     "title": "Epic Five Year Post of Maximum Relaxation (and Carnage)",
-    "thumbnail": "http://t.facdn.net/3277777@200-1263612598.jpg",
+    "thumbnail": "http://t.furaffinity.net/3277777@200-1263612598.jpg",
     "link": "http://www.furaffinity.net/view/3277777/",
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
@@ -703,7 +703,7 @@ If you want more information, pass `&full=1` to retrieve more fields.
   {
     "id": "1896964",
     "title": "Epic Four Year Post of City Crunching Havoc",
-    "thumbnail": "http://t.facdn.net/1896964@200-1232143532.jpg",
+    "thumbnail": "http://t.furaffinity.net/1896964@200-1232143532.jpg",
     "link": "http://www.furaffinity.net/view/1896964/",
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
@@ -712,7 +712,7 @@ If you want more information, pass `&full=1` to retrieve more fields.
   {
     "id": "1010790",
     "title": "Epic Three Year Post of Tie Wearing Destruction",
-    "thumbnail": "http://t.facdn.net/1010790@200-1200494770.jpg",
+    "thumbnail": "http://t.furaffinity.net/1010790@200-1200494770.jpg",
     "link": "http://www.furaffinity.net/view/1010790/",
     "name": "Fender",
     "profile": "http://www.furaffinity.net/user/fender/",
@@ -745,7 +745,7 @@ Paging through submissions without overlap can be achieved by taking the last su
     {
       "id": "31236893",
       "title": "Lineless inf0xicated",
-      "thumbnail": "https://t.facdn.net/31236893@200-1555626711.jpg",
+      "thumbnail": "https://t.furaffinity.net/31236893@200-1555626711.jpg",
       "link": "https://sfw.furaffinity.net/view/31236893/",
       "name": "feve",
       "profile": "https://sfw.furaffinity.net/user/feve/",
@@ -754,7 +754,7 @@ Paging through submissions without overlap can be achieved by taking the last su
     {
       "id": "31235658",
       "title": "Lineless Rex",
-      "thumbnail": "https://t.facdn.net/31235658@200-1555619949.jpg",
+      "thumbnail": "https://t.furaffinity.net/31235658@200-1555619949.jpg",
       "link": "https://sfw.furaffinity.net/view/31235658/",
       "name": "feve",
       "profile": "https://sfw.furaffinity.net/user/feve/",
@@ -763,7 +763,7 @@ Paging through submissions without overlap can be achieved by taking the last su
     {
       "id": "31235009",
       "title": "Lineless Ripley",
-      "thumbnail": "https://t.facdn.net/31235009@200-1555616433.jpg",
+      "thumbnail": "https://t.furaffinity.net/31235009@200-1555616433.jpg",
       "link": "https://sfw.furaffinity.net/view/31235009/",
       "name": "feve",
       "profile": "https://sfw.furaffinity.net/user/feve/",
@@ -814,7 +814,7 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
       "name": "FurredLeviathan",
       "profile": "https://www.furaffinity.net/user/furredleviathan/",
       "profile_name": "furredleviathan",
-      "avatar": "https://a.facdn.net/1548535440/furredleviathan.gif",
+      "avatar": "https://a.furaffinity.net/1548535440/furredleviathan.gif",
       "posted": "Apr 16th, 2019 09:18 PM",
       "posted_at": "2019-04-16T21:18:00Z"
     },

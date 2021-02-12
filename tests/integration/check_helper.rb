@@ -45,7 +45,7 @@ end
 
 RSpec::Matchers.define :be_valid_avatar_for_user do |username|
   match do |avatar_link|
-    /^https:\/\/a.facdn.net\/[0-9]+\/#{username}.gif$/.match(avatar_link)
+    /^https:\/\/a.furaffinity.net\/[0-9]+\/#{username}.gif$/.match(avatar_link)
   end
 end
 
@@ -57,7 +57,7 @@ end
 
 RSpec::Matchers.define :be_valid_thumbnail_link_for_sub_id do |id|
   match do |link|
-    /^https:\/\/t.facdn.net\/#{id}@[0-9]{2,3}-[0-9]+.jpg$/.match(link)
+    /^https:\/\/t.furaffinity.net\/#{id}@[0-9]{2,3}-[0-9]+.jpg$/.match(link)
   end
 end
 
