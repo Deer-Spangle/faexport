@@ -615,7 +615,8 @@ class Furaffinity
                 profile_name: "",
                 avatar: fa_url(elem.at_css("img")['src']),
                 posted: "",
-                posted_at: ""
+                posted_at: "",
+                deleted: true
             }
           end
           next
@@ -628,7 +629,8 @@ class Furaffinity
             profile_name: last_path(elem.at_css("a")['href']),
             avatar: "https:#{elem.at_css("img")['src']}",
             posted: date,
-            posted_at: to_iso8601(date)
+            posted_at: to_iso8601(date),
+            deleted: false
         }
       end
     end
@@ -650,7 +652,8 @@ class Furaffinity
                 submission_id: "",
                 title: "Comment or the submission it was left on has been deleted",
                 posted: "",
-                posted_at: ""
+                posted_at: "",
+                deleted: true
             }
           end
           next
@@ -669,7 +672,8 @@ class Furaffinity
             submission_id: elem_links[1]['href'].split("/")[-2],
             title: elem_links[1].content,
             posted: date,
-            posted_at: to_iso8601(date)
+            posted_at: to_iso8601(date),
+            deleted: false
         }
       end
     end
@@ -691,7 +695,8 @@ class Furaffinity
                 journal_id: "",
                 title: "Comment or the journal it was left on has been deleted",
                 posted: "",
-                posted_at: ""
+                posted_at: "",
+                deleted: true
             }
           end
           next
@@ -710,7 +715,8 @@ class Furaffinity
             journal_id: elem_links[1]['href'].split("/")[-2],
             title: elem_links[1].content,
             posted: date,
-            posted_at: to_iso8601(date)
+            posted_at: to_iso8601(date),
+            deleted: false
         }
       end
     end
@@ -727,7 +733,8 @@ class Furaffinity
                 profile: "",
                 profile_name: "",
                 posted: "",
-                posted_at: ""
+                posted_at: "",
+                deleted: true
             }
           end
           next
@@ -739,7 +746,8 @@ class Furaffinity
             profile: fa_url(elem.at_css("a")['href']),
             profile_name: last_path(elem.at_css("a")['href']),
             posted: date,
-            posted_at: to_iso8601(date)
+            posted_at: to_iso8601(date),
+            deleted: false
         }
       end
     end
