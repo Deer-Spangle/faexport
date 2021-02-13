@@ -362,7 +362,7 @@ class Furaffinity
     journal_footer = html.at_css('.journal-footer').children[2..-1].to_s.strip unless html.at_css('.journal-footer').nil?
 
     {
-      title: html.at_css('.journal-title-box').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
+      title: html.at_css('.journal-title-box .no_overflow').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
       description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
       journal_header: journal_header,
       journal_body: html.at_css('.journal-body').children.to_s.strip,
