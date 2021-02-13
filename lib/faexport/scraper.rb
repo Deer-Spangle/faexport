@@ -583,8 +583,8 @@ class Furaffinity
     num_watchers = 0
     num_notes = 0
     num_trouble_tickets = 0
-    totals = html.css("a.notification-container").each do |elem|
-      count = Integer(elem['title'].gsub(",", "").split()[0])
+    html.css("a.notification-container").each do |elem|
+      count = Integer(elem['title'].gsub(",", "").split[0])
       if elem['title'].include? "Submission"
         num_submissions = count
       elsif elem['title'].include? "Comment"
@@ -597,7 +597,7 @@ class Furaffinity
         num_watchers = count
       elsif elem['title'].include? "Unread Notes"
         num_notes = count
-      else
+      elsif elem['title'].include? "Troubleticket Replies"
         num_trouble_tickets = count
       end
     end
