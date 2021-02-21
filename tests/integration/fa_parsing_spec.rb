@@ -148,8 +148,6 @@ describe 'FA parser' do
     it 'shows artist information' do
       profile = @fa.user(TEST_USER_2)
       expect(profile[:artist_information]).to be_instance_of Hash
-      expect(profile[:artist_information]).to have_key("Age")
-      expect(profile[:artist_information]["Age"]).to eql("70")
       expect(profile[:artist_information]).to have_key("Species")
       expect(profile[:artist_information]["Species"]).to eql("Robot")
       expect(profile[:artist_information]).to have_key("Shell of Choice")
