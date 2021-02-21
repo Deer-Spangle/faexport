@@ -354,7 +354,7 @@ class Furaffinity
 
   def journal(id)
     html = fetch("journal/#{id}/")
-    date = pick_date(html.at_css('td.cat .journal-title-box .popup_date'))
+    date = pick_date(html.at_css('.journal-title-box .popup_date'))
     profile_url = html.at_css('td.cat .journal-title-box a')['href'][1..-1]
     journal_header = nil
     journal_header = html.at_css('.journal-header').children[0..-3].to_s.strip unless html.at_css('.journal-header').nil?
@@ -362,7 +362,7 @@ class Furaffinity
     journal_footer = html.at_css('.journal-footer').children[2..-1].to_s.strip unless html.at_css('.journal-footer').nil?
 
     {
-      title: html.at_css('td.cat b').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
+      title: html.at_css('.journal-title-box .no_overflow').content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ''),
       description: html.at_css('td.alt1 div.no_overflow').children.to_s.strip,
       journal_header: journal_header,
       journal_body: html.at_css('.journal-body').children.to_s.strip,
@@ -583,8 +583,8 @@ class Furaffinity
     num_watchers = 0
     num_notes = 0
     num_trouble_tickets = 0
-    totals = html.css("a.notification-container").each do |elem|
-      count = Integer(elem['title'].gsub(",", "").split()[0])
+    html.css("a.notification-container").each do |elem|
+      count = Integer(elem['title'].gsub(",", "").split[0])
       if elem['title'].include? "Submission"
         num_submissions = count
       elsif elem['title'].include? "Comment"
@@ -597,7 +597,7 @@ class Furaffinity
         num_watchers = count
       elsif elem['title'].include? "Unread Notes"
         num_notes = count
-      else
+      elsif elem['title'].include? "Troubleticket Replies"
         num_trouble_tickets = count
       end
     end
@@ -615,7 +615,8 @@ class Furaffinity
                 profile_name: "",
                 avatar: fa_url(elem.at_css("img")['src']),
                 posted: "",
-                posted_at: ""
+                posted_at: "",
+                deleted: true
             }
           end
           next
@@ -628,7 +629,8 @@ class Furaffinity
             profile_name: last_path(elem.at_css("a")['href']),
             avatar: "https:#{elem.at_css("img")['src']}",
             posted: date,
-            posted_at: to_iso8601(date)
+            posted_at: to_iso8601(date),
+            deleted: false
         }
       end
     end
@@ -650,7 +652,8 @@ class Furaffinity
                 submission_id: "",
                 title: "Comment or the submission it was left on has been deleted",
                 posted: "",
-                posted_at: ""
+                posted_at: "",
+                deleted: true
             }
           end
           next
@@ -669,7 +672,8 @@ class Furaffinity
             submission_id: elem_links[1]['href'].split("/")[-2],
             title: elem_links[1].content,
             posted: date,
-            posted_at: to_iso8601(date)
+            posted_at: to_iso8601(date),
+            deleted: false
         }
       end
     end
@@ -691,7 +695,8 @@ class Furaffinity
                 journal_id: "",
                 title: "Comment or the journal it was left on has been deleted",
                 posted: "",
-                posted_at: ""
+                posted_at: "",
+                deleted: true
             }
           end
           next
@@ -710,7 +715,8 @@ class Furaffinity
             journal_id: elem_links[1]['href'].split("/")[-2],
             title: elem_links[1].content,
             posted: date,
-            posted_at: to_iso8601(date)
+            posted_at: to_iso8601(date),
+            deleted: false
         }
       end
     end
@@ -727,7 +733,8 @@ class Furaffinity
                 profile: "",
                 profile_name: "",
                 posted: "",
-                posted_at: ""
+                posted_at: "",
+                deleted: true
             }
           end
           next
@@ -739,7 +746,8 @@ class Furaffinity
             profile: fa_url(elem.at_css("a")['href']),
             profile_name: last_path(elem.at_css("a")['href']),
             posted: date,
-            posted_at: to_iso8601(date)
+            posted_at: to_iso8601(date),
+            deleted: false
         }
       end
     end

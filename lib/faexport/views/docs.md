@@ -816,7 +816,8 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
       "profile_name": "furredleviathan",
       "avatar": "https://a.furaffinity.net/1548535440/furredleviathan.gif",
       "posted": "Apr 16th, 2019 09:18 PM",
-      "posted_at": "2019-04-16T21:18:00Z"
+      "posted_at": "2019-04-16T21:18:00Z",
+      "deleted": false
     },
     <snip>
   ],
@@ -832,7 +833,8 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
       "submission_id": "31400974",
       "title": "[CM] Willow Shafted (internal)",
       "posted": "on May 3rd, 2019 09:02 AM",
-      "posted_at": "2019-05-03T09:02:00Z"
+      "posted_at": "2019-05-03T09:02:00Z",
+      "deleted": false
     },
     <snip>
   ],
@@ -848,7 +850,8 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
       "journal_id": "9130470",
       "title": "Confuzzled 2019!! Say hello to me if you're going!",
       "posted": "on May 3rd, 2019 01:04 PM",
-      "posted_at": "2019-05-03T13:04:00Z"
+      "posted_at": "2019-05-03T13:04:00Z",
+      "deleted": false
     },
     <snip>
   ],
@@ -859,7 +862,8 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
       "profile": "https://www.furaffinity.net/user/thatonebirb/",
       "profile_name": "thatonebirb",
       "posted": "on Apr 3rd, 2019 10:04 PM",
-      "posted_at": "2019-04-03T22:04:00Z"
+      "posted_at": "2019-04-03T22:04:00Z",
+      "deleted": false
     },
     <snip>
   ],
@@ -872,7 +876,8 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
       "submission_id": "28092292",
       "submission_name": "Cuddled up tight",
       "posted": "May 3rd, 2019 06:31 PM",
-      "posted_at": "2019-05-03T18:31:00Z"
+      "posted_at": "2019-05-03T18:31:00Z",
+      "deleted": false
     },
     <snip>
   ],
@@ -884,7 +889,8 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
       "profile": "https://www.furaffinity.net/user/jeevestheroo/",
       "profile_name": "jeevestheroo",
       "posted": "on May 3rd, 2019 01:04 PM",
-      "posted_at": "2019-05-03T13:04:00Z"
+      "posted_at": "2019-05-03T13:04:00Z",
+      "deleted": false
     },
     <snip>
   ]
