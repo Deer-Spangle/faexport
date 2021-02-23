@@ -4,6 +4,7 @@ on:
   pull_request:
   schedule:
     - cron: "0 11 * * *"
+  workflow_dispatch:
 jobs:
   scraper-regression-tests:
     runs-on: ubuntu-latest
