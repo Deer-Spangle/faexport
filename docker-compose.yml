@@ -1,0 +1,15 @@
+version: '3'
+services:
+  fa_api:
+    image: "deerspangle/furaffinity-api:${VERSION:-latest}"
+    ports:
+      - "${PORT:-80}:9292"
+    environment:
+      - FA_COOKIE=${FA_COOKIE}
+      - REDIS_URL=redis://redis_container:6379/0
+      - APP_ENV=${APP_ENV:-development}
+      - LOG_DIR=/logs/
+    volumes:
+    - ./logs/:/logs/
+  redis_container:
+    image: "redis"

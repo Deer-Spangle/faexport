@@ -1,6 +1,7 @@
 # faexport.rb - Simple data export and feeds from FA
 #
 # Copyright (C) 2015 Erra Boothale <erra@boothale.net>
+# Further work: 2020 Deer Spangle <deer@spangle.org.uk>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,20 +42,35 @@ require 'tilt'
 
 Tilt.register Tilt::RedcarpetTemplate, 'markdown', 'md'
 
+# Do not update this manually, the github workflow does it.
+VERSION = "2021.02.2"
+
 module FAExport
   class << self
     attr_accessor :config
   end
 
   class Application < Sinatra::Base
-    enable :logging
+    log_directory = ENV['LOG_DIR'] || "logs/"
+    FileUtils.mkdir_p(log_directory)
+    access_log = File.new("#{log_directory}/access.log", "a+")
+    access_log.sync = true
+    error_log = File.new("#{log_directory}/error.log", "a+")
+    error_log.sync = true
+
+    configure do
+      enable :logging
+      use Rack::CommonLogger, access_log
+    end
+
     set :public_folder, File.join(File.dirname(__FILE__), 'faexport', 'public')
     set :views, File.join(File.dirname(__FILE__), 'faexport', 'views')
     set :markdown, with_toc_data: true, fenced_code_blocks: true
 
     USER_REGEX = /((?:[a-zA-Z0-9\-_~.]|%5B|%5D|%60)+)/
     ID_REGEX = /([0-9]+)/
-    COOKIE_REGEX = /^b=[a-z0-9\-]+; a=[a-z0-9\-]+$/
+    COOKIE_REGEX = /^([ab])=[a-z0-9\-]+; ?(?!\1)[ab]=[a-z0-9\-]+$/
+    NOTE_FOLDER_REGEX = /(inbox|outbox|unread|archive|trash|high|medium|low)/
 
     def initialize(app, config = {})
       FAExport.config = config.with_indifferent_access
@@ -99,12 +115,14 @@ module FAExport
       def ensure_login!
         unless @user_cookie
           raise FALoginCookieError,
-            "You must provide a valid login cookie in the header 'FA_COOKIE'"
+            "You must provide a valid login cookie in the header 'FA_COOKIE'.
+Please note this is a header, not a cookie."
         end
       end
     end
 
     before do
+      env["rack.errors"] = error_log
       @user_cookie = request.env['HTTP_FA_COOKIE']
       if @user_cookie
         if @user_cookie =~ COOKIE_REGEX
@@ -127,15 +145,17 @@ module FAExport
     end
 
     get '/' do
-      haml :index, layout: :page
+      haml :index, layout: :page, :locals => {:version => VERSION}
     end
 
     get '/docs' do
-      haml :page do
+      haml :page, :locals => {:version => VERSION} do
         markdown :docs
       end
     end
 
+    # GET /home.json
+    # GET /home.xml
     get %r{/home\.(json|xml)} do |type|
       set_content_type(type)
       cache("home:#{type}") do
@@ -145,6 +165,32 @@ module FAExport
         when 'xml'
           @fa.home.to_xml(root: 'home', skip_types: true)
         end
+      end
+    end
+
+    # GET /browse.json
+    # GET /browse.xml
+    get %r{/browse\.(json|xml)} do |type|
+      set_content_type(type)
+      cache("browse:#{type}.#{params.to_s}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.browse(params)
+        when 'xml'
+          @fa.browse(params).to_xml(root: 'browse', skip_types: true)
+        end
+      end
+    end
+
+    # GET /status.json
+    # GET /home.xml
+    get %r{/status\.(json|xml)} do |type|
+      set_content_type(type)
+      case type
+      when 'json'
+        JSON.pretty_generate @fa.status
+      when 'xml'
+        @fa.status.to_xml(root: 'home', skip_types: true)
       end
     end
 
@@ -310,15 +356,29 @@ module FAExport
     # GET /submission/{id}.json
     # GET /submission/{id}.xml
     get %r{/submission/#{ID_REGEX}\.(json|xml)} do |id, type|
+      is_login = !!@user_cookie
       set_content_type(type)
       cache("submission:#{id}.#{type}") do
         case type
         when 'json'
-          JSON.pretty_generate @fa.submission(id)
+          JSON.pretty_generate @fa.submission(id, is_login)
         when 'xml'
-          @fa.submission(id).to_xml(root: 'submission', skip_types: true)
+          @fa.submission(id, is_login).to_xml(root: 'submission', skip_types: true)
         end
       end
+    end
+
+    # POST /submission/{id}/favorite.json
+    post %r{/submission/#{ID_REGEX}/favorite\.(json|)} do |id|
+      ensure_login!
+      fav = case type
+            when '.json' then JSON.parse(request.body.read)
+            else params
+            end
+      result = @fa.favorite_submission(id, fav['fav_status'], fav['fav_key'])
+
+      set_content_type('json')
+      JSON.pretty_generate(result)
     end
 
     # GET /journal/{id}.json
@@ -374,19 +434,19 @@ module FAExport
       cache("search_results:#{params.to_s}.#{type}") do
         case type
         when 'json'
-          results, _ = @fa.search(params)
+          results = @fa.search(params)
           results = results.map{|result| result[:id]} unless full
           JSON.pretty_generate results
         when 'xml'
-          results, _ = @fa.search(params)
+          results = @fa.search(params)
           results = results.map{|result| result[:id]} unless full
           results.to_xml(root: 'results', skip_types: true)
         when 'rss'
-          results, uri = @fa.search(params)
+          results = @fa.search(params)
 
           @name = params['q']
           @info = "Search for '#{params['q']}'"
-          @link = uri.to_s
+          @link = "https://www.furaffinity.net/search/?q=#{params['q']}"
           @posts = results.take(FAExport.config[:rss_limit]).map do |sub|
             cache "submission:#{sub[:id]}.rss" do
               @post = @fa.submission(sub[:id])
@@ -436,7 +496,6 @@ module FAExport
     # GET /notifications/others.xml
     get %r{/notifications/others\.(json|xml)} do |type|
       ensure_login!
-      # # TODO: write docs
       include_deleted = !!params[:include_deleted]
       set_content_type(type)
       cache("notifications:#{@user_cookie}:#{include_deleted}.#{type}") do
@@ -612,6 +671,50 @@ module FAExport
             builder :post
           end
           builder :feed
+        end
+      end
+    end
+
+    # GET /notes/{folder}.json
+    # GET /notes/{folder}.xml
+    # GET /notes/{folder}.rss
+    get %r{/notes/#{NOTE_FOLDER_REGEX}\.(json|xml|rss)} do |folder, type|
+      ensure_login!
+      cache("notes/#{folder}:#{@user_cookie}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.notes(folder)
+        when 'xml'
+          @fa.notes(folder).to_xml(root: 'results', skip_types: true)
+        when 'rss'
+          results = @fa.notes(folder)
+          @name = "Notes in folder: #{folder}"
+          @info = @name
+          @link = "https://www.furaffinity.net/msg/pms/"
+          @posts = results.map do |note|
+            @post = {
+                title: note[:subject],
+                link: note[:link],
+                posted: note[:posted]
+            }
+            @description = "A new note has been received, from <a href=\"#{note[:profile]}\">#{note[:name]}</a>, the subject is \"<a href=\"#{note[:link]}\">#{note[:subject]}</a>\"."
+            builder :post
+          end
+          builder :feed
+        end
+      end
+    end
+
+    # GET /note/{id}.json
+    # GET /note/{id}.xml
+    get %r{/note/#{ID_REGEX}\.(json|xml)} do |id, type|
+      ensure_login!
+      cache("note/#{id}:#{@user_cookie}.#{type}") do
+        case type
+        when 'json'
+          JSON.pretty_generate @fa.note(id)
+        when 'xml'
+          @fa.note(id).to_xml(root: 'note', skip_types: true)
         end
       end
     end

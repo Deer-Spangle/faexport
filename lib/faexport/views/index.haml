@@ -3,11 +3,21 @@
   %input#name{type: 'text', placeholder: 'name', autocomplete: 'off'}
   or
   %input#id{type: 'text', placeholder: 'id', autocomplete: 'off'}
-%dl#links{style: 'display: none'}
+%dl#links
   %dt Home
   %dd
     - %w(json xml).map do |type|
       %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/home.#{type}"}
+      %br
+  %dt Browse
+  %dd
+    - %w(json xml).map do |type|
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/browse.#{type}"}
+      %br
+  %dt Status
+  %dd
+    - %w(json xml).map do |type|
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/status.#{type}"}
       %br
   %dt Search
   %dd
@@ -59,3 +69,16 @@
     %dd
       %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notifications/#{notification_type}.rss"}
       %br
+  %dt Notes (login cookie required)
+  %dd
+    - %w(json xml rss).map do |type|
+      - %w(inbox unread outbox high medium low archive trash).map do |folder|
+        %dd
+          %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notes/#{folder}.#{type}"}
+          %br
+  %dt Note view (login cookie required)
+  %dd
+    - %w(json xml).map do |type|
+      %dd
+        %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/note/{id}.#{type}"}
+        %br
