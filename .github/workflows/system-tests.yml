@@ -2,7 +2,11 @@ name: System tests
 
 on:
   push:
+    branches-ignore:
+      - "dependabot/**"
   pull_request:
+    branches:
+      - "master"
   workflow_dispatch:
 
 
