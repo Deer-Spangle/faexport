@@ -17,12 +17,14 @@ GEM
       tilt
     i18n (1.8.9)
       concurrent-ruby (~> 1.0)
-    mini_portile2 (2.4.0)
+    mini_portile2 (2.5.0)
     minitest (5.14.4)
     multi_json (1.13.1)
     mustermann (1.0.3)
-    nokogiri (1.10.8)
-      mini_portile2 (~> 2.4.0)
+    nokogiri (1.11.0)
+      mini_portile2 (~> 2.5.0)
+      racc (~> 1.4)
+    racc (1.5.2)
     rack (2.2.3)
     rack-protection (2.0.4)
       rack
