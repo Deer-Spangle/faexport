@@ -13,7 +13,9 @@ jobs:
       - name: "Build docker image"
         run: make docker_build
       - name: "Run docker compose"
-        run: "make deploy_bg PORT=9292 FA_COOKIE=\"${{ secrets.TEST_COOKIE }}\""
+        run: "make deploy_bg PORT=9292"
+        env:
+          FA_COOKIE: ${{ secrets.TEST_COOKIE }}
       - name: "Snooze a sec"
         run: sleep 60
       - name: "Check home page"
