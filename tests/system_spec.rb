@@ -26,7 +26,7 @@ describe 'FA export server' do
       end
 
       resp
-    rescue Error => e
+    rescue => e
       if (retries += 1) <= 5
         puts "Error fetching page: #{url}, #{e}, retry #{retries} in #{wait_between_tries} second(s)..."
         sleep(wait_between_tries)
