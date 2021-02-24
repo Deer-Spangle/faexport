@@ -16,11 +16,15 @@ jobs:
         run: "make deploy_bg PORT=9292"
         env:
           FA_COOKIE: ${{ secrets.TEST_COOKIE_ESCAPED }}
-      - name: "Snooze a sec"
-        run: sleep 60
-      - name: "Check home page"
-        run: curl http://localhost:9292
-      - name: "Check home endpoint"
-        run: curl http://localhost:9292/home.json
-      - name: "List docker containers"
-        run: docker ps -a
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.5.3
+      - name: Install dependencies
+        run: bundle install
+      - name: "Run system tests"
+        run: bundle exec "rspec spec tests/system_spec.rb"
+        env:
+          server_url: "http://localhost:9292"
+          test_cookie: ${{ secrets.TEST_COOKIE}}
+          test_cookie_user_2: ${{ secrets.COOKIE_FAFEED_2 }}

@@ -33,7 +33,7 @@ jobs:
           test_cookie_user_3: ${{ secrets.COOKIE_FAFEED_3 }}
           test_cookie_hidden_favs: ${{ secrets.COOKIE_NO_WATCHERS }}
           test_cookie_not_classic: ${{ secrets.COOKIE_MODERN_THEME }}
-        run: bundle exec "rspec spec tests/ --exclude-pattern tests/**/search_spec.rb"
+        run: bundle exec "rspec spec tests/integration/ --exclude-pattern tests/integration/search_spec.rb"
       - name: Search API tests
         env:
           test_cookie: ${{ secrets.TEST_COOKIE}}
@@ -41,4 +41,4 @@ jobs:
           test_cookie_user_3: ${{ secrets.COOKIE_FAFEED_3 }}
           test_cookie_hidden_favs: ${{ secrets.COOKIE_NO_WATCHERS }}
           test_cookie_not_classic: ${{ secrets.COOKIE_MODERN_THEME }}
-        run: bundle exec "rspec spec tests/**/search_spec.rb"
+        run: bundle exec "rspec spec tests/integration/search_spec.rb"
