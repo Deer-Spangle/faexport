@@ -112,10 +112,10 @@ describe 'FA export server' do
 
     it 'returns a different user if given a different cookie' do
       resp1 = fetch_with_retry("/notifications/others.json", cookie = COOKIE_DEFAULT)
-      data1 = JSON.parse(resp1.body.read)
+      data1 = JSON.parse(resp1.read)
 
       resp2 = fetch_with_retry("/notifications/others.json", cookie = COOKIE_TEST_USER_2)
-      data2 = JSON.parse(resp2.body.read)
+      data2 = JSON.parse(resp2.read)
       expect(data1["current_user"]["name"]).not_to be_empty
       expect(data2["current_user"]["name"]).not_to be_empty
       expect(data1["current_user"]["name"]).not_to eq(data2["current_user"]["name"])
