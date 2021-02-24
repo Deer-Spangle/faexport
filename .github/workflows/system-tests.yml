@@ -14,5 +14,9 @@ jobs:
         run: make docker_build
       - name: "Run docker compose"
         run: "make deploy_bg PORT=9292 FA_COOKIE=\"${{ secrets.TEST_COOKIE }}\""
+      - name: "Check home page"
+        run: curl http://localhost:9292
+      - name: "Check home endpoint"
+        run: curl http://localhost:9292/home.json
       - name: "List docker containers"
         run: docker ps -a
