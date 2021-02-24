@@ -14,6 +14,8 @@ jobs:
         run: make docker_build
       - name: "Run docker compose"
         run: "make deploy_bg PORT=9292 FA_COOKIE=\"${{ secrets.TEST_COOKIE }}\""
+      - name: "Snooze a sec"
+        run: sleep 60
       - name: "Check home page"
         run: curl http://localhost:9292
       - name: "Check home endpoint"
