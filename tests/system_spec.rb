@@ -10,18 +10,21 @@ describe 'FA export server' do
   COOKIE_TEST_USER_2 = ENV['test_cookie_user_2']
   SERVER_URL = ENV['server_url']
 
-  def fetch_with_retry(path, cookie = nil)
+  def fetch_with_retry(path, cookie = nil, check_status = true)
     wait_between_tries = 5
     retries = 0
     url = "#{SERVER_URL}/#{path}"
 
     begin
       resp = if cookie
-        open(url, 'FA_COOKIE' => "#{cookie}")
-      else
-        open(url)
+               open(url, 'FA_COOKIE' => "#{cookie}")
+             else
+               open(url)
+             end
+      if check_status
+        expect(resp.status[0]).to eq("200")
       end
-      expect(resp.status[0]).to eq("200")
+
       resp
     rescue Error => e
       if (retries += 1) <= 5
@@ -82,6 +85,40 @@ describe 'FA export server' do
         expect(item.at_css("description").content).not_to be_empty
         expect(item.at_css("pubDate").content).not_to be_empty
       end
+    end
+  end
+
+  context 'when checking restricted endpoint' do
+    it 'returns an error if cookie is not given' do
+      resp = fetch_with_retry("/notifications/others.json", check_status = false)
+      expect(resp.status[0]).to eq("400")
+      body = resp.read
+      expect(body).not_to be_empty
+      data = JSON.parse(body)
+      expect(data).to have_key("error")
+      expect(data["error"]).to include("valid login cookie")
+      expect(data["error"]).to include("FA_COOKIE")
+    end
+
+    it 'returns data if given a cookie' do
+      resp = fetch_with_retry("/notifications/others.json", cookie = COOKIE_DEFAULT)
+      body = resp.read
+      expect(body).not_to be_empty
+      data = JSON.parse(body)
+      expect(data).to have_key("current_user")
+      expect(data["current_user"]).to have_key("name")
+      expect(data["current_user"]["name"]).not_to be_empty
+    end
+
+    it 'returns a different user if given a different cookie' do
+      resp1 = fetch_with_retry("/notifications/others.json", cookie = COOKIE_DEFAULT)
+      data1 = JSON.parse(resp1.body.read)
+
+      resp2 = fetch_with_retry("/notifications/others.json", cookie = COOKIE_TEST_USER_2)
+      data2 = JSON.parse(resp2.body.read)
+      expect(data1["current_user"]["name"]).not_to be_empty
+      expect(data2["current_user"]["name"]).not_to be_empty
+      expect(data1["current_user"]["name"]).not_to eq(data2["current_user"]["name"])
     end
   end
 end
