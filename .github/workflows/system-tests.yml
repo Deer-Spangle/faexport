@@ -13,6 +13,6 @@ jobs:
       - name: "Build docker image"
         run: make docker_build
       - name: "Run docker compose"
-        run: "make deploy PORT=9292 FA_COOKIE=\"${{ secrets.TEST_COOKIE }}\""
+        run: "make deploy_bg PORT=9292 FA_COOKIE=\"${{ secrets.TEST_COOKIE }}\""
       - name: "List docker containers"
         run: docker ps -a
