@@ -119,20 +119,12 @@ class FAStatusError < FAError
 end
 
 class FASystemError < FAError
-  def initialize(url)
-    super(url)
-  end
-
   def to_s
     "FA returned a system error page when trying to access #{@url}."
   end
 end
 
 class FAStyleError < FAError
-  def initialize(url)
-    super(url)
-  end
-
   def to_s
     "FA is not currently set to classic theme. Unfortunately this API currently only works if the authenticated
 account is using classic theme. Please change your style to classic and try again."
@@ -140,10 +132,6 @@ account is using classic theme. Please change your style to classic and try agai
 end
 
 class FALoginError < FAError
-  def initialize(url)
-    super(url)
-  end
-
   def to_s
     "Unable to log into FA to access #{@url}."
   end
