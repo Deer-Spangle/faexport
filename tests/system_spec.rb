@@ -24,19 +24,15 @@ describe "FA export server" do
         open(url)
       end
     rescue OpenURI::HTTPError => e
-      if check_status
-        raise
-      else
-        e.io
-      end
+      raise if check_status
+
+      e.io
     rescue => e
-      if (retries += 1) <= 5
-        puts "Error fetching page: #{url}, #{e}, retry #{retries} in #{wait_between_tries} second(s)..."
-        sleep(wait_between_tries)
-        retry
-      else
-        raise
-      end
+      raise unless (retries += 1) <= 5
+
+      puts "Error fetching page: #{url}, #{e}, retry #{retries} in #{wait_between_tries} second(s)..."
+      sleep(wait_between_tries)
+      retry
     end
   end
 
