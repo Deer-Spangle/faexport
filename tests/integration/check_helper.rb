@@ -2,7 +2,7 @@
 
 require "rspec/expectations"
 
-RSpec::Matchers.define :be_valid_submission do |blank_profile=false, blank_title=false|
+RSpec::Matchers.define :be_valid_submission do |blank_profile = false, blank_title = false|
   match do |submission|
     # Check ID
     expect(submission[:id]).to match(/^[0-9]+$/)
@@ -27,7 +27,7 @@ RSpec::Matchers.define :be_valid_submission do |blank_profile=false, blank_title
   end
 end
 
-RSpec::Matchers.define :have_valid_profile_link do |watch_list=false|
+RSpec::Matchers.define :have_valid_profile_link do |watch_list = false|
   match do |item|
     expect(item[:name]).not_to be_blank
     expect(item[watch_list ? :link : :profile]).to eql "https://www.furaffinity.net/user/#{item[:profile_name]}/"

@@ -104,10 +104,10 @@ module FAExport
     end
 
     helpers do
-      def cache(key)
+      def cache(key, &block)
         # Cache rss feeds for one hour
         long_cache = key =~ /\.rss$/
-        @cache.add("#{key}.#{@fa.safe_for_work}", long_cache) { yield }
+        @cache.add("#{key}.#{@fa.safe_for_work}", long_cache, &block)
       end
 
       def set_content_type(type)

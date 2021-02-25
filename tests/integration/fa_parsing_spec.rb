@@ -63,7 +63,7 @@ describe "FA parser" do
 
     it "has valid submissions in all categories" do
       home = @fa.home
-      keys = [:artwork, :writing, :music, :crafts]
+      keys = %i[artwork writing music crafts]
       home.map do |type, submissions|
         expect(keys).to include(type)
         expect(submissions).not_to be_empty
@@ -109,7 +109,7 @@ describe "FA parser" do
       # Check description
       expect(profile[:artist_profile]).not_to be_blank
       # Check numeric values
-      [:pageviews, :submissions, :comments_received, :comments_given, :journals, :favorites].each do |key|
+      %i[pageviews submissions comments_received comments_given journals favorites].each do |key|
         expect(profile[key]).not_to be_blank
         expect(profile[key]).to match(/^[0-9]+$/)
       end

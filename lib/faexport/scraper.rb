@@ -176,10 +176,12 @@ class RedisCache
       value
     end
   rescue Redis::BaseError => e
-    raise(
-      CacheError,
-      "The page returned from FA was too large to fit in the cache"
-    ) if e.message.include? "OOM"
+    if e.message.include? "OOM"
+      raise(
+        CacheError,
+        "The page returned from FA was too large to fit in the cache"
+      )
+    end
 
     raise(CacheError, "Error accessing Redis Cache: #{e.message}")
   end
@@ -211,7 +213,8 @@ class Furaffinity
         "name" => username,
         "pass" => password,
         "login" => "Login to Furaffinity"
-      })
+      }
+    )
     "b=#{response["set-cookie"][/b=([a-z0-9\-]+);/, 1]}; "\
     "a=#{response["set-cookie"][/a=([a-z0-9\-]+);/, 1]}"
   end
@@ -321,7 +324,7 @@ class Furaffinity
     html.css(".artist_name").map { |elem| elem.content }
   end
 
-  def submission(id, is_login=false)
+  def submission(id, is_login = false)
     url = "view/#{id}/"
     html = fetch(url)
     error_msg = html.at_css("table.maintable td.alt1")
@@ -347,16 +350,12 @@ class Furaffinity
     date = pick_date(html.at_css(".journal-title-box .popup_date"))
     profile_url = html.at_css("td.cat .journal-title-box a")["href"][1..-1]
     journal_header =
-      if !html.at_css(".journal-header").nil?
+      unless html.at_css(".journal-header").nil?
         html.at_css(".journal-header").children[0..-3].to_s.strip
-      else
-        nil
       end
     journal_footer =
-      if !html.at_css(".journal-footer").nil?
+      unless html.at_css(".journal-footer").nil?
         html.at_css(".journal-footer").children[2..-1].to_s.strip
-      else
-        nil
       end
 
     {
@@ -379,15 +378,18 @@ class Furaffinity
     if offset.size > 1
       raise FAOffsetError.new(
         fa_url("#{folder}/#{escape(user)}/"),
-        'You may only provide one of "page", "next" or "prev" as a parameter')
+        'You may only provide one of "page", "next" or "prev" as a parameter'
+      )
     elsif folder == "favorites" && offset[:page]
       raise FAOffsetError.new(
         fa_url("#{folder}/#{escape(user)}/"),
-        "Due to a change by Furaffinity, favorites can no longer be accessed by page. See http://faexport.boothale.net/docs#get-user-name-folder for more details.")
+        "Due to a change by Furaffinity, favorites can no longer be accessed by page. See http://faexport.boothale.net/docs#get-user-name-folder for more details."
+      )
     elsif folder != "favorites" && (offset[:next] || offset[:prev])
       raise FAOffsetError.new(
         fa_url("#{folder}/#{escape(user)}/"),
-        'The options "next" and "prev" are only usable on favorites. Use "page" instead with a page number')
+        'The options "next" and "prev" are only usable on favorites. Use "page" instead with a page number'
+      )
     end
 
     url = if offset[:page]
@@ -543,7 +545,8 @@ class Furaffinity
         "do" => "update",
         "subject" => title,
         "message" => description
-      })
+      }
+    )
     raise FAFormError.new(fa_url("controls/journal/")) unless response.is_a?(Net::HTTPMovedTemporarily)
 
     {
@@ -858,14 +861,12 @@ class Furaffinity
       if profile_to.nil?
         is_inbound = true
         profile = profile_from.at_css("a")
+      elsif profile_from.nil?
+        is_inbound = false
+        profile = profile_to.at_css("a")
       else
-        if profile_from.nil?
-          is_inbound = false
-          profile = profile_to.at_css("a")
-        else
-          is_inbound = profile_to.content.strip == "me"
-          profile = is_inbound ? profile_from.at_css("a") : profile_to.at_css("a")
-        end
+        is_inbound = profile_to.content.strip == "me"
+        profile = is_inbound ? profile_from.at_css("a") : profile_to.at_css("a")
       end
       {
         note_id: note.at_css("input")["value"].to_i,
@@ -933,13 +934,12 @@ class Furaffinity
   end
 
   def strip_leading_slash(path)
-    while path.to_s.start_with? "/"
-      path = path[1..-1]
-    end
+    path = path[1..-1] while path.to_s.start_with? "/"
     path
   end
 
-private
+  private
+
   def fa_fetch_address
     if ENV["CF_BYPASS_SFW"] && @safe_for_work
       ENV["CF_BYPASS_SFW"]
@@ -1031,7 +1031,7 @@ private
   end
 
   def escape(name)
-    CGI::escape(name)
+    CGI.escape(name)
   end
 
   def fetch(path, extra_cookie = nil)
@@ -1107,8 +1107,6 @@ private
       }
       sub[:fav_id] = elem["data-fav-id"] if elem["data-fav-id"]
       sub
-    else
-      nil
     end
   end
 
@@ -1135,9 +1133,7 @@ private
       id = comment.attr("id").gsub("cid:", "")
       width = comment.attr("width")[0..-2].to_i
 
-      while reply_stack.any? && reply_stack.last[:width] <= width
-        reply_stack.pop
-      end
+      reply_stack.pop while reply_stack.any? && reply_stack.last[:width] <= width
       reply_to = reply_stack.any? ? reply_stack.last[:id] : ""
       reply_level = reply_stack.size
       reply_stack.push({ id: id, width: width })
@@ -1166,8 +1162,6 @@ private
           reply_level: reply_level,
           is_deleted: true
         }
-      else
-        nil
       end
     end.compact
   end
