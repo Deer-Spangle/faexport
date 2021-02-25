@@ -116,10 +116,11 @@ module FAExport
 
       def ensure_login!
         unless @user_cookie
-          raise FALoginCookieError(
-                  'You must provide a valid login cookie in the header "FA_COOKIE".'\
-                    "Please note this is a header, not a cookie."
-                )
+          raise(
+            FALoginCookieError,
+            'You must provide a valid login cookie in the header "FA_COOKIE".'\
+              "Please note this is a header, not a cookie."
+          )
         end
       end
     end
@@ -131,10 +132,11 @@ module FAExport
         if @user_cookie =~ COOKIE_REGEX
           @fa.login_cookie = @user_cookie.strip
         else
-          raise FALoginCookieError(
-                  "The login cookie provided must be in the format"\
-                    '"b=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx; a=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
-                )
+          raise(
+            FALoginCookieError,
+            "The login cookie provided must be in the format"\
+              '"b=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx; a=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
+          )
         end
       else
         @fa.login_cookie = @system_cookie
