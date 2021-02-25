@@ -1,0 +1,3 @@
+# I think using double quotes everywhere looks neater, saves time editing strings when making them do something interesting.
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
