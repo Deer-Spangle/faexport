@@ -347,7 +347,7 @@ describe "FA parser" do
   end
 
   context "when viewing user galleries" do
-    %w(gallery scraps favorites).each do |folder|
+    %w[gallery scraps favorites].each do |folder|
       it "returns a list of valid submission" do
         submissions = @fa.submissions(TEST_USER_2, folder, {})
         expect(submissions).to be_instance_of Array
@@ -381,7 +381,7 @@ describe "FA parser" do
     end
 
     context "specifically gallery or scraps" do
-      %w(gallery scraps).each do |folder|
+      %w[gallery scraps].each do |folder|
         it "handles paging correctly" do
           gallery1 = @fa.submissions(TEST_USER_2_PAGES_GALLERY, folder, {})
           gallery2 = @fa.submissions(TEST_USER_2_PAGES_GALLERY, folder, { page: 2 })
@@ -470,7 +470,7 @@ describe "FA parser" do
       expect(sub[:resolution]).not_to be_blank
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
-      expect(sub[:keywords]).to eql(%w(keyword1 keyword2 keyword3))
+      expect(sub[:keywords]).to eql(%w[keyword1 keyword2 keyword3])
     end
 
     it "fails when given non-existent submissions" do
@@ -481,7 +481,7 @@ describe "FA parser" do
       sub_id = "16437648"
       sub = @fa.submission(sub_id)
       expect(sub[:keywords]).to be_instance_of Array
-      expect(sub[:keywords]).to eql(%w(keyword1 keyword2 keyword3))
+      expect(sub[:keywords]).to eql(%w[keyword1 keyword2 keyword3])
     end
 
     it "has identical description and description_body" do
@@ -1955,7 +1955,7 @@ describe "FA parser" do
 
       it "can list other folders" do
         @fa.login_cookie = COOKIE_TEST_USER_2
-        %w(high medium low archive trash).map do |folder|
+        %w[high medium low archive trash].map do |folder|
           notes = @fa.notes(folder)
 
           expect(notes).not_to be_empty

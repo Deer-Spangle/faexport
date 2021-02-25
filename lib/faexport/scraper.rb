@@ -37,13 +37,13 @@ require "redis"
 
 USER_AGENT = "FAExport"
 SEARCH_OPTIONS = {
-  "perpage" => %w(24 48 72),
-  "order_by" => %w(relevancy date popularity),
-  "order_direction" => %w(asc desc),
-  "range" => %w(day 3days week month all),
-  "mode" => %w(all any extended),
-  "rating" => %w(general mature adult),
-  "type" => %w(art flash photo music story poetry)
+  "perpage" => %w[24 48 72],
+  "order_by" => %w[relevancy date popularity],
+  "order_direction" => %w[asc desc],
+  "range" => %w[day 3days week month all],
+  "mode" => %w[all any extended],
+  "rating" => %w[general mature adult],
+  "type" => %w[art flash photo music story poetry]
 }
 SEARCH_DEFAULTS = {
   "q" => "",
@@ -56,7 +56,7 @@ SEARCH_DEFAULTS = {
   "rating" => SEARCH_OPTIONS["rating"].join(","),
   "type" => SEARCH_OPTIONS["type"].join(",")
 }
-SEARCH_MULTIPLE = %w(rating type)
+SEARCH_MULTIPLE = %w[rating type]
 
 class FAError < StandardError
   attr_accessor :url
@@ -544,9 +544,7 @@ class Furaffinity
         "subject" => title,
         "message" => description
       })
-    unless response.is_a?(Net::HTTPMovedTemporarily)
-      raise FAFormError.new(fa_url("controls/journal/"))
-    end
+    raise FAFormError.new(fa_url("controls/journal/")) unless response.is_a?(Net::HTTPMovedTemporarily)
 
     {
       url: fa_url(response["location"][1..-1])
@@ -888,9 +886,7 @@ class Furaffinity
     html = fetch(url)
     current_user = get_current_user(html, url)
     note_table = html.at_css(".note-view-container table.maintable table.maintable")
-    if note_table.nil?
-      raise FASystemError.new(url)
-    end
+    raise FASystemError.new(url) if note_table.nil?
 
     note_header = note_table.at_css("td.head")
     note_from = note_header.css("em")[1].at_css("a")
@@ -1013,7 +1009,7 @@ private
       link_elem = item.at_css("a")
       {
         title: item.at_css("strong").content.gsub(/:\s*$/, ""),
-        name: (link_elem || item.xpath('child::text()').to_s.squeeze(" ").strip),
+        name: (link_elem || item.xpath("child::text()").to_s.squeeze(" ").strip),
         link: link_elem ? link_elem["href"] : ""
       }
     end
