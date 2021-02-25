@@ -249,9 +249,7 @@ class Furaffinity
 
     raw = @cache.add("url:browse:#{params}") do
       response = post("/browse/#{page}/", options)
-      unless response.is_a?(Net::HTTPSuccess)
-        raise FAStatusError.new(fa_url("/browse/#{page}/"), response.message)
-      end
+      raise FAStatusError.new(fa_url("/browse/#{page}/"), response.message) unless response.is_a?(Net::HTTPSuccess)
 
       response.body
     end
@@ -348,10 +346,18 @@ class Furaffinity
     html = fetch("journal/#{id}/")
     date = pick_date(html.at_css(".journal-title-box .popup_date"))
     profile_url = html.at_css("td.cat .journal-title-box a")["href"][1..-1]
-    journal_header = nil
-    journal_header = html.at_css(".journal-header").children[0..-3].to_s.strip unless html.at_css(".journal-header").nil?
-    journal_footer = nil
-    journal_footer = html.at_css(".journal-footer").children[2..-1].to_s.strip unless html.at_css(".journal-footer").nil?
+    journal_header =
+      if !html.at_css(".journal-header").nil?
+        html.at_css(".journal-header").children[0..-3].to_s.strip
+      else
+        nil
+      end
+    journal_footer =
+      if !html.at_css(".journal-footer").nil?
+        html.at_css(".journal-footer").children[2..-1].to_s.strip
+      else
+        nil
+      end
 
     {
       title: html.at_css(".journal-title-box .no_overflow").content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ""),
@@ -466,9 +472,7 @@ class Furaffinity
 
   # Also returns the URI of the search
   def search(options = {})
-    if options["q"].blank?
-      return []
-    end
+    return [] if options["q"].blank?
 
     options = SEARCH_DEFAULTS.merge(options)
     params = {}
@@ -488,11 +492,15 @@ class Furaffinity
       name = key.gsub("_", "-")
       if SEARCH_MULTIPLE.include? key
         values = options[key].gsub(" ", "").split(",")
-        raise FASearchError.new(key, options[key], fa_url("search")) unless values.all? { |v| SEARCH_OPTIONS[key].include? v }
+        unless values.all? { |v| SEARCH_OPTIONS[key].include? v }
+          raise FASearchError.new(key, options[key], fa_url("search"))
+        end
 
         values.each { |v| params["#{name}-#{v}"] = "on" }
       elsif SEARCH_OPTIONS.keys.include? key
-        raise FASearchError.new(key, options[key], fa_url("search")) unless SEARCH_OPTIONS[key].include? options[key].to_s
+        unless SEARCH_OPTIONS[key].include? options[key].to_s
+          raise FASearchError.new(key, options[key], fa_url("search"))
+        end
 
         params[name] = value
       elsif SEARCH_DEFAULTS.keys.include? key
@@ -503,9 +511,7 @@ class Furaffinity
     # Get search response
     raw = @cache.add("url:search:#{params}") do
       response = post("/search/", params)
-      unless response.is_a?(Net::HTTPSuccess)
-        raise FAStatusError.new(fa_url("search/"), response.message)
-      end
+      raise FAStatusError.new(fa_url("search/"), response.message) unless response.is_a?(Net::HTTPSuccess)
 
       response.body
     end
@@ -514,9 +520,7 @@ class Furaffinity
     # Get search results. Even a search with no matches gives this div.
     results = html.at_css("#search-results")
     # If form fails to submit, this div will not be there.
-    if results.nil?
-      raise FAFormError.new(fa_url("/search/"))
-    end
+    raise FAFormError.new(fa_url("/search/")) if results.nil?
 
     html.css(".gallery > figure").map { |art| build_submission(art) }
   end
@@ -1036,9 +1040,7 @@ private
     url = fetch_url(path)
     raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
       open(url, "User-Agent" => USER_AGENT, "Cookie" => "#{@login_cookie};#{extra_cookie}") do |response|
-        if response.status[0] != "200"
-          raise FAStatusError.new(url, response.status.join(" "))
-        end
+        raise FAStatusError.new(url, response.status.join(" ")) if response.status[0] != "200"
 
         response.read
       end
@@ -1047,9 +1049,7 @@ private
     html = Nokogiri::HTML(raw)
 
     head = html.xpath("//head//title").first
-    if !head || head.content == "System Error"
-      raise FASystemError.new(url)
-    end
+    raise FASystemError.new(url) if !head || head.content == "System Error"
 
     page = html.to_s
     if page.include?("has elected to make their content available to registered users only.")
@@ -1060,14 +1060,10 @@ private
       raise FASystemError.new(url)
     end
 
-    if page.include?('<a href="/register"><strong>Create an Account</strong></a>')
-      raise FALoginError.new(url)
-    end
+    raise FALoginError.new(url) if page.include?('<a href="/register"><strong>Create an Account</strong></a>')
 
     stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
-    unless stylesheet.start_with?("/themes/classic/")
-      raise FAStyleError.new(url)
-    end
+    raise FAStyleError.new(url) unless stylesheet.start_with?("/themes/classic/")
 
     # Parse and save the status, most pages have this, but watcher lists do not.
     parse_status(html)
@@ -1078,9 +1074,7 @@ private
   def post(path, params)
     uri = URI.parse(fa_fetch_address)
     http = Net::HTTP.new(uri.host, uri.port)
-    if fa_fetch_address.start_with?("https")
-      http.use_ssl = true
-    end
+    http.use_ssl = true if fa_fetch_address.start_with?("https")
     request = Net::HTTP::Post.new(path)
     request.add_field("Content-Type", "application/x-www-form-urlencoded")
     request.add_field("Origin", fa_address)
@@ -1182,9 +1176,7 @@ private
 
   def get_current_user(html, url)
     name_elem = html.at_css("a#my-username")
-    if name_elem.nil?
-      raise FALoginError.new(url)
-    end
+    raise FALoginError.new(url) if name_elem.nil?
 
     {
       "name": name_elem.content.strip.gsub(/^~/, ""),
@@ -1197,9 +1189,7 @@ private
     footer = html.css(".footer")
     center = footer.css("center")
 
-    if footer.empty?
-      return
-    end
+    return if footer.empty?
 
     timestamp_line = footer[0].inner_html.split("\n").select { |line| line.strip.start_with? "Server Local Time: " }
     timestamp = timestamp_line[0].to_s.split("Time:")[1].strip
