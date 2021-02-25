@@ -195,8 +195,8 @@ describe "FA parser search endpoint" do
           mature_count += 1
         end
       end
-      expect(general_count).to be_positive?
-      expect(mature_count).to be_positive?
+      expect(general_count).to be_positive
+      expect(mature_count).to be_positive
     end
 
     it "displays only sfw results when only adult is selected, and sfw mode is on" do
