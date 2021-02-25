@@ -37,7 +37,7 @@ describe 'FA parser search endpoint' do
 
   context 'when searching submissions' do
     it 'returns a list of submission data' do
-      results = search_with_retry({"q" => "YCH"})
+      results = search_with_retry({ "q" => "YCH" })
       expect(results).to be_instance_of Array
       expect(results).not_to be_empty
       results.each do |result|

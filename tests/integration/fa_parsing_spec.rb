@@ -384,7 +384,7 @@ describe 'FA parser' do
       %w(gallery scraps).each do |folder|
         it 'handles paging correctly' do
           gallery1 = @fa.submissions(TEST_USER_2_PAGES_GALLERY, folder, {})
-          gallery2 = @fa.submissions(TEST_USER_2_PAGES_GALLERY, folder, {page: 2})
+          gallery2 = @fa.submissions(TEST_USER_2_PAGES_GALLERY, folder, { page: 2 })
           expect(gallery1).to be_instance_of Array
           expect(gallery2).to be_instance_of Array
           expect(gallery1).not_to eql(gallery2)
@@ -415,7 +415,7 @@ describe 'FA parser' do
         fav_id = favs[58][:fav_id]
         fav_id_next = favs[59][:fav_id]
         # Get favs after that ID
-        favs_next = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", {next: fav_id})
+        favs_next = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", { next: fav_id })
         expect(favs_next.length).to be > (72 - 58)
         expect(favs_next[0][:fav_id]).to eql(fav_id_next)
         favs_next.each do |fav|
@@ -428,10 +428,10 @@ describe 'FA parser' do
         expect(favs1).to be_instance_of Array
         expect(favs1.length).to be 72
         last_fav_id = favs1[71][:fav_id]
-        favs2 = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", {next: last_fav_id})
+        favs2 = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", { next: last_fav_id })
         # Get fav ID partially through
         overlap_fav_id = favs2[5][:fav_id]
-        favs_overlap = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", {prev: overlap_fav_id})
+        favs_overlap = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", { prev: overlap_fav_id })
         expect(favs1).to be_instance_of Array
         expect(favs1.length).to be 72
         favs_overlap.each do |fav|
@@ -2032,7 +2032,7 @@ describe 'FA parser' do
 
   context 'when browsing' do
     it 'returns a list of submissions' do
-      submissions = @fa.browse({"page" => "1"})
+      submissions = @fa.browse({ "page" => "1" })
 
       submissions.each do |submission|
         expect(submission).to be_valid_submission
@@ -2040,8 +2040,8 @@ describe 'FA parser' do
     end
 
     it 'returns a second page, different to the first' do
-      submissions_1 = @fa.browse({"page" => "1"})
-      submissions_2 = @fa.browse({"page" => "2"})
+      submissions_1 = @fa.browse({ "page" => "1" })
+      submissions_2 = @fa.browse({ "page" => "2" })
 
       submissions_1.each do |submission|
         expect(submission).to be_valid_submission
@@ -2063,9 +2063,9 @@ describe 'FA parser' do
     end
 
     it 'returns as many submissions as perpage specifies' do
-      submissions_24 = @fa.browse({"perpage" => "24"})
-      submissions_48 = @fa.browse({"perpage" => "48"})
-      submissions_72 = @fa.browse({"perpage" => "72"})
+      submissions_24 = @fa.browse({ "perpage" => "24" })
+      submissions_48 = @fa.browse({ "perpage" => "48" })
+      submissions_72 = @fa.browse({ "perpage" => "72" })
 
       expect(submissions_24.length).to eql(24)
       expect(submissions_48.length).to eql(48)
@@ -2073,8 +2073,8 @@ describe 'FA parser' do
     end
 
     it 'can specify ratings to display, and honours that selection' do
-      only_adult = @fa.browse({"perpage" => 24, "rating" => "adult"})
-      only_sfw_or_mature = @fa.browse({"perpage" => 24, "rating" => "mature,general"})
+      only_adult = @fa.browse({ "perpage" => 24, "rating" => "adult" })
+      only_sfw_or_mature = @fa.browse({ "perpage" => 24, "rating" => "mature,general" })
 
       expect(only_adult).to be_different_results_to(only_sfw_or_mature)
 

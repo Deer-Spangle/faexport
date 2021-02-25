@@ -1139,7 +1139,7 @@ private
       end
       reply_to = reply_stack.any? ? reply_stack.last[:id] : ''
       reply_level = reply_stack.size
-      reply_stack.push({id: id, width: width})
+      reply_stack.push({ id: id, width: width })
 
       if has_timestamp
         date = pick_date(comment.at_css('.popup_date'))

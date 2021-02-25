@@ -145,11 +145,11 @@ Please note this is a header, not a cookie."
     end
 
     get '/' do
-      haml :index, layout: :page, :locals => {:version => VERSION}
+      haml :index, layout: :page, :locals => { :version => VERSION }
     end
 
     get '/docs' do
-      haml :page, :locals => {:version => VERSION} do
+      haml :page, :locals => { :version => VERSION } do
         markdown :docs
       end
     end
