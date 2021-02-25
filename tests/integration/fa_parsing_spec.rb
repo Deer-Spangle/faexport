@@ -453,7 +453,7 @@ describe "FA parser" do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.furaffinity.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
+      expect(sub[:download]).to match(%r{https://d.furaffinity.net/art/[^/]+/[0-9]+/[0-9]+\..+\.png})
       # For an image submission, full == download
       expect(sub[:full]).to eql(sub[:download])
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
@@ -462,11 +462,11 @@ describe "FA parser" do
       expect(sub[:theme]).not_to be_blank
       expect(sub[:species]).not_to be_blank
       expect(sub[:gender]).not_to be_blank
-      expect(sub[:favorites]).to match(/[0-9]+/)
+      expect(sub[:favorites]).to match(%r{[0-9]+})
       expect(sub[:favorites].to_i).to be > 0
-      expect(sub[:comments]).to match(/[0-9]+/)
+      expect(sub[:comments]).to match(%r{[0-9]+})
       expect(sub[:comments].to_i).to be > 0
-      expect(sub[:views]).to match(/[0-9]+/)
+      expect(sub[:views]).to match(%r{[0-9]+})
       expect(sub[:views].to_i).to be > 0
       expect(sub[:resolution]).not_to be_blank
       expect(sub[:rating]).not_to be_blank
@@ -501,7 +501,7 @@ describe "FA parser" do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.furaffinity.net\/download\/art\/[^\/]+\/stories\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
+      expect(sub[:download]).to match(%r{https://d.furaffinity.net/download/art/[^/]+/stories/[0-9]+/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)})
       # For a story submission, full != download
       expect(sub[:full]).not_to be_blank
       expect(sub[:full]).not_to eql(sub[:download])
@@ -533,7 +533,7 @@ describe "FA parser" do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.furaffinity.net\/download\/art\/[^\/]+\/music\/[0-9]+\/[0-9]+\..+\.(mp3|mid|wav|mpeg)/)
+      expect(sub[:download]).to match(%r{https://d.furaffinity.net/download/art/[^/]+/music/[0-9]+/[0-9]+\..+\.(mp3|mid|wav|mpeg)})
       # For a music submission, full != download
       expect(sub[:full]).not_to be_blank
       expect(sub[:full]).not_to eql(sub[:download])
@@ -565,7 +565,7 @@ describe "FA parser" do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.furaffinity.net\/download\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.swf/)
+      expect(sub[:download]).to match(%r{https://d.furaffinity.net/download/art/[^/]+/[0-9]+/[0-9]+\..+\.swf})
       # For a flash submission, full is nil
       expect(sub[:full]).to be_nil
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
@@ -596,7 +596,7 @@ describe "FA parser" do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.furaffinity.net\/download\/art\/[^\/]+\/poetry\/[0-9]+\/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)/)
+      expect(sub[:download]).to match(%r{https://d.furaffinity.net/download/art/[^/]+/poetry/[0-9]+/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)})
       # For a poetry submission, full is nil
       expect(sub[:full]).not_to be_nil
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
@@ -629,7 +629,7 @@ describe "FA parser" do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.furaffinity.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
+      expect(sub[:download]).to match(%r{https://d.furaffinity.net/art/[^/]+/[0-9]+/[0-9]+\..+\.png})
       # For an image submission, full == download
       expect(sub[:full]).to eql(sub[:download])
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
@@ -713,7 +713,7 @@ describe "FA parser" do
       expect(sub[:avatar]).to be_valid_avatar_for_user(sub[:profile_name])
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
-      expect(sub[:download]).to match(/https:\/\/d.furaffinity.net\/art\/[^\/]+\/[0-9]+\/[0-9]+\..+\.png/)
+      expect(sub[:download]).to match(%r{https://d.furaffinity.net/art/[^/]+/[0-9]+/[0-9]+\..+\.png})
       # For an image submission, full is equal to download
       expect(sub[:full]).to eql(sub[:download])
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
@@ -797,7 +797,7 @@ describe "FA parser" do
       expect(journal[:journal_footer]).to be_nil
       expect(journal).to have_valid_profile_link
       expect(journal[:avatar]).to be_valid_avatar_for_user(journal[:profile_name])
-      expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
+      expect(journal[:link]).to match(%r{https://www.furaffinity.net/journal/#{journal_id}/?})
       expect(journal[:posted]).to be_valid_date_and_match_iso(journal[:posted_at])
     end
 
@@ -821,7 +821,7 @@ describe "FA parser" do
       expect(journal[:journal_footer]).to eql("Example test footer")
       expect(journal).to have_valid_profile_link
       expect(journal[:avatar]).to be_valid_avatar_for_user(journal[:profile_name])
-      expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
+      expect(journal[:link]).to match(%r{https://www.furaffinity.net/journal/#{journal_id}/?})
       expect(journal[:posted]).to be_valid_date_and_match_iso(journal[:posted_at])
     end
 
@@ -839,7 +839,7 @@ describe "FA parser" do
       expect(journal[:journal_footer]).to eql("Footer, no header though")
       expect(journal).to have_valid_profile_link
       expect(journal[:avatar]).to be_valid_avatar_for_user(journal[:profile_name])
-      expect(journal[:link]).to match(/https:\/\/www.furaffinity.net\/journal\/#{journal_id}\/?/)
+      expect(journal[:link]).to match(%r{https://www.furaffinity.net/journal/#{journal_id}/?})
       expect(journal[:posted]).to be_valid_date_and_match_iso(journal[:posted_at])
     end
   end
@@ -1886,7 +1886,7 @@ describe "FA parser" do
 
       journal_resp = @fa.submit_journal(journal_title, journal_description)
 
-      expect(journal_resp[:url]).to match(/https:\/\/www.furaffinity.net\/journal\/[0-9]+\//)
+      expect(journal_resp[:url]).to match(%r{https://www.furaffinity.net/journal/[0-9]+/})
 
       # Get journal listing, ensure latest is this one
       journals = @fa.journals(TEST_USER_JOURNAL_DUMP, 1)

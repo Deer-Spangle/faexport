@@ -47,19 +47,19 @@ end
 
 RSpec::Matchers.define :be_valid_avatar_for_user do |username|
   match do |avatar_link|
-    /^https:\/\/a.furaffinity.net\/[0-9]+\/#{username}.gif$/.match(avatar_link)
+    %r{^https://a.furaffinity.net/[0-9]+/#{username}.gif$}.match(avatar_link)
   end
 end
 
 RSpec::Matchers.define :be_valid_link_for_sub_id do |id|
   match do |link|
-    /^https:\/\/www.furaffinity.net\/view\/#{id}\/?$/.match(link)
+    %r{^https://www.furaffinity.net/view/#{id}/?$}.match(link)
   end
 end
 
 RSpec::Matchers.define :be_valid_thumbnail_link_for_sub_id do |id|
   match do |link|
-    /^https:\/\/t.furaffinity.net\/#{id}@[0-9]{2,3}-[0-9]+.jpg$/.match(link)
+    %r{^https://t.furaffinity.net/#{id}@[0-9]{2,3}-[0-9]+.jpg$}.match(link)
   end
 end
 

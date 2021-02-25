@@ -955,7 +955,7 @@ private
   end
 
   def html_strip(html_s)
-    html_s.gsub(/^(<br ?\/?>|\\r|\\n|\s)+/, "").gsub(/(<br ?\/?>|\\r|\\n|\s)+$/,"")
+    html_s.gsub(%r{^(<br ?/?>|\\r|\\n|\s)+}, "").gsub(%r{(<br ?/?>|\\r|\\n|\s)+$},"")
   end
 
   def last_path(path)
@@ -983,11 +983,11 @@ private
   end
 
   def html_field(info, field)
-    (info[/<b[^>]*>#{field}:<\/b>(.+?)<br>/, 1] || "").gsub(%r{</?[^>]+?>}, "").strip
+    (info[%r{<b[^>]*>#{field}:</b>(.+?)<br>}, 1] || "").gsub(%r{</?[^>]+?>}, "").strip
   end
 
   def html_long_field(info, field)
-    (info[/<b[^>]*>#{field}:<\/b><br>(.+)/m, 1] || "").strip
+    (info[%r{<b[^>]*>#{field}:</b><br>(.+)}m, 1] || "").strip
   end
 
   def select_artist_info(elem)
@@ -995,7 +995,7 @@ private
     return nil unless elem
 
     info = {}
-    elem.children.to_s.scan(/<strong>\s*(.*?)\s*<\/strong>\s*:\s*(.*?)\s*<\/div>/).each do |match|
+    elem.children.to_s.scan(%r{<strong>\s*(.*?)\s*</strong>\s*:\s*(.*?)\s*</div>}).each do |match|
       info[match[0]] = match[1]
     end
     info
