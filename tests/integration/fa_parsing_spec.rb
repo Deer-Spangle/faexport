@@ -188,7 +188,7 @@ describe "FA parser" do
       profile = @fa.user(TEST_USER)
       expect(profile[:watchers]).to be_instance_of Hash
       expect(profile[:watchers][:count]).to be_instance_of Integer
-      expect(profile[:watchers][:count]).to be.positive?
+      expect(profile[:watchers][:count]).to be_positive?
       expect(profile[:watchers][:recent]).to be_instance_of Array
       expect(profile[:watchers][:recent].length).to be <= profile[:watchers][:count]
       profile[:watchers][:recent].each do |item|
@@ -204,7 +204,7 @@ describe "FA parser" do
       profile = @fa.user(TEST_USER)
       expect(profile[:watching]).to be_instance_of Hash
       expect(profile[:watching][:count]).to be_instance_of Integer
-      expect(profile[:watching][:count]).to be.positive?
+      expect(profile[:watching][:count]).to be_positive?
       expect(profile[:watching][:recent]).to be_instance_of Array
       expect(profile[:watching][:recent].length).to be <= profile[:watching][:count]
       profile[:watching][:recent].each do |item|
@@ -462,11 +462,11 @@ describe "FA parser" do
       expect(sub[:species]).not_to be_blank
       expect(sub[:gender]).not_to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
-      expect(sub[:favorites].to_i).to be.positive?
+      expect(sub[:favorites].to_i).to be_positive?
       expect(sub[:comments]).to match(/[0-9]+/)
-      expect(sub[:comments].to_i).to be.positive?
+      expect(sub[:comments].to_i).to be_positive?
       expect(sub[:views]).to match(/[0-9]+/)
-      expect(sub[:views].to_i).to be.positive?
+      expect(sub[:views].to_i).to be_positive?
       expect(sub[:resolution]).not_to be_blank
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
@@ -513,7 +513,7 @@ describe "FA parser" do
       expect(sub[:comments]).to match(/[0-9]+/)
       expect(sub[:comments].to_i).to be >= 0
       expect(sub[:views]).to match(/[0-9]+/)
-      expect(sub[:views].to_i).to be.positive?
+      expect(sub[:views].to_i).to be_positive?
       expect(sub[:resolution]).to be_nil
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
@@ -541,11 +541,11 @@ describe "FA parser" do
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
-      expect(sub[:favorites].to_i).to be.positive?
+      expect(sub[:favorites].to_i).to be_positive?
       expect(sub[:comments]).to match(/[0-9]+/)
-      expect(sub[:comments].to_i).to be.positive?
+      expect(sub[:comments].to_i).to be_positive?
       expect(sub[:views]).to match(/[0-9]+/)
-      expect(sub[:views].to_i).to be.positive?
+      expect(sub[:views].to_i).to be_positive?
       expect(sub[:resolution]).to be_nil
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
@@ -572,11 +572,11 @@ describe "FA parser" do
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
-      expect(sub[:favorites].to_i).to be.positive?
+      expect(sub[:favorites].to_i).to be_positive?
       expect(sub[:comments]).to match(/[0-9]+/)
-      expect(sub[:comments].to_i).to be.positive?
+      expect(sub[:comments].to_i).to be_positive?
       expect(sub[:views]).to match(/[0-9]+/)
-      expect(sub[:views].to_i).to be.positive?
+      expect(sub[:views].to_i).to be_positive?
       expect(sub[:resolution]).not_to be_blank
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
@@ -603,11 +603,11 @@ describe "FA parser" do
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
-      expect(sub[:favorites].to_i).to be.positive?
+      expect(sub[:favorites].to_i).to be_positive?
       expect(sub[:comments]).to match(/[0-9]+/)
-      expect(sub[:comments].to_i).to be.positive?
+      expect(sub[:comments].to_i).to be_positive?
       expect(sub[:views]).to match(/[0-9]+/)
-      expect(sub[:views].to_i).to be.positive?
+      expect(sub[:views].to_i).to be_positive?
       expect(sub[:resolution]).to be_blank
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
@@ -722,11 +722,11 @@ describe "FA parser" do
       expect(sub[:species]).not_to be_blank
       expect(sub[:gender]).not_to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
-      expect(sub[:favorites].to_i).to be.positive?
+      expect(sub[:favorites].to_i).to be_positive?
       expect(sub[:comments]).to match(/[0-9]+/)
-      expect(sub[:comments].to_i).to be.positive?
+      expect(sub[:comments].to_i).to be_positive?
       expect(sub[:views]).to match(/[0-9]+/)
-      expect(sub[:views].to_i).to be.positive?
+      expect(sub[:views].to_i).to be_positive?
       expect(sub[:resolution]).not_to be_blank
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
@@ -1402,11 +1402,11 @@ describe "FA parser" do
       expect(counts).to have_key(:trouble_tickets)
 
       expect(counts[:submissions]).to be >= 0
-      expect(counts[:comments]).to be.positive?
+      expect(counts[:comments]).to be_positive?
       expect(counts[:journals]).to be >= 0
-      expect(counts[:favorites]).to be.positive?
-      expect(counts[:watchers]).to be.positive?
-      expect(counts[:notes]).to be.positive?
+      expect(counts[:favorites]).to be_positive?
+      expect(counts[:watchers]).to be_positive?
+      expect(counts[:notes]).to be_positive?
       expect(counts[:trouble_tickets]).to be >= 0
     end
 
