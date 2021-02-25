@@ -2,15 +2,15 @@
 
 source 'https://rubygems.org'
 
-gem 'thin'
+gem 'activesupport'
+gem 'builder'
+gem 'haml'
+gem 'nokogiri'
+gem 'redcarpet'
+gem 'redis'
 gem 'sinatra'
 gem 'sinatra-contrib'
-gem 'redis'
-gem 'haml'
-gem 'redcarpet'
-gem 'builder'
-gem 'nokogiri'
-gem 'activesupport'
+gem 'thin'
 
 group :test do
   gem 'rspec'
