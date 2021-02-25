@@ -1927,7 +1927,7 @@ describe "FA parser" do
         end
 
         unread_note_ids = unread_notes.map { |n| n[:note_id] }
-        inbox_note_ids = inbox_notes.select { |n| !n[:is_read] }.map { |n| n[:note_id] }
+        inbox_note_ids = inbox_notes.reject { |n| n[:is_read] }.map { |n| n[:note_id] }
 
         inbox_note_ids.map do |note_id|
           expect(note_id).to be_in(unread_note_ids)
