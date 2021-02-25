@@ -403,8 +403,10 @@ class Furaffinity
     html = fetch(url)
     error_msg = html.at_css("table.maintable td.alt1 b")
     if !error_msg.nil? &&
-      (error_msg.text == "The username \"#{user}\" could not be found." ||
-          error_msg.text == "User \"#{user}\" was not found in our database.")
+       (
+         error_msg.text == "The username \"#{user}\" could not be found." ||
+         error_msg.text == "User \"#{user}\" was not found in our database."
+       )
       raise FASystemError.new(url)
     end
 
