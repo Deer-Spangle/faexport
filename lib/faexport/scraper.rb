@@ -541,7 +541,7 @@ class Furaffinity
 
   def new_submissions(from_id)
     # Set pagination
-    url = "msg/submissions/new" + ("~#{from_id}@72/" if from_id)
+    url = "msg/submissions/new#{("~#{from_id}@72/" if from_id)}"
 
     # Get page code
     html = fetch(url)
@@ -902,7 +902,7 @@ class Furaffinity
           profile = note_html.at_css("a.linkusername")
           {
               name: profile.content.to_s,
-              profile: fa_url(profile["href"][1..-1] + "/"),
+              profile: fa_url("#{profile["href"][1..-1]}/"),
               profile_name: last_path(profile["href"]),
               description: note,
               description_body: html_strip(note.to_s.split("</a>:")[1..-1].join("</a>:"))
@@ -968,7 +968,7 @@ private
   end
 
   def to_iso8601(date)
-    Time.parse(date + " UTC").iso8601
+    Time.parse("#{date} UTC").iso8601
   end
 
   def html_field(info, field)
@@ -1218,11 +1218,11 @@ private
     date = pick_date(raw_info.at_css(".popup_date"))
     img = html.at_css("img#submissionImg")
     actions_bar = html.css("#page-submission td.alt1 div.actions a")
-    download_url = "https:" + actions_bar.select { |a| a.content == "Download" }.first["href"]
+    download_url = "https:#{actions_bar.select { |a| a.content == "Download" }.first["href"]}"
     profile_url = html.at_css("td.cat a")["href"][1..-1]
     og_thumb = html.at_css('meta[property="og:image"]')
     thumb_img = if og_thumb.nil? || og_thumb["content"].include?("/banners/fa_logo")
-                  img ? "https:" + img["data-preview-src"] : nil
+                  img ? "https:#{img["data-preview-src"]}" : nil
                 else
                   og_thumb["content"].sub "http:", "https:"
                 end
@@ -1239,7 +1239,7 @@ private
         posted: date,
         posted_at: to_iso8601(date),
         download: download_url,
-        full: img ? "https:" + img["data-fullview-src"] : nil,
+        full: img ? "https:#{img["data-fullview-src"]}" : nil,
         thumbnail: thumb_img,
         category: field(info, "Category"),
         theme: field(info, "Theme"),

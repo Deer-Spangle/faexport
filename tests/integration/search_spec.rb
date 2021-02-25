@@ -131,9 +131,9 @@ describe "FA parser search endpoint" do
 
       # Check it's roughly date ordered. FA results are not exactly date ordered.
       first_submission = @fa.submission(results[0][:id])
-      first_datetime = Time.parse(first_submission[:posted] + " UTC")
+      first_datetime = Time.parse("#{first_submission[:posted]} UTC")
       last_submission = @fa.submission(results[-1][:id])
-      last_datetime = Time.parse(last_submission[:posted] + " UTC")
+      last_datetime = Time.parse("#{last_submission[:posted]} UTC")
       expect(last_datetime).to be < first_datetime
     end
 
