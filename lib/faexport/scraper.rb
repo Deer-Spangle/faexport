@@ -815,8 +815,8 @@ class Furaffinity
         submissions: num_submissions,
         comments: num_comments,
         journals: num_journals,
-        favorites:  num_favorites,
-        watchers:  num_watchers,
+        favorites: num_favorites,
+        watchers: num_watchers,
         notes: num_notes,
         trouble_tickets: num_trouble_tickets
       },
