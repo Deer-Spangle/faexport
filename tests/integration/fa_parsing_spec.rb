@@ -732,7 +732,6 @@ describe "FA parser" do
       expect(sub[:keywords]).to be_instance_of Array
     end
 
-
     it "should update the fav status when code is given" do
       id = "32006442"
       submission = @fa.submission(id, true)

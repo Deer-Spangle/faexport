@@ -234,11 +234,11 @@ class Furaffinity
     page = params["page"] =~ /^[0-9]+$/ ? params["page"] : "1"
     perpage = SEARCH_OPTIONS["perpage"].include?(params["perpage"]) ? params["perpage"] : SEARCH_DEFAULTS["perpage"]
     ratings =
-        if params.key?("rating") and params["rating"].gsub(" ", "").split(",").all? { |v| SEARCH_OPTIONS["rating"].include? v }
-          params["rating"].gsub(" ", "").split(",")
-        else
-          SEARCH_DEFAULTS["rating"].split(",")
-        end
+      if params.key?("rating") && params["rating"].gsub(" ", "").split(",").all? { |v| SEARCH_OPTIONS["rating"].include? v }
+        params["rating"].gsub(" ", "").split(",")
+      else
+        SEARCH_DEFAULTS["rating"].split(",")
+      end
 
     options = {
       perpage: perpage,
@@ -444,17 +444,15 @@ class Furaffinity
 
   def commissions(user)
     html = fetch("commissions/#{escape(user)}")
-    unless html.at_css("#no-images")
-      html.css("table.types-table tr").map do |com|
-        {
-          title: com.at_css(".info dt").content.strip,
-          price: com.at_css(".info dd span").next.content.strip,
-          description: com.at_css(".desc").children.to_s.strip,
-          submission: build_submission(com.at_css("b"))
-        }
-      end
-    else
-      []
+    return [] if html.at_css("#no-images")
+
+    html.css("table.types-table tr").map do |com|
+      {
+        title: com.at_css(".info dt").content.strip,
+        price: com.at_css(".info dd span").next.content.strip,
+        description: com.at_css(".desc").children.to_s.strip,
+        submission: build_submission(com.at_css("b"))
+      }
     end
   end
 
@@ -490,7 +488,7 @@ class Furaffinity
       name = key.gsub("_", "-")
       if SEARCH_MULTIPLE.include? key
         values = options[key].gsub(" ", "").split(",")
-        raise FASearchError.new(key, options[key], fa_url("search")) unless values.all?{ |v| SEARCH_OPTIONS[key].include? v }
+        raise FASearchError.new(key, options[key], fa_url("search")) unless values.all? { |v| SEARCH_OPTIONS[key].include? v }
 
         values.each { |v| params["#{name}-#{v}"] = "on" }
       elsif SEARCH_OPTIONS.keys.include? key
@@ -941,7 +939,7 @@ class Furaffinity
 
 private
   def fa_fetch_address
-    if ENV["CF_BYPASS_SFW"] and @safe_for_work
+    if ENV["CF_BYPASS_SFW"] && @safe_for_work
       ENV["CF_BYPASS_SFW"]
     elsif ENV["CF_BYPASS"]
       ENV["CF_BYPASS"]
@@ -1199,7 +1197,7 @@ private
     footer = html.css(".footer")
     center = footer.css("center")
 
-    if footer.length == 0
+    if footer.empty?
       return
     end
 

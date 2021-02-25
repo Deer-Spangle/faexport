@@ -2,7 +2,6 @@
 
 require "rspec/expectations"
 
-
 RSpec::Matchers.define :be_valid_submission do |blank_profile=false, blank_title=false|
   match do |submission|
     # Check ID
