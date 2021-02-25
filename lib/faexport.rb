@@ -734,16 +734,18 @@ Please note this is a header, not a cookie."
 
     error FAError do
       err = env['sinatra.error']
-      status case err
-      when FASearchError      then 400
-      when FALoginCookieError then 400
-      when FAFormError        then 400
-      when FAOffsetError      then 400
-      when FALoginError       then @user_cookie ? 401 : 503
-      when FASystemError      then 404
-      when FAStatusError      then 502
-      else 500
-      end
+      status(
+        case err
+        when FASearchError      then 400
+        when FALoginCookieError then 400
+        when FAFormError        then 400
+        when FAOffsetError      then 400
+        when FALoginError       then @user_cookie ? 401 : 503
+        when FASystemError      then 404
+        when FAStatusError      then 502
+        else 500
+        end
+      )
 
       JSON.pretty_generate error: err.message, url: err.url
     end
