@@ -92,7 +92,7 @@ module FAExport
                               FAExport.config[:cache_time_long])
       @fa = Furaffinity.new(@cache)
 
-      @system_cookie = FAExport.config[:cookie] || @cache.redis.get('login_cookie') 
+      @system_cookie = FAExport.config[:cookie] || @cache.redis.get('login_cookie')
       unless @system_cookie
         @system_cookie = @fa.login(FAExport.config[:username], FAExport.config[:password])
         @cache.redis.set('login_cookie', @system_cookie)

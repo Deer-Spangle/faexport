@@ -668,7 +668,7 @@ describe 'FA parser' do
       expect(submission[:fav_key]).to be_instance_of String
       expect(submission[:fav_key]).not_to be_empty
     end
-    
+
     it 'should give a non-null thumbnail link for sfw submissions' do
       submission = @fa.submission("32006442")
       expect(submission).to have_key(:thumbnail)
@@ -906,7 +906,7 @@ describe 'FA parser' do
       it 'fails when given non-existent submission' do
         expect { @fa.submission_comments("16437650", false) }.to raise_error FASystemError
       end
-      
+
       it 'correctly parses replies and reply levels' do
         comments = @fa.submission_comments("32006460", false)
         # Check first comment
@@ -1894,7 +1894,7 @@ describe 'FA parser' do
       expect(journal_resp[:url]).to eql("https://www.furaffinity.net/journal/#{journals[0][:id]}/")
     end
   end
-  
+
   context 'when viewing notes' do
     context 'folders' do
       it 'can list inbox' do

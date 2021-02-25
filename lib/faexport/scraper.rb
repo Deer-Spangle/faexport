@@ -379,7 +379,7 @@ class Furaffinity
         fa_url("#{folder}/#{escape(user)}/"),
         "The options 'next' and 'prev' are only usable on favorites. Use 'page' instead with a page number")
     end
-    
+
     url = if offset[:page]
             "#{folder}/#{escape(user)}/#{offset[:page]}/"
           elsif offset[:next]
