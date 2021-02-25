@@ -604,7 +604,7 @@ class Furaffinity
     # Parse new watcher notifications
     new_watches = []
     watches_elem = html.at_css("ul#watches")
-    watches_elem&.css("li:not(.section-controls)").each do |elem|
+    watches_elem&.css("li:not(.section-controls)")&.each do |elem|
       if elem.at_css("input")["checked"] == "checked"
         if include_deleted
           new_watches << {
@@ -635,7 +635,7 @@ class Furaffinity
     # Parse new submission comments notifications
     new_submission_comments = []
     submission_comments_elem = html.at_css("fieldset#messages-comments-submission")
-    submission_comments_elem&.css("li:not(.section-controls)").each do |elem|
+    submission_comments_elem&.css("li:not(.section-controls)")&.each do |elem|
       if elem.at_css("input")["checked"] == "checked"
         if include_deleted
           new_submission_comments << {
@@ -676,7 +676,7 @@ class Furaffinity
     # Parse new journal comments notifications
     new_journal_comments = []
     journal_comments_elem = html.at_css("fieldset#messages-comments-journal")
-    journal_comments_elem&.css("li:not(.section-controls)").each do |elem|
+    journal_comments_elem&.css("li:not(.section-controls)")&.each do |elem|
       if elem.at_css("input")["checked"] == "checked"
         if include_deleted
           new_journal_comments << {
@@ -717,7 +717,7 @@ class Furaffinity
     # Parse new shout notifications
     new_shouts = []
     shouts_elem = html.at_css("fieldset#messages-shouts")
-    shouts_elem&.css("li:not(.section-controls)").each do |elem|
+    shouts_elem&.css("li:not(.section-controls)")&.each do |elem|
       if elem.at_css("input")["checked"] == "checked"
         if include_deleted
           new_shouts << {
@@ -746,7 +746,7 @@ class Furaffinity
     # Parse new favourite notifications
     new_favorites = []
     favorites_elem = html.at_css("ul#favorites")
-    favorites_elem&.css("li:not(.section-controls)").each do |elem|
+    favorites_elem&.css("li:not(.section-controls)")&.each do |elem|
       if elem.at_css("input")["checked"] == "checked"
         if include_deleted
           new_favorites << {
@@ -778,7 +778,7 @@ class Furaffinity
     # Parse new journal notifications
     new_journals = []
     journals_elem = html.at_css("ul#journals")
-    journals_elem&.css("li:not(.section-controls)").each do |elem|
+    journals_elem&.css("li:not(.section-controls)")&.each do |elem|
       # Deleted journals are only displayed when the poster's page has been deactivated
       if elem.at_css("input")["checked"] == "checked"
         if include_deleted
