@@ -1980,7 +1980,7 @@ describe "FA parser" do
     context "individual notes" do
       it "can view a specific note" do
         @fa.login_cookie = COOKIE_TEST_USER_2
-        note = @fa.note(108710830)
+        note = @fa.note(108_710_830)
 
         expect(note[:note_id]).to be_instance_of Integer
         expect(note[:note_id]).not_to be_blank
@@ -2001,7 +2001,7 @@ describe "FA parser" do
 
       it "correctly parses preceding notes" do
         @fa.login_cookie = COOKIE_TEST_USER_2
-        note = @fa.note(108710838)
+        note = @fa.note(108_710_838)
 
         expect(note[:note_id]).to be_instance_of Integer
         expect(note[:note_id]).not_to be_blank
@@ -2026,7 +2026,7 @@ describe "FA parser" do
 
       it "throws an error for an invalid note" do
         @fa.login_cookie = COOKIE_TEST_USER_2
-        expect { @fa.note(108710839) }.to raise_error(FASystemError)
+        expect { @fa.note(108_710_839) }.to raise_error(FASystemError)
       end
     end
   end
