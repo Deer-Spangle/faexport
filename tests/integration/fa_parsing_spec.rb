@@ -1511,8 +1511,8 @@ describe "FA parser" do
 
         notifications.each do |comment_notification|
           if !comment_notification[:is_reply] &&
-              comment_notification[:your_submission] &&
-              !comment_notification[:their_submission]
+             comment_notification[:your_submission] &&
+             !comment_notification[:their_submission]
             found_comment = true
           end
         end
@@ -1530,8 +1530,8 @@ describe "FA parser" do
 
         notifications.each do |comment_notification|
           if comment_notification[:is_reply] &&
-              comment_notification[:your_submission] &&
-              !comment_notification[:their_submission]
+             comment_notification[:your_submission] &&
+             !comment_notification[:their_submission]
             found_comment = true
           end
         end
@@ -1549,8 +1549,8 @@ describe "FA parser" do
 
         notifications.each do |comment_notification|
           if comment_notification[:is_reply] &&
-              !comment_notification[:your_submission] &&
-              comment_notification[:their_submission]
+             !comment_notification[:your_submission] &&
+             comment_notification[:their_submission]
             found_comment = true
           end
         end
@@ -1568,8 +1568,8 @@ describe "FA parser" do
 
         notifications.each do |comment_notification|
           if comment_notification[:is_reply] &&
-              !comment_notification[:your_submission] &&
-              !comment_notification[:their_submission]
+             !comment_notification[:your_submission] &&
+             !comment_notification[:their_submission]
             found_comment = true
           end
         end
@@ -1643,8 +1643,8 @@ describe "FA parser" do
 
         notifications.each do |comment_notification|
           if !comment_notification[:is_reply] &&
-              comment_notification[:your_journal] &&
-              !comment_notification[:their_journal]
+             comment_notification[:your_journal] &&
+             !comment_notification[:their_journal]
             found_comment = true
           end
         end
@@ -1662,8 +1662,8 @@ describe "FA parser" do
 
         notifications.each do |comment_notification|
           if comment_notification[:is_reply] &&
-              comment_notification[:your_journal] &&
-              !comment_notification[:their_journal]
+             comment_notification[:your_journal] &&
+             !comment_notification[:their_journal]
             found_comment = true
           end
         end
@@ -1681,8 +1681,8 @@ describe "FA parser" do
 
         notifications.each do |comment_notification|
           if comment_notification[:is_reply] &&
-              !comment_notification[:your_journal] &&
-              comment_notification[:their_journal]
+             !comment_notification[:your_journal] &&
+             comment_notification[:their_journal]
             found_comment = true
           end
         end
@@ -1700,8 +1700,8 @@ describe "FA parser" do
 
         notifications.each do |comment_notification|
           if comment_notification[:is_reply] &&
-              !comment_notification[:your_journal] &&
-              !comment_notification[:their_journal]
+             !comment_notification[:your_journal] &&
+             !comment_notification[:their_journal]
             found_comment = true
           end
         end
