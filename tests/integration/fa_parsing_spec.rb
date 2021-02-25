@@ -49,7 +49,7 @@ describe "FA parser" do
 
     it "returns FAStyleError if the current user is not in classic style" do
       @fa.login_cookie = COOKIE_NOT_CLASSIC
-      expect { @fa.home() }.to raise_error(FAStyleError)
+      expect { @fa.home }.to raise_error(FAStyleError)
     end
   end
 
