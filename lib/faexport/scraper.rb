@@ -1188,7 +1188,7 @@ private
     center = footer.css("center")
 
     if footer.length == 0
-        return
+      return
     end
     timestamp_line = footer[0].inner_html.split("\n").select{ |line| line.strip.start_with? "Server Local Time: " }
     timestamp = timestamp_line[0].to_s.split("Time:")[1].strip
