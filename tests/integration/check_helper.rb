@@ -1,4 +1,4 @@
-require 'rspec/expectations'
+require "rspec/expectations"
 
 
 RSpec::Matchers.define :be_valid_submission do |blank_profile=false, blank_title=false|
@@ -39,7 +39,7 @@ RSpec::Matchers.define :be_valid_date_and_match_iso do |iso_string|
     expect(date_string).not_to be_blank
     expect(date_string).to match(/[A-Z][a-z]{2} [0-9]+([a-z]{2})?, [0-9]{4},? [0-9]{2}:[0-9]{2}( ?[AP]M)?/)
     expect(iso_string).not_to be_blank
-    expect(iso_string).to eql(Time.parse(date_string + ' UTC').iso8601)
+    expect(iso_string).to eql(Time.parse(date_string + " UTC").iso8601)
   end
 end
 

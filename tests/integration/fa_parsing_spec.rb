@@ -1,15 +1,15 @@
 
-require './lib/faexport'
-require_relative 'check_helper'
+require "./lib/faexport"
+require_relative "check_helper"
 
-require 'rspec'
+require "rspec"
 
-COOKIE_DEFAULT = ENV['test_cookie']
+COOKIE_DEFAULT = ENV["test_cookie"]
 TEST_USER = "fafeed"
 TEST_USER_2 = "fafeed-2"
-COOKIE_TEST_USER_2 = ENV['test_cookie_user_2']
+COOKIE_TEST_USER_2 = ENV["test_cookie_user_2"]
 TEST_USER_3 = "fafeed-3"
-COOKIE_TEST_USER_3 = ENV['test_cookie_user_3']
+COOKIE_TEST_USER_3 = ENV["test_cookie_user_3"]
 # Specific test user cases
 TEST_USER_NOT_EXIST = "fafeed-does-not-exist"
 TEST_USER_WITH_BRACKETS = "l[i]s"
@@ -21,17 +21,17 @@ TEST_USER_OVER_25_JOURNALS = TEST_USER_OVER_200_WATCHERS
 TEST_USER_EMPTY_GALLERIES = TEST_USER_NO_WATCHERS
 TEST_USER_2_PAGES_GALLERY = "rajii"
 TEST_USER_HIDDEN_FAVS = TEST_USER_NO_WATCHERS
-COOKIE_TEST_USER_HIDDEN_FAVS = ENV['test_cookie_hidden_favs']
+COOKIE_TEST_USER_HIDDEN_FAVS = ENV["test_cookie_hidden_favs"]
 TEST_USER_2_PAGES_FAVS = TEST_USER_2_PAGES_GALLERY
 COOKIE_TEST_USER_NO_NOTIFICATIONS = COOKIE_TEST_USER_HIDDEN_FAVS
 TEST_USER_JOURNAL_DUMP = TEST_USER_3
 COOKIE_TEST_USER_JOURNAL_DUMP = COOKIE_TEST_USER_3
 COOKIE_NOT_CLASSIC = ENV["test_cookie_not_classic"]
 
-describe 'FA parser' do
+describe "FA parser" do
 
   before do
-    config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
+    config = File.exist?("settings-test.yml") ? YAML.load_file("settings-test.yml") : {}
     @app = FAExport::Application.new(config).instance_variable_get(:@instance)
     @fa = @app.instance_variable_get(:@fa)
     @fa.login_cookie = COOKIE_DEFAULT
@@ -41,19 +41,19 @@ describe 'FA parser' do
     # Do nothing
   end
 
-  context 'when browsing any page' do
-    it 'returns FASystemError if a user has disabled their account' do
+  context "when browsing any page" do
+    it "returns FASystemError if a user has disabled their account" do
       expect { @fa.user("drowsylynx") }.to raise_error(FASystemError)
     end
 
-    it 'returns FAStyleError if the current user is not in classic style' do
+    it "returns FAStyleError if the current user is not in classic style" do
       @fa.login_cookie = COOKIE_NOT_CLASSIC
       expect { @fa.home() }.to raise_error(FAStyleError)
     end
   end
 
-  context 'when getting home page data' do
-    it 'has the 4 submission types' do
+  context "when getting home page data" do
+    it "has the 4 submission types" do
       home = @fa.home
       expect(home).to have_key(:artwork)
       expect(home).to have_key(:writing)
@@ -61,7 +61,7 @@ describe 'FA parser' do
       expect(home).to have_key(:crafts)
     end
 
-    it 'has valid submissions in all categories' do
+    it "has valid submissions in all categories" do
       home = @fa.home
       keys = [:artwork, :writing, :music, :crafts]
       home.map do |type, submissions|
@@ -73,7 +73,7 @@ describe 'FA parser' do
       end
     end
 
-    it 'only returns SFW results, if specified' do
+    it "only returns SFW results, if specified" do
       @fa.safe_for_work = true
       home = @fa.home
       home.map do |_, submissions|
@@ -90,8 +90,8 @@ describe 'FA parser' do
     end
   end
 
-  context 'when getting user profile' do
-    it 'gives valid basic profile information' do
+  context "when getting user profile" do
+    it "gives valid basic profile information" do
       profile = @fa.user(TEST_USER)
       # Check initial values
       expect(profile[:id]).to be_nil
@@ -115,39 +115,39 @@ describe 'FA parser' do
       end
     end
 
-    it 'fails when given a non-existent profile' do
+    it "fails when given a non-existent profile" do
       expect { @fa.user(TEST_USER_NOT_EXIST) }.to raise_error(FASystemError)
     end
 
-    it 'handles square brackets in profile name' do
+    it "handles square brackets in profile name" do
       profile_with_underscores = TEST_USER_WITH_BRACKETS
       profile = @fa.user(profile_with_underscores)
       expect(profile[:name].downcase).to eql(profile_with_underscores)
     end
 
-    it 'shows featured submission' do
+    it "shows featured submission" do
       profile = @fa.user(TEST_USER_2)
       expect(profile[:featured_submission]).not_to be_nil
       expect(profile[:featured_submission]).to be_valid_submission(true)
     end
 
-    it 'handles featured submission not being set' do
+    it "handles featured submission not being set" do
       profile = @fa.user(TEST_USER)
       expect(profile[:featured_submission]).to be_nil
     end
 
-    it 'shows profile id' do
+    it "shows profile id" do
       profile = @fa.user(TEST_USER_2)
       expect(profile[:profile_id]).not_to be_nil
       expect(profile[:profile_id]).to be_valid_submission(true, true)
     end
 
-    it 'handles profile id not being set' do
+    it "handles profile id not being set" do
       profile = @fa.user(TEST_USER)
       expect(profile[:profile_id]).to be_nil
     end
 
-    it 'shows artist information' do
+    it "shows artist information" do
       profile = @fa.user(TEST_USER_2)
       expect(profile[:artist_information]).to be_instance_of Hash
       expect(profile[:artist_information]).to have_key("Species")
@@ -162,13 +162,13 @@ describe 'FA parser' do
       # Maybe do all the available fields, that way we can know of any removed?
     end
 
-    it 'handles blank artist information box' do
+    it "handles blank artist information box" do
       profile = @fa.user(TEST_USER)
       expect(profile[:artist_information]).to be_instance_of Hash
       expect(profile[:artist_information]).to be_empty
     end
 
-    it 'shows contact information' do
+    it "shows contact information" do
       profile = @fa.user(TEST_USER_2)
       expect(profile[:contact_information]).to be_instance_of Array
       expect(profile[:contact_information]).not_to be_empty
@@ -179,12 +179,12 @@ describe 'FA parser' do
       end
     end
 
-    it 'handles no contact information being set' do
+    it "handles no contact information being set" do
       profile = @fa.user(TEST_USER)
       expect(profile[:profile_id]).to be_nil
     end
 
-    it 'lists watchers of specified account' do
+    it "lists watchers of specified account" do
       profile = @fa.user(TEST_USER)
       expect(profile[:watchers]).to be_instance_of Hash
       expect(profile[:watchers][:count]).to be_instance_of Integer
@@ -200,7 +200,7 @@ describe 'FA parser' do
       expect(list).to include(TEST_USER_2)
     end
 
-    it 'lists accounts watched by specified account' do
+    it "lists accounts watched by specified account" do
       profile = @fa.user(TEST_USER)
       expect(profile[:watching]).to be_instance_of Hash
       expect(profile[:watching][:count]).to be_instance_of Integer
@@ -213,9 +213,9 @@ describe 'FA parser' do
     end
   end
 
-  context 'when listing user\'s watchers/watchees' do
+  context "when listing user's watchers/watchees" do
     [true, false].each do |is_watchers|
-      it 'displays a valid list of profile names' do
+      it "displays a valid list of profile names" do
         list = @fa.budlist(TEST_USER, 1, is_watchers)
         expect(list).to be_instance_of Array
         expect(list).not_to be_empty
@@ -225,22 +225,22 @@ describe 'FA parser' do
         end
       end
 
-      it 'fails when given a non-existent profile' do
+      it "fails when given a non-existent profile" do
         expect { @fa.budlist(TEST_USER_NOT_EXIST, 1, is_watchers) }.to raise_error(FASystemError)
       end
 
-      it 'handles an empty watchers list' do
+      it "handles an empty watchers list" do
         bud_list = @fa.budlist(TEST_USER_NO_WATCHERS, 1, is_watchers)
         expect(bud_list).to be_instance_of Array
         expect(bud_list).to be_empty
       end
     end
 
-    it 'displays a different list for is watching vs watched by' do
+    it "displays a different list for is watching vs watched by" do
       expect(@fa.budlist(TEST_USER, 1, true)).not_to eql(@fa.budlist(TEST_USER, 1, false))
     end
 
-    it 'returns 200 users when more than one page exists' do
+    it "returns 200 users when more than one page exists" do
       bud_list = @fa.budlist(TEST_USER_OVER_200_WATCHERS, 1, true)
       expect(bud_list).to be_instance_of Array
       expect(bud_list.length).to eql(200)
@@ -250,7 +250,7 @@ describe 'FA parser' do
       end
     end
 
-    it 'displays a second page, different than the first' do
+    it "displays a second page, different than the first" do
       bud_list1 = @fa.budlist(TEST_USER_OVER_200_WATCHERS, 1, true)
       bud_list2 = @fa.budlist(TEST_USER_OVER_200_WATCHERS, 2, true)
       expect(bud_list1).to be_instance_of Array
@@ -260,8 +260,8 @@ describe 'FA parser' do
     end
   end
 
-  context 'when listing a user\'s shouts' do
-    it 'displays a valid list of shouts' do
+  context "when listing a user's shouts" do
+    it "displays a valid list of shouts" do
       shouts = @fa.shouts(TEST_USER)
       expect(shouts).to be_instance_of Array
       shouts.each do |shout|
@@ -274,25 +274,25 @@ describe 'FA parser' do
       end
     end
 
-    it 'fails when given a non-existent user' do
+    it "fails when given a non-existent user" do
       expect { @fa.shouts(TEST_USER_NOT_EXIST) }.to raise_error(FASystemError)
     end
 
-    it 'handles an empty shouts list' do
+    it "handles an empty shouts list" do
       shouts = @fa.shouts(TEST_USER_NO_SHOUTS)
       expect(shouts).to be_instance_of Array
       expect(shouts).to be_empty
     end
   end
 
-  context 'when displaying commission information pages' do
-    it 'handles empty commission information' do
+  context "when displaying commission information pages" do
+    it "handles empty commission information" do
       comms = @fa.commissions(TEST_USER)
       expect(comms).to be_instance_of Array
       expect(comms).to be_empty
     end
 
-    it 'displays valid commission information data' do
+    it "displays valid commission information data" do
       comms = @fa.commissions(TEST_USER_2)
       expect(comms).to be_instance_of Array
       expect(comms).not_to be_empty
@@ -305,13 +305,13 @@ describe 'FA parser' do
       end
     end
 
-    it 'fails when given a non-existent user' do
+    it "fails when given a non-existent user" do
       expect { @fa.shouts(TEST_USER_NOT_EXIST) }.to raise_error(FASystemError)
     end
   end
 
-  context 'when listing a user\'s journals' do
-    it 'returns a list of journal IDs' do
+  context "when listing a user's journals" do
+    it "returns a list of journal IDs" do
       journals = @fa.journals(TEST_USER, 1)
       expect(journals).to be_instance_of Array
       expect(journals).not_to be_empty
@@ -324,17 +324,17 @@ describe 'FA parser' do
       end
     end
 
-    it 'fails when given a non-existent user' do
+    it "fails when given a non-existent user" do
       expect { @fa.journals(TEST_USER_NOT_EXIST, 1) }.to raise_error(FASystemError)
     end
 
-    it 'handles an empty journal listing' do
+    it "handles an empty journal listing" do
       journals = @fa.journals(TEST_USER_NO_JOURNALS, 1)
       expect(journals).to be_instance_of Array
       expect(journals).to be_empty
     end
 
-    it 'displays a second page, different than the first' do
+    it "displays a second page, different than the first" do
       journals1 = @fa.journals(TEST_USER_OVER_25_JOURNALS, 1)
       journals2 = @fa.journals(TEST_USER_OVER_25_JOURNALS, 2)
       expect(journals1).to be_instance_of Array
@@ -346,9 +346,9 @@ describe 'FA parser' do
     end
   end
 
-  context 'when viewing user galleries' do
+  context "when viewing user galleries" do
     %w(gallery scraps favorites).each do |folder|
-      it 'returns a list of valid submission' do
+      it "returns a list of valid submission" do
         submissions = @fa.submissions(TEST_USER_2, folder, {})
         expect(submissions).to be_instance_of Array
         expect(submissions).not_to be_empty
@@ -357,17 +357,17 @@ describe 'FA parser' do
         end
       end
 
-      it 'fails when given a non-existent user' do
+      it "fails when given a non-existent user" do
         expect { @fa.submissions(TEST_USER_NOT_EXIST, folder, {}) }.to raise_error(FASystemError)
       end
 
-      it 'handles an empty gallery' do
+      it "handles an empty gallery" do
         submissions = @fa.submissions(TEST_USER_EMPTY_GALLERIES, folder, {})
         expect(submissions).to be_instance_of Array
         expect(submissions).to be_empty
       end
 
-      it 'hides nsfw submissions if sfw is set' do
+      it "hides nsfw submissions if sfw is set" do
         all_submissions = @fa.submissions(TEST_USER_2, folder, {})
         @fa.safe_for_work = true
         sfw_submissions = @fa.submissions(TEST_USER_2, folder, {})
@@ -380,9 +380,9 @@ describe 'FA parser' do
       end
     end
 
-    context 'specifically gallery or scraps' do
+    context "specifically gallery or scraps" do
       %w(gallery scraps).each do |folder|
-        it 'handles paging correctly' do
+        it "handles paging correctly" do
           gallery1 = @fa.submissions(TEST_USER_2_PAGES_GALLERY, folder, {})
           gallery2 = @fa.submissions(TEST_USER_2_PAGES_GALLERY, folder, { page: 2 })
           expect(gallery1).to be_instance_of Array
@@ -392,14 +392,14 @@ describe 'FA parser' do
       end
     end
 
-    context 'specifically favourites' do
-      it 'handles a hidden favourites list' do
+    context "specifically favourites" do
+      it "handles a hidden favourites list" do
         favs = @fa.submissions(TEST_USER_HIDDEN_FAVS, "favorites", {})
         expect(favs).to be_instance_of Array
         expect(favs).to be_empty
       end
 
-      it 'displays favourites of currently logged in user even if hidden' do
+      it "displays favourites of currently logged in user even if hidden" do
         @fa.login_cookie = COOKIE_TEST_USER_HIDDEN_FAVS
         expect(@fa.login_cookie).not_to be_nil
         favs = @fa.submissions(TEST_USER_HIDDEN_FAVS, "favorites", {})
@@ -407,7 +407,7 @@ describe 'FA parser' do
         expect(favs).not_to be_empty
       end
 
-      it 'uses next parameter to display submissions after a specified fav id' do
+      it "uses next parameter to display submissions after a specified fav id" do
         favs = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", {})
         expect(favs).to be_instance_of Array
         expect(favs.length).to be 72
@@ -423,7 +423,7 @@ describe 'FA parser' do
         end
       end
 
-      it 'uses prev parameter to display only submissions before a specified fav id' do
+      it "uses prev parameter to display only submissions before a specified fav id" do
         favs1 = @fa.submissions(TEST_USER_2_PAGES_FAVS, "favorites", {})
         expect(favs1).to be_instance_of Array
         expect(favs1.length).to be 72
@@ -441,8 +441,8 @@ describe 'FA parser' do
     end
   end
 
-  context 'when viewing a submission' do
-    it 'displays basic data correctly' do
+  context "when viewing a submission" do
+    it "displays basic data correctly" do
       sub_id = "16437648"
       sub = @fa.submission(sub_id)
       expect(sub[:title]).not_to be_blank
@@ -473,24 +473,24 @@ describe 'FA parser' do
       expect(sub[:keywords]).to eql(%w(keyword1 keyword2 keyword3))
     end
 
-    it 'fails when given non-existent submissions' do
+    it "fails when given non-existent submissions" do
       expect { @fa.submission("16437650") }.to raise_error FASystemError
     end
 
-    it 'parses keywords' do
+    it "parses keywords" do
       sub_id = "16437648"
       sub = @fa.submission(sub_id)
       expect(sub[:keywords]).to be_instance_of Array
       expect(sub[:keywords]).to eql(%w(keyword1 keyword2 keyword3))
     end
 
-    it 'has identical description and description_body' do
+    it "has identical description and description_body" do
       sub = @fa.submission("32006442")
       expect(sub[:description]).not_to be_blank
       expect(sub[:description]).to eql(sub[:description_body])
     end
 
-    it 'displays stories correctly' do
+    it "displays stories correctly" do
       sub_id = "20438216"
       sub = @fa.submission(sub_id)
       expect(sub[:title]).not_to be_blank
@@ -522,7 +522,7 @@ describe 'FA parser' do
       expect(sub[:keywords]).to include("puma")
     end
 
-    it 'displays music correctly' do
+    it "displays music correctly" do
       sub_id = "7009837"
       sub = @fa.submission(sub_id)
       expect(sub[:title]).not_to be_blank
@@ -554,7 +554,7 @@ describe 'FA parser' do
       expect(sub[:keywords]).to include("BLORP")
     end
 
-    it 'handles flash files correctly' do
+    it "handles flash files correctly" do
       sub_id = "1586623"
       sub = @fa.submission(sub_id)
       expect(sub[:title]).not_to be_blank
@@ -585,7 +585,7 @@ describe 'FA parser' do
       expect(sub[:keywords]).to include("DDR")
     end
 
-    it 'handles poetry submissions correctly' do
+    it "handles poetry submissions correctly" do
       sub_id = "5325854"
       sub = @fa.submission(sub_id)
       expect(sub[:title]).not_to be_blank
@@ -616,7 +616,7 @@ describe 'FA parser' do
       expect(sub[:keywords]).to include("mind")
     end
 
-    it 'still displays correctly when logged in as submission owner' do
+    it "still displays correctly when logged in as submission owner" do
       @fa.login_cookie = COOKIE_TEST_USER_2
       expect(@fa.login_cookie).not_to be_nil
       sub_id = "32006442"
@@ -649,18 +649,18 @@ describe 'FA parser' do
       expect(sub[:keywords]).to be_empty
     end
 
-    it 'hides nsfw submission if sfw is set' do
+    it "hides nsfw submission if sfw is set" do
       @fa.safe_for_work = true
       expect { @fa.submission("32011278") }.to raise_error(FASystemError)
     end
 
-    it 'should not display the fav status and fav code if not logged in' do
+    it "should not display the fav status and fav code if not logged in" do
       submission = @fa.submission("32006442", false)
       expect(submission).not_to have_key(:fav_status)
       expect(submission).not_to have_key(:fav_key)
     end
 
-    it 'should display the fav status and fav code when logged in' do
+    it "should display the fav status and fav code when logged in" do
       submission = @fa.submission("32006442", true)
       expect(submission).to have_key(:fav_status)
       expect(submission[:fav_status]).to be_in([true, false])
@@ -669,36 +669,36 @@ describe 'FA parser' do
       expect(submission[:fav_key]).not_to be_empty
     end
 
-    it 'should give a non-null thumbnail link for sfw submissions' do
+    it "should give a non-null thumbnail link for sfw submissions" do
       submission = @fa.submission("32006442")
       expect(submission).to have_key(:thumbnail)
       expect(submission[:thumbnail]).not_to be_nil
       expect(submission[:rating]).to eql("General")
     end
 
-    it 'should give a non-null thumbnail link for nsfw submissions' do
+    it "should give a non-null thumbnail link for nsfw submissions" do
       submission = @fa.submission("32011278")
       expect(submission).to have_key(:thumbnail)
       expect(submission[:thumbnail]).not_to be_nil
       expect(submission[:rating]).to eql("Adult")
     end
 
-    it 'should give a non-null thumbnail link for stories' do
+    it "should give a non-null thumbnail link for stories" do
       submission = @fa.submission("20438216")
       expect(submission).to have_key(:thumbnail)
       expect(submission[:thumbnail]).not_to be_nil
       expect(submission[:rating]).to eql("General")
     end
 
-    it 'should give a non-null thumbnail link for stories without a set image' do
+    it "should give a non-null thumbnail link for stories without a set image" do
       submission = @fa.submission("572932")
       expect(submission).to have_key(:thumbnail)
       expect(submission[:thumbnail]).not_to be_nil
     end
   end
 
-  context 'when updating favorite status of a submission' do
-    it 'should return a valid submission' do
+  context "when updating favorite status of a submission" do
+    it "should return a valid submission" do
       sub_id = "32006442"
       submission = @fa.submission(sub_id, true)
       is_fav = submission[:fav_status]
@@ -733,7 +733,7 @@ describe 'FA parser' do
     end
 
 
-    it 'should update the fav status when code is given' do
+    it "should update the fav status when code is given" do
       id = "32006442"
       submission = @fa.submission(id, true)
       is_fav = submission[:fav_status]
@@ -746,7 +746,7 @@ describe 'FA parser' do
       expect(is_fav).not_to equal(now_fav)
     end
 
-    it 'should be able to set and unset fav status' do
+    it "should be able to set and unset fav status" do
       id = "32006442"
       submission = @fa.submission(id, true)
       is_fav = submission[:fav_status]
@@ -761,7 +761,7 @@ describe 'FA parser' do
       expect(new_submission2[:fav_status]).to equal(is_fav)
     end
 
-    it 'should not make any change if setting fav status to current value' do
+    it "should not make any change if setting fav status to current value" do
       id = "32006442"
       submission = @fa.submission(id, true)
       is_fav = submission[:fav_status]
@@ -772,7 +772,7 @@ describe 'FA parser' do
       expect(now_fav).to equal(is_fav)
     end
 
-    it 'should not change fav status if invalid code is given' do
+    it "should not change fav status if invalid code is given" do
       id = "32006442"
       submission = @fa.submission(id, true)
       is_fav = submission[:fav_status]
@@ -783,8 +783,8 @@ describe 'FA parser' do
     end
   end
 
-  context 'when viewing a journal post' do
-    it 'displays basic data correctly' do
+  context "when viewing a journal post" do
+    it "displays basic data correctly" do
       journal_id = "6894930"
       journal = @fa.journal(journal_id)
       expect(journal[:title]).to eql("From Curl")
@@ -800,11 +800,11 @@ describe 'FA parser' do
       expect(journal[:posted]).to be_valid_date_and_match_iso(journal[:posted_at])
     end
 
-    it 'fails when given non-existent journal' do
+    it "fails when given non-existent journal" do
       expect { @fa.journal("6894929") }.to raise_error(FASystemError)
     end
 
-    it 'parses journal header, body and footer' do
+    it "parses journal header, body and footer" do
       journal_id = "9185920"
       journal = @fa.journal(journal_id)
       expect(journal[:title]).to eql("Test journal")
@@ -824,7 +824,7 @@ describe 'FA parser' do
       expect(journal[:posted]).to be_valid_date_and_match_iso(journal[:posted_at])
     end
 
-    it 'handles non existent journal header' do
+    it "handles non existent journal header" do
       journal_id = "9185944"
       journal = @fa.journal(journal_id)
       expect(journal[:title]).to eql("Testing journals")
@@ -843,9 +843,9 @@ describe 'FA parser' do
     end
   end
 
-  context 'when listing comments' do
-    context 'on a submission' do
-      it 'displays a valid list of top level comments' do
+  context "when listing comments" do
+    context "on a submission" do
+      it "displays a valid list of top level comments" do
         sub_id = "16437648"
         comments = @fa.submission_comments(sub_id, false)
         expect(comments).to be_instance_of Array
@@ -861,14 +861,14 @@ describe 'FA parser' do
         end
       end
 
-      it 'handles empty comments section' do
+      it "handles empty comments section" do
         sub_id = "16437675"
         comments = @fa.submission_comments(sub_id, false)
         expect(comments).to be_instance_of Array
         expect(comments).to be_empty
       end
 
-      it 'hides deleted comments by default' do
+      it "hides deleted comments by default" do
         submission_id = "16437663"
         comments = @fa.submission_comments(submission_id, false)
         expect(comments).to be_instance_of Array
@@ -876,7 +876,7 @@ describe 'FA parser' do
         expect(comments[0][:text]).to eql("Non-deleted comment")
       end
 
-      it 'handles comments deleted by author when specified' do
+      it "handles comments deleted by author when specified" do
         submission_id = "16437663"
         comments = @fa.submission_comments(submission_id, true)
         expect(comments).to be_instance_of Array
@@ -889,7 +889,7 @@ describe 'FA parser' do
         expect(comments[1][:is_deleted]).to be true
       end
 
-      it 'handles comments deleted by submission owner when specified' do
+      it "handles comments deleted by submission owner when specified" do
         submission_id = "32006442"
         comments_not_deleted = @fa.submission_comments(submission_id, false)
         expect(comments_not_deleted).to be_instance_of Array
@@ -903,11 +903,11 @@ describe 'FA parser' do
         expect(comments[0][:is_deleted]).to be true
       end
 
-      it 'fails when given non-existent submission' do
+      it "fails when given non-existent submission" do
         expect { @fa.submission_comments("16437650", false) }.to raise_error FASystemError
       end
 
-      it 'correctly parses replies and reply levels' do
+      it "correctly parses replies and reply levels" do
         comments = @fa.submission_comments("32006460", false)
         # Check first comment
         expect(comments[0][:id]).not_to be_blank
@@ -940,7 +940,7 @@ describe 'FA parser' do
         expect(comments[2][:reply_level]).to be 2
       end
 
-      it 'handles replies to deleted comments' do
+      it "handles replies to deleted comments" do
         comments = @fa.submission_comments("32052941", true)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
@@ -959,7 +959,7 @@ describe 'FA parser' do
         expect(comments[1][:is_deleted]).to be false
       end
 
-      it 'handles replies to hidden deleted comments' do
+      it "handles replies to hidden deleted comments" do
         comments = @fa.submission_comments("32052941", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 1
@@ -971,7 +971,7 @@ describe 'FA parser' do
         expect(comments[0][:reply_to]).not_to be_blank
       end
 
-      it 'handles 2 replies to the same comment' do
+      it "handles 2 replies to the same comment" do
         comments = @fa.submission_comments("32057670", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 3
@@ -992,7 +992,7 @@ describe 'FA parser' do
         expect(comments[2][:reply_to]).to eql(comments[0][:id])
       end
 
-      it 'handles deleted replies to deleted comments' do
+      it "handles deleted replies to deleted comments" do
         comments = @fa.submission_comments("32057697", true)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
@@ -1010,7 +1010,7 @@ describe 'FA parser' do
         expect(comments[0][:is_deleted]).to be true
       end
 
-      it 'handles comments to max depth' do
+      it "handles comments to max depth" do
         comments = @fa.submission_comments("32057717", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 22
@@ -1032,7 +1032,7 @@ describe 'FA parser' do
         end
       end
 
-      it 'handles edited comments' do
+      it "handles edited comments" do
         comments = @fa.submission_comments("32057705", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
@@ -1054,7 +1054,7 @@ describe 'FA parser' do
         expect(comments[1][:reply_level]).to be 0
       end
 
-      it 'handles reply chain, followed by reply to base comment' do
+      it "handles reply chain, followed by reply to base comment" do
         comments = @fa.submission_comments("32058026", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 4
@@ -1081,8 +1081,8 @@ describe 'FA parser' do
       end
     end
 
-    context 'on a journal' do
-      it 'displays a valid list of top level comments' do
+    context "on a journal" do
+      it "displays a valid list of top level comments" do
         journal_id = "6704315"
         comments = @fa.journal_comments(journal_id, false)
         expect(comments).to be_instance_of Array
@@ -1098,14 +1098,14 @@ describe 'FA parser' do
         end
       end
 
-      it 'handles empty comments section' do
+      it "handles empty comments section" do
         journal_id = "6704317"
         comments = @fa.journal_comments(journal_id, false)
         expect(comments).to be_instance_of Array
         expect(comments).to be_empty
       end
 
-      it 'hides deleted comments by default' do
+      it "hides deleted comments by default" do
         journal_id = "6704520"
         comments = @fa.journal_comments(journal_id, false)
         expect(comments).to be_instance_of Array
@@ -1113,7 +1113,7 @@ describe 'FA parser' do
         expect(comments[0][:text]).to eql("Non-deleted comment")
       end
 
-      it 'handles comments deleted by author when specified' do
+      it "handles comments deleted by author when specified" do
         journal_id = "6704520"
         comments = @fa.journal_comments(journal_id, true)
         expect(comments).to be_instance_of Array
@@ -1126,7 +1126,7 @@ describe 'FA parser' do
         expect(comments[1][:is_deleted]).to be true
       end
 
-      it 'handles comments deleted by journal owner when specified' do
+      it "handles comments deleted by journal owner when specified" do
         journal_id = "9185920"
         comments_not_deleted = @fa.journal_comments(journal_id, false)
         expect(comments_not_deleted).to be_instance_of Array
@@ -1140,11 +1140,11 @@ describe 'FA parser' do
         expect(comments[0][:is_deleted]).to be true
       end
 
-      it 'fails when given non-existent journal' do
+      it "fails when given non-existent journal" do
         expect { @fa.journal_comments("6894929", false) }.to raise_error(FASystemError)
       end
 
-      it 'correctly parses replies and reply levels' do
+      it "correctly parses replies and reply levels" do
         comments = @fa.journal_comments("6894788", false)
         # Check first comment
         expect(comments[0][:id]).not_to be_blank
@@ -1177,7 +1177,7 @@ describe 'FA parser' do
         expect(comments[2][:reply_level]).to be 2
       end
 
-      it 'handles replies to deleted comments' do
+      it "handles replies to deleted comments" do
         comments = @fa.journal_comments("9187935", true)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
@@ -1196,7 +1196,7 @@ describe 'FA parser' do
         expect(comments[1][:is_deleted]).to be false
       end
 
-      it 'handles replies to hidden deleted comments' do
+      it "handles replies to hidden deleted comments" do
         comments = @fa.journal_comments("9187935", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 1
@@ -1208,7 +1208,7 @@ describe 'FA parser' do
         expect(comments[0][:reply_to]).not_to be_blank
       end
 
-      it 'handles 2 replies to the same comment' do
+      it "handles 2 replies to the same comment" do
         comments = @fa.journal_comments("9187933", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 3
@@ -1229,7 +1229,7 @@ describe 'FA parser' do
         expect(comments[2][:reply_to]).to eql(comments[0][:id])
       end
 
-      it 'handles deleted replies to deleted comments' do
+      it "handles deleted replies to deleted comments" do
         comments = @fa.journal_comments("9187934", true)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
@@ -1247,7 +1247,7 @@ describe 'FA parser' do
         expect(comments[1][:is_deleted]).to be true
       end
 
-      it 'handles comments to max depth' do
+      it "handles comments to max depth" do
         comments = @fa.submission_comments("32057717", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 22
@@ -1269,7 +1269,7 @@ describe 'FA parser' do
         end
       end
 
-      it 'handles edited comments' do
+      it "handles edited comments" do
         comments = @fa.journal_comments("9187948", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 2
@@ -1291,7 +1291,7 @@ describe 'FA parser' do
         expect(comments[1][:reply_level]).to be 0
       end
 
-      it 'handles reply chain, followed by reply to base comment' do
+      it "handles reply chain, followed by reply to base comment" do
         comments = @fa.journal_comments("9187949", false)
         expect(comments).to be_instance_of Array
         expect(comments.length).to be 4
@@ -1319,22 +1319,22 @@ describe 'FA parser' do
     end
   end
 
-  context 'when reading new submission notifications' do
-    it 'will correctly parse current user' do
+  context "when reading new submission notifications" do
+    it "will correctly parse current user" do
       @fa.login_cookie = COOKIE_TEST_USER_2
       new_subs = @fa.new_submissions(nil)
       expect(new_subs[:current_user][:name]).to eql(TEST_USER_2)
       expect(new_subs[:current_user]).to have_valid_profile_link
     end
 
-    it 'should handle zero notifications' do
+    it "should handle zero notifications" do
       @fa.login_cookie = COOKIE_TEST_USER_2
       new_subs = @fa.new_submissions(nil)
       expect(new_subs[:new_submissions]).to be_instance_of Array
       expect(new_subs[:new_submissions]).to be_empty
     end
 
-    it 'should hide nsfw submissions if sfw=1 is specified' do
+    it "should hide nsfw submissions if sfw=1 is specified" do
       @fa.login_cookie = COOKIE_TEST_USER_3
       new_subs = @fa.new_submissions(nil)
 
@@ -1344,7 +1344,7 @@ describe 'FA parser' do
       expect(new_safe_subs[:new_submissions].length).to be < new_subs[:new_submissions].length
     end
 
-    it 'returns a valid list of new submission notifications' do
+    it "returns a valid list of new submission notifications" do
       @fa.login_cookie = COOKIE_TEST_USER_3
       new_subs = @fa.new_submissions(nil)
       expect(new_subs[:new_submissions]).to be_instance_of Array
@@ -1354,7 +1354,7 @@ describe 'FA parser' do
       end
     end
 
-    it 'handles paging correctly' do
+    it "handles paging correctly" do
       @fa.login_cookie = COOKIE_TEST_USER_3
       all_subs = @fa.new_submissions(nil)[:new_submissions]
       expect(all_subs).to be_instance_of Array
@@ -1376,20 +1376,20 @@ describe 'FA parser' do
     end
   end
 
-  context 'when reading notifications' do
-    it 'will correctly parse current user' do
+  context "when reading notifications" do
+    it "will correctly parse current user" do
       @fa.login_cookie = COOKIE_TEST_USER_2
       notifications = @fa.notifications(false)
       expect(notifications[:current_user][:name]).to eql(TEST_USER_2)
       expect(notifications[:current_user]).to have_valid_profile_link
     end
 
-    it 'should not return anything unless login cookie is given' do
+    it "should not return anything unless login cookie is given" do
       @fa.login_cookie = nil
       expect { @fa.notifications(false) }.to raise_error(FALoginError)
     end
 
-    it 'should display non-zero notification totals' do
+    it "should display non-zero notification totals" do
       @fa.login_cookie = COOKIE_TEST_USER_2
       notifications = @fa.notifications(false)
       expect(notifications).to have_key(:notification_counts)
@@ -1411,7 +1411,7 @@ describe 'FA parser' do
       expect(counts[:trouble_tickets]).to be >= 0
     end
 
-    it 'should contain all 6 types of notifications' do
+    it "should contain all 6 types of notifications" do
       @fa.login_cookie = COOKIE_TEST_USER_2
       notifications = @fa.notifications(false)
       expect(notifications).to have_key(:new_watches)
@@ -1422,15 +1422,15 @@ describe 'FA parser' do
       expect(notifications).to have_key(:new_journals)
     end
 
-    context 'watcher notifications' do
-      it 'should handle zero new watchers' do
+    context "watcher notifications" do
+      it "should handle zero new watchers" do
         @fa.login_cookie = COOKIE_TEST_USER_3
         watchers = @fa.notifications(false)[:new_watches]
         expect(watchers).to be_instance_of Array
         expect(watchers).to be_empty
       end
 
-      it 'returns a list of new watcher notifications' do
+      it "returns a list of new watcher notifications" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         watchers = @fa.notifications(false)[:new_watches]
         expect(watchers).to be_instance_of Array
@@ -1443,7 +1443,7 @@ describe 'FA parser' do
         end
       end
 
-      it 'should hide deleted watcher notifications by default' do
+      it "should hide deleted watcher notifications by default" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         watchers = @fa.notifications(false)[:new_watches]
         expect(watchers).to be_instance_of Array
@@ -1451,7 +1451,7 @@ describe 'FA parser' do
         expect(watchers.length).to be 1
       end
 
-      it 'should display deleted watcher notifications when specified and hide otherwise' do
+      it "should display deleted watcher notifications when specified and hide otherwise" do
         skip "Skipped: Looks like deleted watcher notifications don't display anymore"
         @fa.login_cookie = COOKIE_TEST_USER_2
         watchers = @fa.notifications(false)[:new_watches]
@@ -1475,15 +1475,15 @@ describe 'FA parser' do
       end
     end
 
-    context 'submission comment notifications' do
-      it 'should handle zero submission comment notifications' do
+    context "submission comment notifications" do
+      it "should handle zero submission comment notifications" do
         @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
         notifications = @fa.notifications(false)[:new_submission_comments]
         expect(notifications).to be_instance_of Array
         expect(notifications).to be_empty
       end
 
-      it 'returns a list of new submission comment notifications' do
+      it "returns a list of new submission comment notifications" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_submission_comments]
         expect(notifications).to be_instance_of Array
@@ -1502,7 +1502,7 @@ describe 'FA parser' do
         end
       end
 
-      it 'correctly parses base level comments to your submissions' do
+      it "correctly parses base level comments to your submissions" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_submission_comments]
         expect(notifications).to be_instance_of Array
@@ -1521,7 +1521,7 @@ describe 'FA parser' do
         expect(found_comment).to be true
       end
 
-      it 'correctly parses replies to your comments on your submissions' do
+      it "correctly parses replies to your comments on your submissions" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_submission_comments]
         expect(notifications).to be_instance_of Array
@@ -1540,7 +1540,7 @@ describe 'FA parser' do
         expect(found_comment).to be true
       end
 
-      it 'correctly parses replies to your comments on their submissions' do
+      it "correctly parses replies to your comments on their submissions" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_submission_comments]
         expect(notifications).to be_instance_of Array
@@ -1559,7 +1559,7 @@ describe 'FA parser' do
         expect(found_comment).to be true
       end
 
-      it 'correctly parses replies to your comments on someone else\'s submissions' do
+      it "correctly parses replies to your comments on someone else's submissions" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_submission_comments]
         expect(notifications).to be_instance_of Array
@@ -1578,7 +1578,7 @@ describe 'FA parser' do
         expect(found_comment).to be true
       end
 
-      it 'displays deleted submission comment notifications when specified and hide otherwise' do
+      it "displays deleted submission comment notifications when specified and hide otherwise" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_submission_comments]
         expect(notifications).to be_instance_of Array
@@ -1608,15 +1608,15 @@ describe 'FA parser' do
       end
     end
 
-    context 'journal comment notifications' do
-      it 'should handle zero journal comment notifications' do
+    context "journal comment notifications" do
+      it "should handle zero journal comment notifications" do
         @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
         notifications = @fa.notifications(false)[:new_journal_comments]
         expect(notifications).to be_instance_of Array
         expect(notifications).to be_empty
       end
 
-      it 'returns a list of new journal comment notifications' do
+      it "returns a list of new journal comment notifications" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_journal_comments]
         expect(notifications).to be_instance_of Array
@@ -1634,7 +1634,7 @@ describe 'FA parser' do
         end
       end
 
-      it 'correctly parses base level comments to your journals' do
+      it "correctly parses base level comments to your journals" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_journal_comments]
         expect(notifications).to be_instance_of Array
@@ -1653,7 +1653,7 @@ describe 'FA parser' do
         expect(found_comment).to be true
       end
 
-      it 'correctly parses replies to your comments on your journals' do
+      it "correctly parses replies to your comments on your journals" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_journal_comments]
         expect(notifications).to be_instance_of Array
@@ -1672,7 +1672,7 @@ describe 'FA parser' do
         expect(found_comment).to be true
       end
 
-      it 'correctly parses replies to your comments on their journals' do
+      it "correctly parses replies to your comments on their journals" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_journal_comments]
         expect(notifications).to be_instance_of Array
@@ -1691,7 +1691,7 @@ describe 'FA parser' do
         expect(found_comment).to be true
       end
 
-      it 'correctly parses replies to your comments on someone else\'s journals' do
+      it "correctly parses replies to your comments on someone else's journals" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_journal_comments]
         expect(notifications).to be_instance_of Array
@@ -1710,7 +1710,7 @@ describe 'FA parser' do
         expect(found_comment).to be true
       end
 
-      it 'displays deleted journal comment notifications when specified and hide otherwise' do
+      it "displays deleted journal comment notifications when specified and hide otherwise" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_journal_comments]
         expect(notifications).to be_instance_of Array
@@ -1740,15 +1740,15 @@ describe 'FA parser' do
       end
     end
 
-    context 'shout notifications' do
-      it 'should handle zero shout notifications' do
+    context "shout notifications" do
+      it "should handle zero shout notifications" do
         @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
         notifications = @fa.notifications(false)[:new_shouts]
         expect(notifications).to be_instance_of Array
         expect(notifications).to be_empty
       end
 
-      it 'returns a list of new shout notifications' do
+      it "returns a list of new shout notifications" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_shouts]
         expect(notifications).to be_instance_of Array
@@ -1761,7 +1761,7 @@ describe 'FA parser' do
         end
       end
 
-      it 'displays deleted shout notifications when specified and hides otherwise' do
+      it "displays deleted shout notifications when specified and hides otherwise" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_shouts]
         expect(notifications).to be_instance_of Array
@@ -1786,15 +1786,15 @@ describe 'FA parser' do
       end
     end
 
-    context 'favourite notifications' do
-      it 'should handle zero favourite notifications' do
+    context "favourite notifications" do
+      it "should handle zero favourite notifications" do
         @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
         notifications = @fa.notifications(false)[:new_favorites]
         expect(notifications).to be_instance_of Array
         expect(notifications).to be_empty
       end
 
-      it 'returns a list of new favourite notifications' do
+      it "returns a list of new favourite notifications" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_favorites]
         expect(notifications).to be_instance_of Array
@@ -1809,7 +1809,7 @@ describe 'FA parser' do
         end
       end
 
-      it 'displays deleted favourite notifications when specified and hides otherwise' do
+      it "displays deleted favourite notifications when specified and hides otherwise" do
         skip "Skipped: Looks like deleted favourite notifications don't display anymore"
         @fa.login_cookie = COOKIE_TEST_USER_2
         notifications = @fa.notifications(false)[:new_favorites]
@@ -1837,16 +1837,16 @@ describe 'FA parser' do
       end
     end
 
-    context 'journal notifications' do
+    context "journal notifications" do
       # TODO: add a test for deleted journals. (Only available if user deactivates account)
-      it 'should handle zero new journals' do
+      it "should handle zero new journals" do
         @fa.login_cookie = COOKIE_TEST_USER_NO_NOTIFICATIONS
         notifications = @fa.notifications(false)[:new_journals]
         expect(notifications).to be_instance_of Array
         expect(notifications).to be_empty
       end
 
-      it 'returns a list of new journal notifications' do
+      it "returns a list of new journal notifications" do
         @fa.login_cookie = COOKIE_TEST_USER_3
         notifications = @fa.notifications(false)[:new_journals]
         expect(notifications).to be_instance_of Array
@@ -1862,24 +1862,24 @@ describe 'FA parser' do
     end
   end
 
-  context 'when posting a new journal' do
-    it 'requires a login cookie' do
+  context "when posting a new journal" do
+    it "requires a login cookie" do
       @fa.login_cookie = nil
       expect { @fa.submit_journal("Do not post", "This journal should fail to post") }.to raise_error(FALoginError)
     end
 
-    it 'fails if not given title' do
+    it "fails if not given title" do
       expect { @fa.submit_journal(nil, "No title journal") }.to raise_error(FAFormError)
     end
 
-    it 'fails if not given description' do
+    it "fails if not given description" do
       expect { @fa.submit_journal("Title, no desc", nil) }.to raise_error(FAFormError)
     end
 
-    it 'can post a new journal entry' do
+    it "can post a new journal entry" do
       @fa.login_cookie = COOKIE_TEST_USER_JOURNAL_DUMP
-      magic_key = (0...5).map { ('a'..'z').to_a[rand(26)] }.join
-      long_magic_key = (0...50).map { ('a'..'z').to_a[rand(26)] }.join
+      magic_key = (0...5).map { ("a".."z").to_a[rand(26)] }.join
+      long_magic_key = (0...50).map { ("a".."z").to_a[rand(26)] }.join
       journal_title = "Automatically generated title - #{magic_key}"
       journal_description = "Hello, this is an automatically generated journal.\n Magic key: #{long_magic_key}"
 
@@ -1895,11 +1895,11 @@ describe 'FA parser' do
     end
   end
 
-  context 'when viewing notes' do
-    context 'folders' do
-      it 'can list inbox' do
+  context "when viewing notes" do
+    context "folders" do
+      it "can list inbox" do
         @fa.login_cookie = COOKIE_TEST_USER_2
-        notes = @fa.notes('inbox')
+        notes = @fa.notes("inbox")
 
         expect(notes).not_to be_empty
 
@@ -1916,10 +1916,10 @@ describe 'FA parser' do
         end
       end
 
-      it 'can list unread, which contains all unread notes from inbox' do
+      it "can list unread, which contains all unread notes from inbox" do
         @fa.login_cookie = COOKIE_TEST_USER_2
-        unread_notes = @fa.notes('unread')
-        inbox_notes = @fa.notes('inbox')
+        unread_notes = @fa.notes("unread")
+        inbox_notes = @fa.notes("inbox")
 
         expect(unread_notes).not_to be_empty
 
@@ -1935,9 +1935,9 @@ describe 'FA parser' do
         end
       end
 
-      it 'can list outbox and handle unread outbound notes' do
+      it "can list outbox and handle unread outbound notes" do
         @fa.login_cookie = COOKIE_TEST_USER_2
-        notes = @fa.notes('outbox')
+        notes = @fa.notes("outbox")
 
         expect(notes).not_to be_empty
 
@@ -1954,7 +1954,7 @@ describe 'FA parser' do
         end
       end
 
-      it 'can list other folders' do
+      it "can list other folders" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         %w(high medium low archive trash).map do |folder|
           notes = @fa.notes(folder)
@@ -1976,8 +1976,8 @@ describe 'FA parser' do
       end
     end
 
-    context 'individual notes' do
-      it 'can view a specific note' do
+    context "individual notes" do
+      it "can view a specific note" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         note = @fa.note(108710830)
 
@@ -1998,7 +1998,7 @@ describe 'FA parser' do
         expect(note[:preceding_notes].length).to eql(0)
       end
 
-      it 'correctly parses preceding notes' do
+      it "correctly parses preceding notes" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         note = @fa.note(108710838)
 
@@ -2023,15 +2023,15 @@ describe 'FA parser' do
         expect(note[:preceding_notes][0][:profile]).not_to eql(TEST_USER_2)
       end
 
-      it 'throws an error for an invalid note' do
+      it "throws an error for an invalid note" do
         @fa.login_cookie = COOKIE_TEST_USER_2
         expect { @fa.note(108710839) }.to raise_error(FASystemError)
       end
     end
   end
 
-  context 'when browsing' do
-    it 'returns a list of submissions' do
+  context "when browsing" do
+    it "returns a list of submissions" do
       submissions = @fa.browse({ "page" => "1" })
 
       submissions.each do |submission|
@@ -2039,7 +2039,7 @@ describe 'FA parser' do
       end
     end
 
-    it 'returns a second page, different to the first' do
+    it "returns a second page, different to the first" do
       submissions_1 = @fa.browse({ "page" => "1" })
       submissions_2 = @fa.browse({ "page" => "2" })
 
@@ -2053,7 +2053,7 @@ describe 'FA parser' do
       expect(submissions_1).to be_different_results_to(submissions_2)
     end
 
-    it 'defaults to 72 results' do
+    it "defaults to 72 results" do
       submissions = @fa.browse({})
 
       submissions.each do |submission|
@@ -2062,7 +2062,7 @@ describe 'FA parser' do
       expect(submissions.length).to eql(72)
     end
 
-    it 'returns as many submissions as perpage specifies' do
+    it "returns as many submissions as perpage specifies" do
       submissions_24 = @fa.browse({ "perpage" => "24" })
       submissions_48 = @fa.browse({ "perpage" => "48" })
       submissions_72 = @fa.browse({ "perpage" => "72" })
@@ -2072,7 +2072,7 @@ describe 'FA parser' do
       expect(submissions_72.length).to eql(72)
     end
 
-    it 'can specify ratings to display, and honours that selection' do
+    it "can specify ratings to display, and honours that selection" do
       only_adult = @fa.browse({ "perpage" => 24, "rating" => "adult" })
       only_sfw_or_mature = @fa.browse({ "perpage" => 24, "rating" => "mature,general" })
 
@@ -2090,14 +2090,14 @@ describe 'FA parser' do
     end
   end
 
-  context 'when checking FA status' do
-    it 'displays the usual status information' do
+  context "when checking FA status" do
+    it "displays the usual status information" do
       status = @fa.status
 
       expect(status).to be_valid_status_data
     end
 
-    it 'displays status information after another page load' do
+    it "displays status information after another page load" do
       status_1 = @fa.status
       @fa.home
       status_2 = @fa.status
