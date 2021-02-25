@@ -202,13 +202,15 @@ class Furaffinity
   end
 
   def login(username, password)
-    response = post("/login/", {
-      "action" => "login",
-      "retard_protection" => "1",
-      "name" => username,
-      "pass" => password,
-      "login" => "Login to Furaffinity"
-    })
+    response = post(
+      "/login/",
+      {
+        "action" => "login",
+        "retard_protection" => "1",
+        "name" => username,
+        "pass" => password,
+        "login" => "Login to Furaffinity"
+      })
     "b=#{response["set-cookie"][/b=([a-z0-9\-]+);/, 1]}; "\
     "a=#{response["set-cookie"][/a=([a-z0-9\-]+);/, 1]}"
   end
@@ -238,10 +240,10 @@ class Furaffinity
         end
 
     options = {
-        perpage: perpage,
-        rating_general: ratings.include?("general") ? 1 : 0,
-        rating_mature: ratings.include?("mature") ? 1 : 0,
-        rating_adult: ratings.include?("adult") ? 1 : 0
+      perpage: perpage,
+      rating_general: ratings.include?("general") ? 1 : 0,
+      rating_mature: ratings.include?("mature") ? 1 : 0,
+      rating_adult: ratings.include?("adult") ? 1 : 0
     }
 
     raw = @cache.add("url:browse:#{params}") do
@@ -523,13 +525,15 @@ class Furaffinity
 
     html = fetch(url)
     key = html.at_css('form#MsgForm input[name="key"]')["value"]
-    response = post("/controls/journal/", {
-      "id" => "",
-      "key" => key,
-      "do" => "update",
-      "subject" => title,
-      "message" => description
-    })
+    response = post(
+      "/controls/journal/",
+      {
+        "id" => "",
+        "key" => key,
+        "do" => "update",
+        "subject" => title,
+        "message" => description
+      })
     unless response.is_a?(Net::HTTPMovedTemporarily)
       raise FAFormError.new(fa_url("controls/journal/"))
     end
@@ -549,8 +553,8 @@ class Furaffinity
     login_user = get_current_user(html, url)
     submissions = html.css(".gallery > figure").map { |art| build_submission_notification(art) }
     {
-        "current_user": login_user,
-        "new_submissions": submissions
+      "current_user": login_user,
+      "new_submissions": submissions
     }
   end
 
@@ -594,28 +598,28 @@ class Furaffinity
         if elem.at_css("input")["checked"] == "checked"
           if include_deleted
             new_watches << {
-                watch_id: "",
-                name: "Removed by the user",
-                profile: "",
-                profile_name: "",
-                avatar: fa_url(elem.at_css("img")["src"]),
-                posted: "",
-                posted_at: "",
-                deleted: true
+              watch_id: "",
+              name: "Removed by the user",
+              profile: "",
+              profile_name: "",
+              avatar: fa_url(elem.at_css("img")["src"]),
+              posted: "",
+              posted_at: "",
+              deleted: true
             }
           end
           next
         end
         date = pick_date(elem.at_css(".popup_date"))
         new_watches << {
-            watch_id: elem.at_css("input")["value"],
-            name: elem.at_css("span").content,
-            profile: fa_url(elem.at_css("a")["href"]),
-            profile_name: last_path(elem.at_css("a")["href"]),
-            avatar: "https:#{elem.at_css("img")["src"]}",
-            posted: date,
-            posted_at: to_iso8601(date),
-            deleted: false
+          watch_id: elem.at_css("input")["value"],
+          name: elem.at_css("span").content,
+          profile: fa_url(elem.at_css("a")["href"]),
+          profile_name: last_path(elem.at_css("a")["href"]),
+          avatar: "https:#{elem.at_css("img")["src"]}",
+          posted: date,
+          posted_at: to_iso8601(date),
+          deleted: false
         }
       end
     end
@@ -627,18 +631,18 @@ class Furaffinity
         if elem.at_css("input")["checked"] == "checked"
           if include_deleted
             new_submission_comments << {
-                comment_id: "",
-                name: "Comment or the submission it was left on has been deleted",
-                profile: "",
-                profile_name: "",
-                is_reply: false,
-                your_submission: false,
-                their_submission: false,
-                submission_id: "",
-                title: "Comment or the submission it was left on has been deleted",
-                posted: "",
-                posted_at: "",
-                deleted: true
+              comment_id: "",
+              name: "Comment or the submission it was left on has been deleted",
+              profile: "",
+              profile_name: "",
+              is_reply: false,
+              your_submission: false,
+              their_submission: false,
+              submission_id: "",
+              title: "Comment or the submission it was left on has been deleted",
+              posted: "",
+              posted_at: "",
+              deleted: true
             }
           end
           next
@@ -647,18 +651,18 @@ class Furaffinity
         date = pick_date(elem.at_css(".popup_date"))
         is_reply = elem.to_s.include?("<em>your</em> comment on")
         new_submission_comments << {
-            comment_id: elem.at_css("input")["value"],
-            name: elem_links[0].content,
-            profile: fa_url(elem_links[0]["href"]),
-            profile_name: last_path(elem_links[0]["href"]),
-            is_reply: is_reply,
-            your_submission: !is_reply || elem.css("em").length == 2 && elem.css("em").last.content == "your",
-            their_submission: elem.css("em").last.content == "their",
-            submission_id: elem_links[1]["href"].split("/")[-2],
-            title: elem_links[1].content,
-            posted: date,
-            posted_at: to_iso8601(date),
-            deleted: false
+          comment_id: elem.at_css("input")["value"],
+          name: elem_links[0].content,
+          profile: fa_url(elem_links[0]["href"]),
+          profile_name: last_path(elem_links[0]["href"]),
+          is_reply: is_reply,
+          your_submission: !is_reply || elem.css("em").length == 2 && elem.css("em").last.content == "your",
+          their_submission: elem.css("em").last.content == "their",
+          submission_id: elem_links[1]["href"].split("/")[-2],
+          title: elem_links[1].content,
+          posted: date,
+          posted_at: to_iso8601(date),
+          deleted: false
         }
       end
     end
@@ -670,18 +674,18 @@ class Furaffinity
         if elem.at_css("input")["checked"] == "checked"
           if include_deleted
             new_journal_comments << {
-                comment_id: "",
-                name: "Comment or the journal it was left on has been deleted",
-                profile: "",
-                profile_name: "",
-                is_reply: false,
-                your_journal: false,
-                their_journal: false,
-                journal_id: "",
-                title: "Comment or the journal it was left on has been deleted",
-                posted: "",
-                posted_at: "",
-                deleted: true
+              comment_id: "",
+              name: "Comment or the journal it was left on has been deleted",
+              profile: "",
+              profile_name: "",
+              is_reply: false,
+              your_journal: false,
+              their_journal: false,
+              journal_id: "",
+              title: "Comment or the journal it was left on has been deleted",
+              posted: "",
+              posted_at: "",
+              deleted: true
             }
           end
           next
@@ -690,18 +694,18 @@ class Furaffinity
         date = pick_date(elem.at_css(".popup_date"))
         is_reply = elem.to_s.include?("<em>your</em> comment on")
         new_journal_comments << {
-            comment_id: elem.at_css("input")["value"],
-            name: elem_links[0].content,
-            profile: fa_url(elem_links[0]["href"]),
-            profile_name: last_path(elem_links[0]["href"]),
-            is_reply: is_reply,
-            your_journal: !is_reply || elem.css("em").length == 2 && elem.css("em").last.content == "your",
-            their_journal: elem.css("em").last.content == "their",
-            journal_id: elem_links[1]["href"].split("/")[-2],
-            title: elem_links[1].content,
-            posted: date,
-            posted_at: to_iso8601(date),
-            deleted: false
+          comment_id: elem.at_css("input")["value"],
+          name: elem_links[0].content,
+          profile: fa_url(elem_links[0]["href"]),
+          profile_name: last_path(elem_links[0]["href"]),
+          is_reply: is_reply,
+          your_journal: !is_reply || elem.css("em").length == 2 && elem.css("em").last.content == "your",
+          their_journal: elem.css("em").last.content == "their",
+          journal_id: elem_links[1]["href"].split("/")[-2],
+          title: elem_links[1].content,
+          posted: date,
+          posted_at: to_iso8601(date),
+          deleted: false
         }
       end
     end
@@ -713,26 +717,26 @@ class Furaffinity
         if elem.at_css("input")["checked"] == "checked"
           if include_deleted
             new_shouts << {
-                shout_id: "",
-                name: "Shout has been removed from your page",
-                profile: "",
-                profile_name: "",
-                posted: "",
-                posted_at: "",
-                deleted: true
+              shout_id: "",
+              name: "Shout has been removed from your page",
+              profile: "",
+              profile_name: "",
+              posted: "",
+              posted_at: "",
+              deleted: true
             }
           end
           next
         end
         date = pick_date(elem.at_css(".popup_date"))
         new_shouts << {
-            shout_id: elem.at_css("input")["value"],
-            name: elem.at_css("a").content,
-            profile: fa_url(elem.at_css("a")["href"]),
-            profile_name: last_path(elem.at_css("a")["href"]),
-            posted: date,
-            posted_at: to_iso8601(date),
-            deleted: false
+          shout_id: elem.at_css("input")["value"],
+          name: elem.at_css("a").content,
+          profile: fa_url(elem.at_css("a")["href"]),
+          profile_name: last_path(elem.at_css("a")["href"]),
+          posted: date,
+          posted_at: to_iso8601(date),
+          deleted: false
         }
       end
     end
@@ -744,14 +748,14 @@ class Furaffinity
         if elem.at_css("input")["checked"] == "checked"
           if include_deleted
             new_favorites << {
-                favorite_notification_id: "",
-                name: "The favorite this notification was for has since been removed by the user",
-                profile: "",
-                profile_name: "",
-                submission_id: "",
-                submission_name: "The favorite this notification was for has since been removed by the user",
-                posted: "",
-                posted_at: ""
+              favorite_notification_id: "",
+              name: "The favorite this notification was for has since been removed by the user",
+              profile: "",
+              profile_name: "",
+              submission_id: "",
+              submission_name: "The favorite this notification was for has since been removed by the user",
+              posted: "",
+              posted_at: ""
             }
           end
           next
@@ -759,14 +763,14 @@ class Furaffinity
         elem_links = elem.css("a")
         date = pick_date(elem.at_css(".popup_date"))
         new_favorites << {
-            favorite_notification_id: elem.at_css("input")["value"],
-            name: elem_links[0].content,
-            profile: fa_url(elem_links[0]["href"]),
-            profile_name: last_path(elem_links[0]["href"]),
-            submission_id: last_path(elem_links[1]["href"]),
-            submission_name: elem_links[1].content,
-            posted: date,
-            posted_at: to_iso8601(date)
+          favorite_notification_id: elem.at_css("input")["value"],
+          name: elem_links[0].content,
+          profile: fa_url(elem_links[0]["href"]),
+          profile_name: last_path(elem_links[0]["href"]),
+          submission_id: last_path(elem_links[1]["href"]),
+          submission_name: elem_links[1].content,
+          posted: date,
+          posted_at: to_iso8601(date)
         }
       end
     end
@@ -779,14 +783,14 @@ class Furaffinity
         if elem.at_css("input")["checked"] == "checked"
           if include_deleted
             new_journals << {
-                favorite_notification_id: "",
-                name: "This journal has been removed by the poster",
-                profile: "",
-                profile_name: "",
-                submission_id: "",
-                submission_name: "This journal has been removed by the poster",
-                posted: "",
-                posted_at: ""
+              favorite_notification_id: "",
+              name: "This journal has been removed by the poster",
+              profile: "",
+              profile_name: "",
+              submission_id: "",
+              submission_name: "This journal has been removed by the poster",
+              posted: "",
+              posted_at: ""
             }
           end
           next
@@ -794,47 +798,47 @@ class Furaffinity
         elem_links = elem.css("a")
         date = pick_date(elem.at_css(".popup_date"))
         new_journals << {
-            journal_id: elem.at_css("input")["value"],
-            title: elem_links[0].content,
-            name: elem_links[1].content,
-            profile: fa_url(elem_links[1]["href"]),
-            profile_name: last_path(elem_links[1]["href"]),
-            posted: date,
-            posted_at: to_iso8601(date)
+          journal_id: elem.at_css("input")["value"],
+          title: elem_links[0].content,
+          name: elem_links[1].content,
+          profile: fa_url(elem_links[1]["href"]),
+          profile_name: last_path(elem_links[1]["href"]),
+          posted: date,
+          posted_at: to_iso8601(date)
         }
       end
     end
     # Create response
     {
-        current_user: login_user,
-        notification_counts: {
-            submissions: num_submissions,
-            comments: num_comments,
-            journals: num_journals,
-            favorites:  num_favorites,
-            watchers:  num_watchers,
-            notes: num_notes,
-            trouble_tickets: num_trouble_tickets
-        },
-        new_watches: new_watches,
-        new_submission_comments: new_submission_comments,
-        new_journal_comments: new_journal_comments,
-        new_shouts: new_shouts,
-        new_favorites: new_favorites,
-        new_journals: new_journals
+      current_user: login_user,
+      notification_counts: {
+        submissions: num_submissions,
+        comments: num_comments,
+        journals: num_journals,
+        favorites:  num_favorites,
+        watchers:  num_watchers,
+        notes: num_notes,
+        trouble_tickets: num_trouble_tickets
+      },
+      new_watches: new_watches,
+      new_submission_comments: new_submission_comments,
+      new_journal_comments: new_journal_comments,
+      new_shouts: new_shouts,
+      new_favorites: new_favorites,
+      new_journals: new_journals
     }
   end
 
   def notes(folder)
     note_cookie = {
-        inbox: "inbox",
-        outbox: "outbox",
-        unread: "unread",
-        archive: "archive",
-        trash: "trash",
-        high: "high_prio",
-        medium: "medium_prio",
-        low: "low_prio"
+      inbox: "inbox",
+      outbox: "outbox",
+      unread: "unread",
+      archive: "archive",
+      trash: "trash",
+      high: "high_prio",
+      medium: "medium_prio",
+      low: "low_prio"
     }[folder.to_sym]
     html = fetch("msg/pms/", "folder=#{note_cookie}")
     notes_table = html.at_css("table#notes-list")
@@ -856,15 +860,15 @@ class Furaffinity
         end
       end
       {
-          note_id: note.at_css("input")["value"].to_i,
-          subject: subject.at_css("a.notelink").content,
-          is_inbound: is_inbound,
-          is_read: subject.at_css("a.notelink.note-unread").nil?,
-          name: profile.content,
-          profile: fa_url(profile["href"][1..-1]),
-          profile_name: last_path(profile["href"]),
-          posted: date,
-          posted_at: to_iso8601(date)
+        note_id: note.at_css("input")["value"].to_i,
+        subject: subject.at_css("a.notelink").content,
+        is_inbound: is_inbound,
+        is_read: subject.at_css("a.notelink.note-unread").nil?,
+        name: profile.content,
+        profile: fa_url(profile["href"][1..-1]),
+        profile_name: last_path(profile["href"]),
+        posted: date,
+        posted_at: to_iso8601(date)
       }
     end
   end
@@ -886,28 +890,28 @@ class Furaffinity
     description = note_table.at_css("td.text")
     desc_split = description.inner_html.split("—————————")
     {
-        note_id: id,
-        subject: note_header.at_css("em.title").content,
-        is_inbound: is_inbound,
-        name: profile.content,
-        profile: fa_url(profile["href"][1..-1]),
-        profile_name: last_path(profile["href"]),
-        posted: date,
-        posted_at: to_iso8601(date),
-        avatar: "https#{note_table.at_css("img.avatar")["src"]}",
-        description: description.inner_html.strip,
-        description_body: html_strip(desc_split.first.strip),
-        preceding_notes: desc_split[1..-1].map do |note|
-          note_html = Nokogiri::HTML(note)
-          profile = note_html.at_css("a.linkusername")
-          {
-              name: profile.content.to_s,
-              profile: fa_url("#{profile["href"][1..-1]}/"),
-              profile_name: last_path(profile["href"]),
-              description: note,
-              description_body: html_strip(note.to_s.split("</a>:")[1..-1].join("</a>:"))
-          }
-        end
+      note_id: id,
+      subject: note_header.at_css("em.title").content,
+      is_inbound: is_inbound,
+      name: profile.content,
+      profile: fa_url(profile["href"][1..-1]),
+      profile_name: last_path(profile["href"]),
+      posted: date,
+      posted_at: to_iso8601(date),
+      avatar: "https#{note_table.at_css("img.avatar")["src"]}",
+      description: description.inner_html.strip,
+      description_body: html_strip(desc_split.first.strip),
+      preceding_notes: desc_split[1..-1].map do |note|
+        note_html = Nokogiri::HTML(note)
+        profile = note_html.at_css("a.linkusername")
+        {
+          name: profile.content.to_s,
+          profile: fa_url("#{profile["href"][1..-1]}/"),
+          profile_name: last_path(profile["href"]),
+          description: note,
+          description_body: html_strip(note.to_s.split("</a>:")[1..-1].join("</a>:"))
+        }
+      end
     }
   end
 
@@ -1174,9 +1178,9 @@ private
       raise FALoginError.new(url)
     end
     {
-        "name": name_elem.content.strip.gsub(/^~/, ""),
-        "profile": fa_url(name_elem["href"][1..-1]),
-        "profile_name": last_path(name_elem["href"])
+      "name": name_elem.content.strip.gsub(/^~/, ""),
+      "profile": fa_url(name_elem["href"][1..-1]),
+      "profile_name": last_path(name_elem["href"])
     }
   end
 
@@ -1193,14 +1197,14 @@ private
     counts = center.to_s.scan(/([0-9]+)\s*<b>/).map { |d| d[0].to_i }
 
     status = {
-        online: {
-            guests: counts[1],
-            registered: counts[2],
-            other: counts[3],
-            total: counts[0]
-        },
-        fa_server_time: timestamp,
-        fa_server_time_at: to_iso8601(timestamp)
+      online: {
+        guests: counts[1],
+        registered: counts[2],
+        other: counts[3],
+        total: counts[0]
+      },
+      fa_server_time: timestamp,
+      fa_server_time_at: to_iso8601(timestamp)
     }
     status_json = JSON.pretty_generate status
     @cache.save_status(status_json)
@@ -1228,29 +1232,29 @@ private
                 end
 
     submission = {
-        title: submission_title.at_css("h2").content,
-        description: submission.css("td.alt1")[2].children.to_s.strip,
-        description_body: submission.css("td.alt1")[2].children.to_s.strip,
-        name: html.css("td.cat a")[1].content,
-        profile: fa_url(profile_url),
-        profile_name: last_path(profile_url),
-        avatar: "https:#{submission_title.at_css("img.avatar")["src"]}",
-        link: fa_url("view/#{id}/"),
-        posted: date,
-        posted_at: to_iso8601(date),
-        download: download_url,
-        full: img ? "https:#{img["data-fullview-src"]}" : nil,
-        thumbnail: thumb_img,
-        category: field(info, "Category"),
-        theme: field(info, "Theme"),
-        species: field(info, "Species"),
-        gender: field(info, "Gender"),
-        favorites: field(info, "Favorites"),
-        comments: field(info, "Comments"),
-        views: field(info, "Views"),
-        resolution: field(info, "Resolution"),
-        rating: raw_info.at_css("div img")["alt"].gsub(" rating", ""),
-        keywords: keywords ? keywords.map(&:content).reject(&:empty?) : []
+      title: submission_title.at_css("h2").content,
+      description: submission.css("td.alt1")[2].children.to_s.strip,
+      description_body: submission.css("td.alt1")[2].children.to_s.strip,
+      name: html.css("td.cat a")[1].content,
+      profile: fa_url(profile_url),
+      profile_name: last_path(profile_url),
+      avatar: "https:#{submission_title.at_css("img.avatar")["src"]}",
+      link: fa_url("view/#{id}/"),
+      posted: date,
+      posted_at: to_iso8601(date),
+      download: download_url,
+      full: img ? "https:#{img["data-fullview-src"]}" : nil,
+      thumbnail: thumb_img,
+      category: field(info, "Category"),
+      theme: field(info, "Theme"),
+      species: field(info, "Species"),
+      gender: field(info, "Gender"),
+      favorites: field(info, "Favorites"),
+      comments: field(info, "Comments"),
+      views: field(info, "Views"),
+      resolution: field(info, "Resolution"),
+      rating: raw_info.at_css("div img")["alt"].gsub(" rating", ""),
+      keywords: keywords ? keywords.map(&:content).reject(&:empty?) : []
     }
 
     if is_login

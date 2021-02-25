@@ -525,9 +525,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#watches"
           @posts = watches.map do |watch|
             @post = {
-                title: "New watch by #{watch[:name]}",
-                link: watch[:profile],
-                posted: watch[:posted]
+              title: "New watch by #{watch[:name]}",
+              link: watch[:profile],
+              posted: watch[:posted]
             }
             @description = "You have been watched by a new user <a href=\"#{watch[:profile]}\">#{watch[:name]}</a> <img src=\"#{watch[:avatar]}\" alt=\"avatar\"/>"
             builder :post
@@ -552,9 +552,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#comments"
           @posts = submission_comments.map do |comment|
             @post = {
-                title: "New submission comment by #{comment[:name]}",
-                link: "https://www.furaffinity.net/view/#{comment[:submission_id]}/#cid:#{comment[:comment_id]}",
-                posted: comment[:posted]
+              title: "New submission comment by #{comment[:name]}",
+              link: "https://www.furaffinity.net/view/#{comment[:submission_id]}/#cid:#{comment[:comment_id]}",
+              posted: comment[:posted]
             }
             @description = "You have a new submission comment notification.
 <a href=\"#{comment[:profile]}\">#{comment[:name]}</a> has made a new comment #{comment[:is_reply] ? "in response to your comment " : ""}on
@@ -581,9 +581,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#comments"
           @posts = journal_comments.map do |comment|
             @post = {
-                title: "New journal comment by #{comment[:name]}",
-                link: "https://www.furaffinity.net/journal/#{comment[:journal_id]}/#cid:#{comment[:comment_id]}",
-                posted: comment[:posted]
+              title: "New journal comment by #{comment[:name]}",
+              link: "https://www.furaffinity.net/journal/#{comment[:journal_id]}/#cid:#{comment[:comment_id]}",
+              posted: comment[:posted]
             }
             @description = "You have a new journal comment notification.
 <a href=\"#{comment[:profile]}\">#{comment[:name]}</a> has made a new comment #{comment[:is_reply] ? "in response to your comment " : ""}on
@@ -610,9 +610,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#shouts"
           @posts = shouts.map do |shout|
             @post = {
-                title: "New shout by #{shout[:name]}",
-                link: "#{results[:current_user][:profile]}#shout-#{shout[:shout_id]}",
-                posted: shout[:posted]
+              title: "New shout by #{shout[:name]}",
+              link: "#{results[:current_user][:profile]}#shout-#{shout[:shout_id]}",
+              posted: shout[:posted]
             }
             @description = "You have a new shout, from <a href=\"#{shout[:profile]}\">#{shout[:name]}</a>."
             builder :post
@@ -637,9 +637,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#favorite"
           @posts = favorites.map do |favorite|
             @post = {
-                title: "#{favorite[:name]} has favorited \"#{favorite[:submission_name]}\"",
-                link: "https://furaffinity.net/view/#{favorite[:submission_id]}",
-                posted: favorite[:posted]
+              title: "#{favorite[:name]} has favorited \"#{favorite[:submission_name]}\"",
+              link: "https://furaffinity.net/view/#{favorite[:submission_id]}",
+              posted: favorite[:posted]
             }
             @description = "You have a new favorite notification. <a href=\"#{favorite[:profile]}\">#{favorite[:name]}</a> has favorited your submission
 \"<a href=\"https://furaffinity.net/view/#{favorite[:submission_id]}\">#{favorite[:submission_name]}</a>\"."
@@ -665,9 +665,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#journals"
           @posts = journals.map do |journal|
             @post = {
-                title: "New journal from #{journal[:name]} \"#{journal[:title]}\".",
-                link: "https://furaffinity.net/journal/#{journal[:journal_id]}",
-                posted: journal[:posted]
+              title: "New journal from #{journal[:name]} \"#{journal[:title]}\".",
+              link: "https://furaffinity.net/journal/#{journal[:journal_id]}",
+              posted: journal[:posted]
             }
             @description = "A new journal has been posted by <a href=\"#{journal[:profile]}\">#{journal[:name]}</a>, titled: \"<a href=\"https://furaffinity.net/journal/#{journal[:journal_id]}\">#{journal[:name]}</a>\"."
             builder :post
@@ -695,9 +695,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/pms/"
           @posts = results.map do |note|
             @post = {
-                title: note[:subject],
-                link: note[:link],
-                posted: note[:posted]
+              title: note[:subject],
+              link: note[:link],
+              posted: note[:posted]
             }
             @description = "A new note has been received, from <a href=\"#{note[:profile]}\">#{note[:name]}</a>, the subject is \"<a href=\"#{note[:link]}\">#{note[:subject]}</a>\"."
             builder :post
