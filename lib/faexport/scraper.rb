@@ -604,220 +604,208 @@ class Furaffinity
     # Parse new watcher notifications
     new_watches = []
     watches_elem = html.at_css("ul#watches")
-    if watches_elem
-      watches_elem.css("li:not(.section-controls)").each do |elem|
-        if elem.at_css("input")["checked"] == "checked"
-          if include_deleted
-            new_watches << {
-              watch_id: "",
-              name: "Removed by the user",
-              profile: "",
-              profile_name: "",
-              avatar: fa_url(elem.at_css("img")["src"]),
-              posted: "",
-              posted_at: "",
-              deleted: true
-            }
-          end
-          next
+    watches_elem&.css("li:not(.section-controls)").each do |elem|
+      if elem.at_css("input")["checked"] == "checked"
+        if include_deleted
+          new_watches << {
+            watch_id: "",
+            name: "Removed by the user",
+            profile: "",
+            profile_name: "",
+            avatar: fa_url(elem.at_css("img")["src"]),
+            posted: "",
+            posted_at: "",
+            deleted: true
+          }
         end
-        date = pick_date(elem.at_css(".popup_date"))
-        new_watches << {
-          watch_id: elem.at_css("input")["value"],
-          name: elem.at_css("span").content,
-          profile: fa_url(elem.at_css("a")["href"]),
-          profile_name: last_path(elem.at_css("a")["href"]),
-          avatar: "https:#{elem.at_css("img")["src"]}",
-          posted: date,
-          posted_at: to_iso8601(date),
-          deleted: false
-        }
+        next
       end
+      date = pick_date(elem.at_css(".popup_date"))
+      new_watches << {
+        watch_id: elem.at_css("input")["value"],
+        name: elem.at_css("span").content,
+        profile: fa_url(elem.at_css("a")["href"]),
+        profile_name: last_path(elem.at_css("a")["href"]),
+        avatar: "https:#{elem.at_css("img")["src"]}",
+        posted: date,
+        posted_at: to_iso8601(date),
+        deleted: false
+      }
     end
     # Parse new submission comments notifications
     new_submission_comments = []
     submission_comments_elem = html.at_css("fieldset#messages-comments-submission")
-    if submission_comments_elem
-      submission_comments_elem.css("li:not(.section-controls)").each do |elem|
-        if elem.at_css("input")["checked"] == "checked"
-          if include_deleted
-            new_submission_comments << {
-              comment_id: "",
-              name: "Comment or the submission it was left on has been deleted",
-              profile: "",
-              profile_name: "",
-              is_reply: false,
-              your_submission: false,
-              their_submission: false,
-              submission_id: "",
-              title: "Comment or the submission it was left on has been deleted",
-              posted: "",
-              posted_at: "",
-              deleted: true
-            }
-          end
-          next
+    submission_comments_elem&.css("li:not(.section-controls)").each do |elem|
+      if elem.at_css("input")["checked"] == "checked"
+        if include_deleted
+          new_submission_comments << {
+            comment_id: "",
+            name: "Comment or the submission it was left on has been deleted",
+            profile: "",
+            profile_name: "",
+            is_reply: false,
+            your_submission: false,
+            their_submission: false,
+            submission_id: "",
+            title: "Comment or the submission it was left on has been deleted",
+            posted: "",
+            posted_at: "",
+            deleted: true
+          }
         end
-        elem_links = elem.css("a")
-        date = pick_date(elem.at_css(".popup_date"))
-        is_reply = elem.to_s.include?("<em>your</em> comment on")
-        new_submission_comments << {
-          comment_id: elem.at_css("input")["value"],
-          name: elem_links[0].content,
-          profile: fa_url(elem_links[0]["href"]),
-          profile_name: last_path(elem_links[0]["href"]),
-          is_reply: is_reply,
-          your_submission: !is_reply || elem.css("em").length == 2 && elem.css("em").last.content == "your",
-          their_submission: elem.css("em").last.content == "their",
-          submission_id: elem_links[1]["href"].split("/")[-2],
-          title: elem_links[1].content,
-          posted: date,
-          posted_at: to_iso8601(date),
-          deleted: false
-        }
+        next
       end
+      elem_links = elem.css("a")
+      date = pick_date(elem.at_css(".popup_date"))
+      is_reply = elem.to_s.include?("<em>your</em> comment on")
+      new_submission_comments << {
+        comment_id: elem.at_css("input")["value"],
+        name: elem_links[0].content,
+        profile: fa_url(elem_links[0]["href"]),
+        profile_name: last_path(elem_links[0]["href"]),
+        is_reply: is_reply,
+        your_submission: !is_reply || elem.css("em").length == 2 && elem.css("em").last.content == "your",
+        their_submission: elem.css("em").last.content == "their",
+        submission_id: elem_links[1]["href"].split("/")[-2],
+        title: elem_links[1].content,
+        posted: date,
+        posted_at: to_iso8601(date),
+        deleted: false
+      }
     end
     # Parse new journal comments notifications
     new_journal_comments = []
     journal_comments_elem = html.at_css("fieldset#messages-comments-journal")
-    if journal_comments_elem
-      journal_comments_elem.css("li:not(.section-controls)").each do |elem|
-        if elem.at_css("input")["checked"] == "checked"
-          if include_deleted
-            new_journal_comments << {
-              comment_id: "",
-              name: "Comment or the journal it was left on has been deleted",
-              profile: "",
-              profile_name: "",
-              is_reply: false,
-              your_journal: false,
-              their_journal: false,
-              journal_id: "",
-              title: "Comment or the journal it was left on has been deleted",
-              posted: "",
-              posted_at: "",
-              deleted: true
-            }
-          end
-          next
+    journal_comments_elem&.css("li:not(.section-controls)").each do |elem|
+      if elem.at_css("input")["checked"] == "checked"
+        if include_deleted
+          new_journal_comments << {
+            comment_id: "",
+            name: "Comment or the journal it was left on has been deleted",
+            profile: "",
+            profile_name: "",
+            is_reply: false,
+            your_journal: false,
+            their_journal: false,
+            journal_id: "",
+            title: "Comment or the journal it was left on has been deleted",
+            posted: "",
+            posted_at: "",
+            deleted: true
+          }
         end
-        elem_links = elem.css("a")
-        date = pick_date(elem.at_css(".popup_date"))
-        is_reply = elem.to_s.include?("<em>your</em> comment on")
-        new_journal_comments << {
-          comment_id: elem.at_css("input")["value"],
-          name: elem_links[0].content,
-          profile: fa_url(elem_links[0]["href"]),
-          profile_name: last_path(elem_links[0]["href"]),
-          is_reply: is_reply,
-          your_journal: !is_reply || elem.css("em").length == 2 && elem.css("em").last.content == "your",
-          their_journal: elem.css("em").last.content == "their",
-          journal_id: elem_links[1]["href"].split("/")[-2],
-          title: elem_links[1].content,
-          posted: date,
-          posted_at: to_iso8601(date),
-          deleted: false
-        }
+        next
       end
+      elem_links = elem.css("a")
+      date = pick_date(elem.at_css(".popup_date"))
+      is_reply = elem.to_s.include?("<em>your</em> comment on")
+      new_journal_comments << {
+        comment_id: elem.at_css("input")["value"],
+        name: elem_links[0].content,
+        profile: fa_url(elem_links[0]["href"]),
+        profile_name: last_path(elem_links[0]["href"]),
+        is_reply: is_reply,
+        your_journal: !is_reply || elem.css("em").length == 2 && elem.css("em").last.content == "your",
+        their_journal: elem.css("em").last.content == "their",
+        journal_id: elem_links[1]["href"].split("/")[-2],
+        title: elem_links[1].content,
+        posted: date,
+        posted_at: to_iso8601(date),
+        deleted: false
+      }
     end
     # Parse new shout notifications
     new_shouts = []
     shouts_elem = html.at_css("fieldset#messages-shouts")
-    if shouts_elem
-      shouts_elem.css("li:not(.section-controls)").each do |elem|
-        if elem.at_css("input")["checked"] == "checked"
-          if include_deleted
-            new_shouts << {
-              shout_id: "",
-              name: "Shout has been removed from your page",
-              profile: "",
-              profile_name: "",
-              posted: "",
-              posted_at: "",
-              deleted: true
-            }
-          end
-          next
+    shouts_elem&.css("li:not(.section-controls)").each do |elem|
+      if elem.at_css("input")["checked"] == "checked"
+        if include_deleted
+          new_shouts << {
+            shout_id: "",
+            name: "Shout has been removed from your page",
+            profile: "",
+            profile_name: "",
+            posted: "",
+            posted_at: "",
+            deleted: true
+          }
         end
-        date = pick_date(elem.at_css(".popup_date"))
-        new_shouts << {
-          shout_id: elem.at_css("input")["value"],
-          name: elem.at_css("a").content,
-          profile: fa_url(elem.at_css("a")["href"]),
-          profile_name: last_path(elem.at_css("a")["href"]),
-          posted: date,
-          posted_at: to_iso8601(date),
-          deleted: false
-        }
+        next
       end
+      date = pick_date(elem.at_css(".popup_date"))
+      new_shouts << {
+        shout_id: elem.at_css("input")["value"],
+        name: elem.at_css("a").content,
+        profile: fa_url(elem.at_css("a")["href"]),
+        profile_name: last_path(elem.at_css("a")["href"]),
+        posted: date,
+        posted_at: to_iso8601(date),
+        deleted: false
+      }
     end
     # Parse new favourite notifications
     new_favorites = []
     favorites_elem = html.at_css("ul#favorites")
-    if favorites_elem
-      favorites_elem.css("li:not(.section-controls)").each do |elem|
-        if elem.at_css("input")["checked"] == "checked"
-          if include_deleted
-            new_favorites << {
-              favorite_notification_id: "",
-              name: "The favorite this notification was for has since been removed by the user",
-              profile: "",
-              profile_name: "",
-              submission_id: "",
-              submission_name: "The favorite this notification was for has since been removed by the user",
-              posted: "",
-              posted_at: ""
-            }
-          end
-          next
+    favorites_elem&.css("li:not(.section-controls)").each do |elem|
+      if elem.at_css("input")["checked"] == "checked"
+        if include_deleted
+          new_favorites << {
+            favorite_notification_id: "",
+            name: "The favorite this notification was for has since been removed by the user",
+            profile: "",
+            profile_name: "",
+            submission_id: "",
+            submission_name: "The favorite this notification was for has since been removed by the user",
+            posted: "",
+            posted_at: ""
+          }
         end
-        elem_links = elem.css("a")
-        date = pick_date(elem.at_css(".popup_date"))
-        new_favorites << {
-          favorite_notification_id: elem.at_css("input")["value"],
-          name: elem_links[0].content,
-          profile: fa_url(elem_links[0]["href"]),
-          profile_name: last_path(elem_links[0]["href"]),
-          submission_id: last_path(elem_links[1]["href"]),
-          submission_name: elem_links[1].content,
-          posted: date,
-          posted_at: to_iso8601(date)
-        }
+        next
       end
+      elem_links = elem.css("a")
+      date = pick_date(elem.at_css(".popup_date"))
+      new_favorites << {
+        favorite_notification_id: elem.at_css("input")["value"],
+        name: elem_links[0].content,
+        profile: fa_url(elem_links[0]["href"]),
+        profile_name: last_path(elem_links[0]["href"]),
+        submission_id: last_path(elem_links[1]["href"]),
+        submission_name: elem_links[1].content,
+        posted: date,
+        posted_at: to_iso8601(date)
+      }
     end
     # Parse new journal notifications
     new_journals = []
     journals_elem = html.at_css("ul#journals")
-    if journals_elem
-      journals_elem.css("li:not(.section-controls)").each do |elem|
-        # Deleted journals are only displayed when the poster's page has been deactivated
-        if elem.at_css("input")["checked"] == "checked"
-          if include_deleted
-            new_journals << {
-              favorite_notification_id: "",
-              name: "This journal has been removed by the poster",
-              profile: "",
-              profile_name: "",
-              submission_id: "",
-              submission_name: "This journal has been removed by the poster",
-              posted: "",
-              posted_at: ""
-            }
-          end
-          next
+    journals_elem&.css("li:not(.section-controls)").each do |elem|
+      # Deleted journals are only displayed when the poster's page has been deactivated
+      if elem.at_css("input")["checked"] == "checked"
+        if include_deleted
+          new_journals << {
+            favorite_notification_id: "",
+            name: "This journal has been removed by the poster",
+            profile: "",
+            profile_name: "",
+            submission_id: "",
+            submission_name: "This journal has been removed by the poster",
+            posted: "",
+            posted_at: ""
+          }
         end
-        elem_links = elem.css("a")
-        date = pick_date(elem.at_css(".popup_date"))
-        new_journals << {
-          journal_id: elem.at_css("input")["value"],
-          title: elem_links[0].content,
-          name: elem_links[1].content,
-          profile: fa_url(elem_links[1]["href"]),
-          profile_name: last_path(elem_links[1]["href"]),
-          posted: date,
-          posted_at: to_iso8601(date)
-        }
+        next
       end
+      elem_links = elem.css("a")
+      date = pick_date(elem.at_css(".popup_date"))
+      new_journals << {
+        journal_id: elem.at_css("input")["value"],
+        title: elem_links[0].content,
+        name: elem_links[1].content,
+        profile: fa_url(elem_links[1]["href"]),
+        profile_name: last_path(elem_links[1]["href"]),
+        posted: date,
+        posted_at: to_iso8601(date)
+      }
     end
     # Create response
     {
