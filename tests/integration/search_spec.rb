@@ -93,7 +93,7 @@ describe "FA parser search endpoint" do
       expect(results).to be_instance_of Array
       expect(results).not_to be_empty
       expect(results.length).to be 3
-      result_id_list = results.map{|result| result[:id]}
+      result_id_list = results.map {|result| result[:id]}
       expect(result_id_list).to include("32052941")
       expect(result_id_list).to include("32057670")
       expect(result_id_list).to include("32057697")

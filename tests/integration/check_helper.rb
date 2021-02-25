@@ -65,8 +65,8 @@ end
 
 RSpec::Matchers.define :be_similar_results_to do |result2|
   match do |results1|
-    results1_ids = results1.map{ |result| result[:id] }
-    results2_ids = result2.map{ |result| result[:id] }
+    results1_ids = results1.map { |result| result[:id] }
+    results2_ids = result2.map { |result| result[:id] }
     intersection = results1_ids & results2_ids
 
     threshold = [results1_ids.length, results2_ids.length].max * 0.9
@@ -76,8 +76,8 @@ end
 
 RSpec::Matchers.define :be_different_results_to do |results2|
   match do |results1|
-    results1_ids = results1.map{ |result| result[:id] }
-    results2_ids = results2.map{ |result| result[:id] }
+    results1_ids = results1.map { |result| result[:id] }
+    results2_ids = results2.map { |result| result[:id] }
     intersection = results1_ids & results2_ids
 
     threshold = [results1_ids.length, results2_ids.length].max * 0.1

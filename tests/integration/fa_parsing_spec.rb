@@ -1928,8 +1928,8 @@ describe "FA parser" do
           expect(note[:is_read]).to eql(false)
         end
 
-        unread_note_ids = unread_notes.map{ |n| n[:note_id] }
-        inbox_note_ids = inbox_notes.select{ |n| !n[:is_read] }.map{ |n| n[:note_id] }
+        unread_note_ids = unread_notes.map { |n| n[:note_id] }
+        inbox_note_ids = inbox_notes.select { |n| !n[:is_read] }.map { |n| n[:note_id] }
 
         inbox_note_ids.map do |note_id|
           expect(note_id).to be_in(unread_note_ids)
