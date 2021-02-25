@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require "rspec"
 require "open-uri"
 require "sinatra/json"

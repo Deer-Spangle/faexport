@@ -1,4 +1,5 @@
 # encoding: utf-8
+# frozen_string_literal: true
 
 # scraper.rb - Quick and dirty API for scraping data from FA
 #
