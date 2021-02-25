@@ -2041,17 +2041,17 @@ describe "FA parser" do
     end
 
     it "returns a second page, different to the first" do
-      submissions_1 = @fa.browse({ "page" => "1" })
-      submissions_2 = @fa.browse({ "page" => "2" })
+      submissions1 = @fa.browse({ "page" => "1" })
+      submissions2 = @fa.browse({ "page" => "2" })
 
-      submissions_1.each do |submission|
+      submissions1.each do |submission|
         expect(submission).to be_valid_submission
       end
-      submissions_2.each do |submission|
+      submissions2.each do |submission|
         expect(submission).to be_valid_submission
       end
 
-      expect(submissions_1).to be_different_results_to(submissions_2)
+      expect(submissions1).to be_different_results_to(submissions2)
     end
 
     it "defaults to 72 results" do
@@ -2064,13 +2064,13 @@ describe "FA parser" do
     end
 
     it "returns as many submissions as perpage specifies" do
-      submissions_24 = @fa.browse({ "perpage" => "24" })
-      submissions_48 = @fa.browse({ "perpage" => "48" })
-      submissions_72 = @fa.browse({ "perpage" => "72" })
+      submissions24 = @fa.browse({ "perpage" => "24" })
+      submissions48 = @fa.browse({ "perpage" => "48" })
+      submissions72 = @fa.browse({ "perpage" => "72" })
 
-      expect(submissions_24.length).to eql(24)
-      expect(submissions_48.length).to eql(48)
-      expect(submissions_72.length).to eql(72)
+      expect(submissions24.length).to eql(24)
+      expect(submissions48.length).to eql(48)
+      expect(submissions72.length).to eql(72)
     end
 
     it "can specify ratings to display, and honours that selection" do
@@ -2099,12 +2099,12 @@ describe "FA parser" do
     end
 
     it "displays status information after another page load" do
-      status_1 = @fa.status
+      status1 = @fa.status
       @fa.home
-      status_2 = @fa.status
+      status2 = @fa.status
 
-      expect(status_1).to be_valid_status_data
-      expect(status_2).to be_valid_status_data
+      expect(status1).to be_valid_status_data
+      expect(status2).to be_valid_status_data
     end
   end
 end
