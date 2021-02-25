@@ -18,9 +18,9 @@ describe "FA export server" do
 
     begin
       if cookie
-        open(url, "FA_COOKIE" => cookie.to_s)
+        URI.open(url, "FA_COOKIE" => cookie.to_s)
       else
-        open(url)
+        URI.open(url)
       end
     rescue OpenURI::HTTPError => e
       raise if check_status

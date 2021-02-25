@@ -1025,7 +1025,7 @@ class Furaffinity
   def fetch(path, extra_cookie = nil)
     url = fetch_url(path)
     raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
-      open(url, "User-Agent" => USER_AGENT, "Cookie" => "#{@login_cookie};#{extra_cookie}") do |response|
+      URI.open(url, "User-Agent" => USER_AGENT, "Cookie" => "#{@login_cookie};#{extra_cookie}") do |response|
         raise FAStatusError.new(url, response.status.join(" ")) if response.status[0] != "200"
 
         response.read
