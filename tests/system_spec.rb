@@ -4,11 +4,12 @@ require "open-uri"
 require "sinatra/json"
 require "nokogiri"
 
+COOKIE_DEFAULT = ENV["test_cookie"]
+TEST_USER_2 = "fafeed-2"
+COOKIE_TEST_USER_2 = ENV["test_cookie_user_2"]
+SERVER_URL = ENV["server_url"]
+
 describe "FA export server" do
-  COOKIE_DEFAULT = ENV["test_cookie"]
-  TEST_USER_2 = "fafeed-2"
-  COOKIE_TEST_USER_2 = ENV["test_cookie_user_2"]
-  SERVER_URL = ENV["server_url"]
 
   def fetch_with_retry(path, cookie: nil, check_status: true)
     wait_between_tries = 5
