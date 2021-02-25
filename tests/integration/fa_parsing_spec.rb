@@ -1,4 +1,3 @@
-
 require "./lib/faexport"
 require_relative "check_helper"
 

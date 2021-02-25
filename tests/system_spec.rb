@@ -1,4 +1,3 @@
-
 require "rspec"
 require "open-uri"
 require "sinatra/json"
