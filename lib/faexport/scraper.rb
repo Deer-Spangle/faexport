@@ -251,6 +251,7 @@ class Furaffinity
       unless response.is_a?(Net::HTTPSuccess)
         raise FAStatusError.new(fa_url("/browse/#{page}/"), response.message)
       end
+
       response.body
     end
 
@@ -489,9 +490,11 @@ class Furaffinity
       if SEARCH_MULTIPLE.include? key
         values = options[key].gsub(" ", "").split(",")
         raise FASearchError.new(key, options[key], fa_url("search")) unless values.all?{ |v| SEARCH_OPTIONS[key].include? v }
+
         values.each { |v| params["#{name}-#{v}"] = "on" }
       elsif SEARCH_OPTIONS.keys.include? key
         raise FASearchError.new(key, options[key], fa_url("search")) unless SEARCH_OPTIONS[key].include? options[key].to_s
+
         params[name] = value
       elsif SEARCH_DEFAULTS.keys.include? key
         params[name] = value
@@ -504,6 +507,7 @@ class Furaffinity
       unless response.is_a?(Net::HTTPSuccess)
         raise FAStatusError.new(fa_url("search/"), response.message)
       end
+
       response.body
     end
     # Parse search results
@@ -514,6 +518,7 @@ class Furaffinity
     if results.nil?
       raise FAFormError.new(fa_url("/search/"))
     end
+
     html.css(".gallery > figure").map { |art| build_submission(art) }
   end
 
@@ -881,6 +886,7 @@ class Furaffinity
     if note_table.nil?
       raise FASystemError.new(url)
     end
+
     note_header = note_table.at_css("td.head")
     note_from = note_header.css("em")[1].at_css("a")
     note_to = note_header.css("em")[2].at_css("a")
@@ -986,6 +992,7 @@ private
   def select_artist_info(elem)
     elem = elem.at_css("td.alt1") if elem
     return nil unless elem
+
     info = {}
     elem.children.to_s.scan(/<strong>\s*(.*?)\s*<\/strong>\s*:\s*(.*?)\s*<\/div>/).each do |match|
       info[match[0]] = match[1]
@@ -996,6 +1003,7 @@ private
   def select_contact_info(elem)
     elem = elem.at_css("td.alt1") if elem
     return nil unless elem
+
     elem.css("div.classic-contact-info-item").map do |item|
       link_elem = item.at_css("a")
       {
@@ -1032,6 +1040,7 @@ private
         if response.status[0] != "200"
           raise FAStatusError.new(url, response.status.join(" "))
         end
+
         response.read
       end
     end
@@ -1177,6 +1186,7 @@ private
     if name_elem.nil?
       raise FALoginError.new(url)
     end
+
     {
       "name": name_elem.content.strip.gsub(/^~/, ""),
       "profile": fa_url(name_elem["href"][1..-1]),
@@ -1191,6 +1201,7 @@ private
     if footer.length == 0
       return
     end
+
     timestamp_line = footer[0].inner_html.split("\n").select { |line| line.strip.start_with? "Server Local Time: " }
     timestamp = timestamp_line[0].to_s.split("Time:")[1].strip
 
