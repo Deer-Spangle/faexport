@@ -541,10 +541,7 @@ class Furaffinity
 
   def new_submissions(from_id)
     # Set pagination
-    url = "msg/submissions/new"
-    if from_id
-      url << "~#{from_id}@72/"
-    end
+    url = "msg/submissions/new" + ("~#{from_id}@72/" if from_id)
 
     # Get page code
     html = fetch(url)
