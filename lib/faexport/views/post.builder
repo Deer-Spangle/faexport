@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 xml.item do
   xml.title @post[:title]
   xml.link @post[:link]

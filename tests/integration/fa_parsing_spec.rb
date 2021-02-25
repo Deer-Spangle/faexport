@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require "./lib/faexport"
 require_relative "check_helper"
 

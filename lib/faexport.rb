@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 # faexport.rb - Simple data export and feeds from FA
 #
 # Copyright (C) 2015 Erra Boothale <erra@boothale.net>
