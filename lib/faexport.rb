@@ -292,11 +292,11 @@ Please note this is a header, not a cookie."
           builder :feed
         when 'json'
           journals = @fa.journals(name, page)
-          journals = journals.map{|j| j[:id]} unless full
+          journals = journals.map{ |j| j[:id] } unless full
           JSON.pretty_generate journals
         when 'xml'
           journals = @fa.journals(name, page)
-          journals = journals.map{|j| j[:id]} unless full
+          journals = journals.map{ |j| j[:id] } unless full
           journals.to_xml(root: 'journals', skip_types: true)
         end
       end
@@ -329,7 +329,7 @@ Please note this is a header, not a cookie."
           @resource = folder.capitalize
           @link = @fa.fa_url("#{folder}/#{name}/")
           subs = @fa.submissions(name, folder, {})
-          subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
+          subs = subs.reject{ |sub| sub[:id].blank? } unless include_deleted
           @posts = subs.take(FAExport.config[:rss_limit]).map do |sub|
             cache "submission:#{sub[:id]}.rss" do
               @post = @fa.submission(sub[:id])
@@ -341,13 +341,13 @@ Please note this is a header, not a cookie."
           builder :feed
         when 'json'
           subs =  @fa.submissions(name, folder, offset)
-          subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
-          subs = subs.map{|sub| sub[:id]} unless full
+          subs = subs.reject{ |sub| sub[:id].blank? } unless include_deleted
+          subs = subs.map{ |sub| sub[:id] } unless full
           JSON.pretty_generate subs
         when 'xml'
           subs =  @fa.submissions(name, folder, offset)
-          subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
-          subs = subs.map{|sub| sub[:id]} unless full
+          subs = subs.reject{ |sub| sub[:id].blank? } unless include_deleted
+          subs = subs.map{ |sub| sub[:id] } unless full
           subs.to_xml(root: 'submissions', skip_types: true)
         end
       end
@@ -435,11 +435,11 @@ Please note this is a header, not a cookie."
         case type
         when 'json'
           results = @fa.search(params)
-          results = results.map{|result| result[:id]} unless full
+          results = results.map{ |result| result[:id] } unless full
           JSON.pretty_generate results
         when 'xml'
           results = @fa.search(params)
-          results = results.map{|result| result[:id]} unless full
+          results = results.map{ |result| result[:id] } unless full
           results.to_xml(root: 'results', skip_types: true)
         when 'rss'
           results = @fa.search(params)

@@ -217,7 +217,7 @@ class Furaffinity
     html = fetch('')
     groups = html.css('#frontpage > .old-table-emulation')
     data = groups.map do |group|
-      group.css('figure').map{|art| build_submission(art)}
+      group.css('figure').map{ |art| build_submission(art) }
     end
     {
       artwork: data[0],
@@ -231,7 +231,7 @@ class Furaffinity
     page = params['page'] =~ /^[0-9]+$/ ? params['page'] : "1"
     perpage = SEARCH_OPTIONS['perpage'].include?(params['perpage']) ? params['perpage'] : SEARCH_DEFAULTS['perpage']
     ratings =
-        if params.key?('rating') and params['rating'].gsub(' ', '').split(',').all? {|v| SEARCH_OPTIONS['rating'].include? v}
+        if params.key?('rating') and params['rating'].gsub(' ', '').split(',').all? { |v| SEARCH_OPTIONS['rating'].include? v }
           params['rating'].gsub(' ', '').split(',')
         else
           SEARCH_DEFAULTS['rating'].split(",")
@@ -256,7 +256,7 @@ class Furaffinity
     html = Nokogiri::HTML(raw)
     gallery = html.css('section#gallery-browse')
 
-    gallery.css('figure').map{|art| build_submission(art)}
+    gallery.css('figure').map{ |art| build_submission(art) }
   end
 
   def status
@@ -316,7 +316,7 @@ class Furaffinity
       raise FASystemError.new(url)
     end
 
-    html.css('.artist_name').map{|elem| elem.content}
+    html.css('.artist_name').map{ |elem| elem.content }
   end
 
   def submission(id, is_login=false)
@@ -398,7 +398,7 @@ class Furaffinity
       raise FASystemError.new(url)
     end
 
-    html.css('.gallery > figure').map {|art| build_submission(art)}
+    html.css('.gallery > figure').map { |art| build_submission(art) }
   end
 
   def journals(user, page)
@@ -486,8 +486,8 @@ class Furaffinity
       name = key.gsub('_','-')
       if SEARCH_MULTIPLE.include? key
         values = options[key].gsub(' ', '').split(',')
-        raise FASearchError.new(key, options[key], fa_url('search')) unless values.all?{|v| SEARCH_OPTIONS[key].include? v}
-        values.each{|v| params["#{name}-#{v}"] = 'on'}
+        raise FASearchError.new(key, options[key], fa_url('search')) unless values.all?{ |v| SEARCH_OPTIONS[key].include? v }
+        values.each{ |v| params["#{name}-#{v}"] = 'on' }
       elsif SEARCH_OPTIONS.keys.include? key
         raise FASearchError.new(key, options[key], fa_url('search')) unless SEARCH_OPTIONS[key].include? options[key].to_s
         params[name] = value
@@ -512,7 +512,7 @@ class Furaffinity
     if results.nil?
       raise FAFormError.new(fa_url('/search/'))
     end
-    html.css('.gallery > figure').map{|art| build_submission(art)}
+    html.css('.gallery > figure').map{ |art| build_submission(art) }
   end
 
   def submit_journal(title, description)
@@ -550,7 +550,7 @@ class Furaffinity
     html = fetch(url)
 
     login_user = get_current_user(html, url)
-    submissions = html.css('.gallery > figure').map{|art| build_submission_notification(art)}
+    submissions = html.css('.gallery > figure').map{ |art| build_submission_notification(art) }
     {
         "current_user": login_user,
         "new_submissions": submissions
@@ -956,7 +956,7 @@ private
 
   def field(info, field)
     # Most often, fields just show up in the format "Field: value"
-    value = info.map{|i| i[/^#{field}: (.+)$/, 1]}.compact.first
+    value = info.map{ |i| i[/^#{field}: (.+)$/, 1] }.compact.first
     return value if value
 
     # However, they also can be "Field:" "value"
@@ -1190,10 +1190,10 @@ private
     if footer.length == 0
         return
     end
-    timestamp_line = footer[0].inner_html.split("\n").select{|line| line.strip.start_with? "Server Local Time: "}
+    timestamp_line = footer[0].inner_html.split("\n").select{ |line| line.strip.start_with? "Server Local Time: " }
     timestamp = timestamp_line[0].to_s.split("Time:")[1].strip
 
-    counts = center.to_s.scan(/([0-9]+)\s*<b>/).map{|d| d[0].to_i}
+    counts = center.to_s.scan(/([0-9]+)\s*<b>/).map{ |d| d[0].to_i }
 
     status = {
         online: {
@@ -1216,12 +1216,12 @@ private
     submission = html.css('div#page-submission table.maintable table.maintable')[-1]
     submission_title = submission.at_css(".classic-submission-title")
     raw_info = submission.at_css('td.alt1')
-    info = raw_info.content.lines.map{|i| i.gsub(/^\p{Space}*/, '').rstrip}
+    info = raw_info.content.lines.map{ |i| i.gsub(/^\p{Space}*/, '').rstrip }
     keywords = raw_info.css('div#keywords a')
     date = pick_date(raw_info.at_css('.popup_date'))
     img = html.at_css('img#submissionImg')
     actions_bar = html.css('#page-submission td.alt1 div.actions a')
-    download_url = "https:" + actions_bar.select {|a| a.content == "Download" }.first['href']
+    download_url = "https:" + actions_bar.select { |a| a.content == "Download" }.first['href']
     profile_url = html.at_css('td.cat a')['href'][1..-1]
     og_thumb = html.at_css('meta[property="og:image"]')
     thumb_img = if og_thumb.nil? || og_thumb['content'].include?("/banners/fa_logo")
@@ -1257,7 +1257,7 @@ private
     }
 
     if is_login
-      fav_link = actions_bar.select {|a| a.content.end_with? "Favorites" }.first
+      fav_link = actions_bar.select { |a| a.content.end_with? "Favorites" }.first
       fav_status = fav_link.content.start_with?("-Remove")
       fav_key = fav_link['href'].split("?key=")[-1]
 

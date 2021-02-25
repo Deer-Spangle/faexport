@@ -4,5 +4,5 @@ xml.item do
   xml.description @description
   xml.pubDate Time.parse(@post[:posted] + ' UTC').rfc822
   xml.guid @post[:link]
-  (@post[:keywords] || []).each {|k| xml.category k}
+  (@post[:keywords] || []).each { |k| xml.category k }
 end
