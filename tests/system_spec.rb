@@ -18,7 +18,7 @@ describe "FA export server" do
 
     begin
       if cookie
-        open(url, "FA_COOKIE" => "#{cookie}")
+        open(url, "FA_COOKIE" => cookie.to_s)
       else
         open(url)
       end
