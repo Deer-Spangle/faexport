@@ -4,8 +4,9 @@ require_relative 'check_helper'
 
 require 'rspec'
 
+COOKIE_DEFAULT = ENV['test_cookie']
+
 describe 'FA parser search endpoint' do
-  COOKIE_DEFAULT = ENV['test_cookie']
 
   before do
     config = File.exist?('settings-test.yml') ? YAML.load_file('settings-test.yml') : {}
