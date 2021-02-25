@@ -461,11 +461,11 @@ describe "FA parser" do
       expect(sub[:theme]).not_to be_blank
       expect(sub[:species]).not_to be_blank
       expect(sub[:gender]).not_to be_blank
-      expect(sub[:favorites]).to match(%r{[0-9]+})
+      expect(sub[:favorites]).to match(/[0-9]+/)
       expect(sub[:favorites].to_i).to be > 0
-      expect(sub[:comments]).to match(%r{[0-9]+})
+      expect(sub[:comments]).to match(/[0-9]+/)
       expect(sub[:comments].to_i).to be > 0
-      expect(sub[:views]).to match(%r{[0-9]+})
+      expect(sub[:views]).to match(/[0-9]+/)
       expect(sub[:views].to_i).to be > 0
       expect(sub[:resolution]).not_to be_blank
       expect(sub[:rating]).not_to be_blank
