@@ -1366,7 +1366,7 @@ describe "FA parser" do
       expect(all_from_second).to be_instance_of Array
       expect(all_from_second).not_to be_empty
 
-      all_after_second = @fa.new_submissions(second_sub_id.to_i-1)[:new_submissions]
+      all_after_second = @fa.new_submissions(second_sub_id.to_i - 1)[:new_submissions]
       expect(all_after_second).to be_instance_of Array
       expect(all_after_second).not_to be_empty
 

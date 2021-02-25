@@ -30,7 +30,7 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-$:<< File.dirname(__FILE__)
+$: << File.dirname(__FILE__)
 
 require "active_support"
 require "active_support/core_ext"
@@ -342,12 +342,12 @@ Please note this is a header, not a cookie."
           end
           builder :feed
         when "json"
-          subs =  @fa.submissions(name, folder, offset)
+          subs = @fa.submissions(name, folder, offset)
           subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
           subs = subs.map { |sub| sub[:id] } unless full
           JSON.pretty_generate subs
         when "xml"
-          subs =  @fa.submissions(name, folder, offset)
+          subs = @fa.submissions(name, folder, offset)
           subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
           subs = subs.map { |sub| sub[:id] } unless full
           subs.to_xml(root: "submissions", skip_types: true)

@@ -905,7 +905,7 @@ class Furaffinity
           profile = note_html.at_css("a.linkusername")
           {
               name: profile.content.to_s,
-              profile: fa_url(profile["href"][1..-1]+"/"),
+              profile: fa_url(profile["href"][1..-1] + "/"),
               profile_name: last_path(profile["href"]),
               description: note,
               description_body: html_strip(note.to_s.split("</a>:")[1..-1].join("</a>:"))
