@@ -18,7 +18,7 @@ describe "FA export server" do
 
     begin
       if cookie
-        URI.parse(url).open("FA_COOKIE" => cookie.to_s)
+        URI.parse(url).open({ "FA_COOKIE" => cookie.to_s })
       else
         URI.parse(url).open
       end
