@@ -393,14 +393,14 @@ class Furaffinity
     end
     
     url = if offset[:page]
-      "#{folder}/#{escape(user)}/#{offset[:page]}/"
-    elsif offset[:next]
-      "#{folder}/#{escape(user)}/#{offset[:next]}/next"
-    elsif offset[:prev]
-      "#{folder}/#{escape(user)}/#{offset[:prev]}/prev"
-    else
-      "#{folder}/#{escape(user)}/"
-    end
+            "#{folder}/#{escape(user)}/#{offset[:page]}/"
+          elsif offset[:next]
+            "#{folder}/#{escape(user)}/#{offset[:next]}/next"
+          elsif offset[:prev]
+            "#{folder}/#{escape(user)}/#{offset[:prev]}/prev"
+          else
+            "#{folder}/#{escape(user)}/"
+          end
 
     html = fetch(url)
     error_msg = html.at_css("table.maintable td.alt1 b")
