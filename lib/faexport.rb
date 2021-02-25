@@ -172,7 +172,7 @@ Please note this is a header, not a cookie."
     # GET /browse.xml
     get %r{/browse\.(json|xml)} do |type|
       set_content_type(type)
-      cache("browse:#{type}.#{params.to_s}") do
+      cache("browse:#{type}.#{params}") do
         case type
         when 'json'
           JSON.pretty_generate @fa.browse(params)
@@ -431,7 +431,7 @@ Please note this is a header, not a cookie."
     get %r{/search\.(json|xml|rss)} do |type|
       set_content_type(type)
       full = !!params[:full]
-      cache("search_results:#{params.to_s}.#{type}") do
+      cache("search_results:#{params}.#{type}") do
         case type
         when 'json'
           results = @fa.search(params)

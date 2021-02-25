@@ -256,7 +256,7 @@ class Furaffinity
         rating_adult: ratings.include?("adult") ? 1 : 0
     }
 
-    raw = @cache.add("url:browse:#{params.to_s}") do
+    raw = @cache.add("url:browse:#{params}") do
       response = post("/browse/#{page}/", options)
       unless response.is_a?(Net::HTTPSuccess)
         raise FAStatusError.new(fa_url("/browse/#{page}/"), response.message)
@@ -509,7 +509,7 @@ class Furaffinity
     end
 
     # Get search response
-    raw = @cache.add("url:search:#{params.to_s}") do
+    raw = @cache.add("url:search:#{params}") do
       response = post('/search/', params)
       unless response.is_a?(Net::HTTPSuccess)
         raise FAStatusError.new(fa_url('search/'), response.message)
