@@ -287,9 +287,9 @@ class Furaffinity
       id: nil,
       name: html.at_css(".addpad.lead b").content[1..-1],
       profile: fa_url(profile),
-      account_type: html.at_css(".addpad.lead").content[/\((.+?)\)/,1].strip,
+      account_type: html.at_css(".addpad.lead").content[/\((.+?)\)/, 1].strip,
       avatar: "https:#{html.at_css("td.addpad img")["src"]}",
-      full_name: html.at_css("title").content[/Userpage of(.+?)--/,1].strip,
+      full_name: html.at_css("title").content[/Userpage of(.+?)--/, 1].strip,
       artist_type: user_title, # Backwards compatibility
       user_title: user_title,
       registered_since: date,
@@ -487,7 +487,7 @@ class Furaffinity
 
     # Construct params, to send in POST request
     options.each do |key, value|
-      name = key.gsub("_","-")
+      name = key.gsub("_", "-")
       if SEARCH_MULTIPLE.include? key
         values = options[key].gsub(" ", "").split(",")
         raise FASearchError.new(key, options[key], fa_url("search")) unless values.all?{ |v| SEARCH_OPTIONS[key].include? v }
@@ -955,7 +955,7 @@ private
   end
 
   def html_strip(html_s)
-    html_s.gsub(%r{^(<br ?/?>|\\r|\\n|\s)+}, "").gsub(%r{(<br ?/?>|\\r|\\n|\s)+$},"")
+    html_s.gsub(%r{^(<br ?/?>|\\r|\\n|\s)+}, "").gsub(%r{(<br ?/?>|\\r|\\n|\s)+$}, "")
   end
 
   def last_path(path)
