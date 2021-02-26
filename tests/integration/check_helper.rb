@@ -1,7 +1,8 @@
-require 'rspec/expectations'
+# frozen_string_literal: true
 
+require "rspec/expectations"
 
-RSpec::Matchers.define :be_valid_submission do |blank_profile=false, blank_title=false|
+RSpec::Matchers.define :be_valid_submission do |blank_profile = false, blank_title = false|
   match do |submission|
     # Check ID
     expect(submission[:id]).to match(/^[0-9]+$/)
@@ -26,7 +27,7 @@ RSpec::Matchers.define :be_valid_submission do |blank_profile=false, blank_title
   end
 end
 
-RSpec::Matchers.define :have_valid_profile_link do |watch_list=false|
+RSpec::Matchers.define :have_valid_profile_link do |watch_list = false|
   match do |item|
     expect(item[:name]).not_to be_blank
     expect(item[watch_list ? :link : :profile]).to eql "https://www.furaffinity.net/user/#{item[:profile_name]}/"
@@ -39,32 +40,32 @@ RSpec::Matchers.define :be_valid_date_and_match_iso do |iso_string|
     expect(date_string).not_to be_blank
     expect(date_string).to match(/[A-Z][a-z]{2} [0-9]+([a-z]{2})?, [0-9]{4},? [0-9]{2}:[0-9]{2}( ?[AP]M)?/)
     expect(iso_string).not_to be_blank
-    expect(iso_string).to eql(Time.parse(date_string + ' UTC').iso8601)
+    expect(iso_string).to eql(Time.parse("#{date_string} UTC").iso8601)
   end
 end
 
 RSpec::Matchers.define :be_valid_avatar_for_user do |username|
   match do |avatar_link|
-    /^https:\/\/a.furaffinity.net\/[0-9]+\/#{username}.gif$/.match(avatar_link)
+    %r{^https://a.furaffinity.net/[0-9]+/#{username}.gif$}.match(avatar_link)
   end
 end
 
 RSpec::Matchers.define :be_valid_link_for_sub_id do |id|
   match do |link|
-    /^https:\/\/www.furaffinity.net\/view\/#{id}\/?$/.match(link)
+    %r{^https://www.furaffinity.net/view/#{id}/?$}.match(link)
   end
 end
 
 RSpec::Matchers.define :be_valid_thumbnail_link_for_sub_id do |id|
   match do |link|
-    /^https:\/\/t.furaffinity.net\/#{id}@[0-9]{2,3}-[0-9]+.jpg$/.match(link)
+    %r{^https://t.furaffinity.net/#{id}@[0-9]{2,3}-[0-9]+.jpg$}.match(link)
   end
 end
 
 RSpec::Matchers.define :be_similar_results_to do |result2|
   match do |results1|
-    results1_ids = results1.map{|result| result[:id]}
-    results2_ids = result2.map{|result| result[:id]}
+    results1_ids = results1.map { |result| result[:id] }
+    results2_ids = result2.map { |result| result[:id] }
     intersection = results1_ids & results2_ids
 
     threshold = [results1_ids.length, results2_ids.length].max * 0.9
@@ -74,8 +75,8 @@ end
 
 RSpec::Matchers.define :be_different_results_to do |results2|
   match do |results1|
-    results1_ids = results1.map{|result| result[:id]}
-    results2_ids = results2.map{|result| result[:id]}
+    results1_ids = results1.map { |result| result[:id] }
+    results2_ids = results2.map { |result| result[:id] }
     intersection = results1_ids & results2_ids
 
     threshold = [results1_ids.length, results2_ids.length].max * 0.1

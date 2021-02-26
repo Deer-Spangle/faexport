@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # faexport.rb - Simple data export and feeds from FA
 #
 # Copyright (C) 2015 Erra Boothale <erra@boothale.net>
@@ -28,19 +30,19 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-$:<< File.dirname(__FILE__)
+$: << File.dirname(__FILE__)
 
-require 'active_support'
-require 'active_support/core_ext'
-require 'builder'
-require 'faexport/scraper'
-require 'redcarpet'
-require 'sinatra/base'
-require 'sinatra/json'
-require 'yaml'
-require 'tilt'
+require "active_support"
+require "active_support/core_ext"
+require "builder"
+require "faexport/scraper"
+require "redcarpet"
+require "sinatra/base"
+require "sinatra/json"
+require "yaml"
+require "tilt"
 
-Tilt.register Tilt::RedcarpetTemplate, 'markdown', 'md'
+Tilt.register Tilt::RedcarpetTemplate, "markdown", "md"
 
 # Do not update this manually, the github workflow does it.
 VERSION = "2021.02.3"
@@ -51,7 +53,7 @@ module FAExport
   end
 
   class Application < Sinatra::Base
-    log_directory = ENV['LOG_DIR'] || "logs/"
+    log_directory = ENV["LOG_DIR"] || "logs/"
     FileUtils.mkdir_p(log_directory)
     access_log = File.new("#{log_directory}/access.log", "a+")
     access_log.sync = true
@@ -63,8 +65,8 @@ module FAExport
       use Rack::CommonLogger, access_log
     end
 
-    set :public_folder, File.join(File.dirname(__FILE__), 'faexport', 'public')
-    set :views, File.join(File.dirname(__FILE__), 'faexport', 'views')
+    set :public_folder, File.join(File.dirname(__FILE__), "faexport", "public")
+    set :views, File.join(File.dirname(__FILE__), "faexport", "views")
     set :markdown, with_toc_data: true, fenced_code_blocks: true
 
     USER_REGEX = /((?:[a-zA-Z0-9\-_~.]|%5B|%5D|%60)+)/
@@ -75,16 +77,16 @@ module FAExport
     def initialize(app, config = {})
       FAExport.config = config.with_indifferent_access
       FAExport.config[:cache_time] ||= 30 # 30 seconds
-      FAExport.config[:cache_time_long] ||= 86400 # 1 day
-      FAExport.config[:redis_url] ||= (ENV['REDIS_URL'] || ENV['REDISTOGO_URL'])
-      FAExport.config[:username] ||= ENV['FA_USERNAME']
-      FAExport.config[:password] ||= ENV['FA_PASSWORD']
-      FAExport.config[:cookie] ||= ENV['FA_COOKIE']
+      FAExport.config[:cache_time_long] ||= 86_400 # 1 day
+      FAExport.config[:redis_url] ||= (ENV["REDIS_URL"] || ENV["REDISTOGO_URL"])
+      FAExport.config[:username] ||= ENV["FA_USERNAME"]
+      FAExport.config[:password] ||= ENV["FA_PASSWORD"]
+      FAExport.config[:cookie] ||= ENV["FA_COOKIE"]
       FAExport.config[:rss_limit] ||= 10
       FAExport.config[:content_types] ||= {
-        'json' => 'application/json',
-        'xml' => 'application/xml',
-        'rss' => 'application/rss+xml'
+        "json" => "application/json",
+        "xml" => "application/xml",
+        "rss" => "application/rss+xml"
       }
 
       @cache = RedisCache.new(FAExport.config[:redis_url],
@@ -92,45 +94,47 @@ module FAExport
                               FAExport.config[:cache_time_long])
       @fa = Furaffinity.new(@cache)
 
-      @system_cookie = FAExport.config[:cookie] || @cache.redis.get('login_cookie') 
+      @system_cookie = FAExport.config[:cookie] || @cache.redis.get("login_cookie")
       unless @system_cookie
         @system_cookie = @fa.login(FAExport.config[:username], FAExport.config[:password])
-        @cache.redis.set('login_cookie', @system_cookie)
+        @cache.redis.set("login_cookie", @system_cookie)
       end
 
       super(app)
     end
 
     helpers do
-      def cache(key)
+      def cache(key, &block)
         # Cache rss feeds for one hour
         long_cache = key =~ /\.rss$/
-        @cache.add("#{key}.#{@fa.safe_for_work}", long_cache) { yield }
+        @cache.add("#{key}.#{@fa.safe_for_work}", long_cache, &block)
       end
 
       def set_content_type(type)
-        content_type FAExport.config[:content_types][type], 'charset' => 'utf-8'
+        content_type FAExport.config[:content_types][type], "charset" => "utf-8"
       end
 
       def ensure_login!
-        unless @user_cookie
-          raise FALoginCookieError,
-            "You must provide a valid login cookie in the header 'FA_COOKIE'.
-Please note this is a header, not a cookie."
-        end
+        return if @user_cookie
+
+        raise FALoginCookieError.new(
+          'You must provide a valid login cookie in the header "FA_COOKIE".'\
+          "Please note this is a header, not a cookie."
+        )
       end
     end
 
     before do
       env["rack.errors"] = error_log
-      @user_cookie = request.env['HTTP_FA_COOKIE']
+      @user_cookie = request.env["HTTP_FA_COOKIE"]
       if @user_cookie
         if @user_cookie =~ COOKIE_REGEX
           @fa.login_cookie = @user_cookie.strip
         else
-          raise FALoginCookieError,
-            "The login cookie provided must be in the format "\
-            "'b=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx; a=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'"
+          raise FALoginCookieError.new(
+            "The login cookie provided must be in the format"\
+            '"b=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx; a=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
+          )
         end
       else
         @fa.login_cookie = @system_cookie
@@ -144,12 +148,12 @@ Please note this is a header, not a cookie."
       @fa.safe_for_work = false
     end
 
-    get '/' do
-      haml :index, layout: :page, :locals => {:version => VERSION}
+    get "/" do
+      haml :index, layout: :page, locals: { version: VERSION }
     end
 
-    get '/docs' do
-      haml :page, :locals => {:version => VERSION} do
+    get "/docs" do
+      haml :page, locals: { version: VERSION } do
         markdown :docs
       end
     end
@@ -160,10 +164,10 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("home:#{type}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.home
-        when 'xml'
-          @fa.home.to_xml(root: 'home', skip_types: true)
+        when "xml"
+          @fa.home.to_xml(root: "home", skip_types: true)
         end
       end
     end
@@ -174,10 +178,10 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("browse:#{type}.#{params}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.browse(params)
-        when 'xml'
-          @fa.browse(params).to_xml(root: 'browse', skip_types: true)
+        when "xml"
+          @fa.browse(params).to_xml(root: "browse", skip_types: true)
         end
       end
     end
@@ -187,10 +191,10 @@ Please note this is a header, not a cookie."
     get %r{/status\.(json|xml)} do |type|
       set_content_type(type)
       case type
-      when 'json'
+      when "json"
         JSON.pretty_generate @fa.status
-      when 'xml'
-        @fa.status.to_xml(root: 'home', skip_types: true)
+      when "xml"
+        @fa.status.to_xml(root: "home", skip_types: true)
       end
     end
 
@@ -200,10 +204,10 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("data:#{name}.#{type}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.user(name)
-        when 'xml'
-          @fa.user(name).to_xml(root: 'user', skip_types: true)
+        when "xml"
+          @fa.user(name).to_xml(root: "user", skip_types: true)
         end
       end
     end
@@ -215,9 +219,9 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("shouts:#{name}.#{type}") do
         case type
-        when 'rss'
+        when "rss"
           @name = name.capitalize
-          @resource = 'shouts'
+          @resource = "shouts"
           @link = @fa.fa_url("user/#{name}")
           @posts = @fa.shouts(name).map do |shout|
             @post = {
@@ -229,10 +233,10 @@ Please note this is a header, not a cookie."
             builder :post
           end
           builder :feed
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.shouts(name)
-        when 'xml'
-          @fa.shouts(name).to_xml(root: 'shouts', skip_types: true)
+        when "xml"
+          @fa.shouts(name).to_xml(root: "shouts", skip_types: true)
         end
       end
     end
@@ -244,13 +248,13 @@ Please note this is a header, not a cookie."
     get %r{/user/#{USER_REGEX}/(watching|watchers)\.(json|xml)} do |name, mode, type|
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
-      is_watchers = mode == 'watchers'
+      is_watchers = mode == "watchers"
       cache("watching:#{name}.#{type}.#{mode}.#{page}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.budlist(name, page, is_watchers)
-        when 'xml'
-          @fa.budlist(name, page, is_watchers).to_xml(root: 'users', skip_types: true)
+        when "xml"
+          @fa.budlist(name, page, is_watchers).to_xml(root: "users", skip_types: true)
         end
       end
     end
@@ -261,10 +265,10 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("commissions:#{name}.#{type}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.commissions(name)
-        when 'xml'
-          @fa.commissions(name).to_xml(root: 'commissions', skip_types: true)
+        when "xml"
+          @fa.commissions(name).to_xml(root: "commissions", skip_types: true)
         end
       end
     end
@@ -278,9 +282,9 @@ Please note this is a header, not a cookie."
       full = !!params[:full]
       cache("journals:#{name}.#{type}.#{page}.#{full}") do
         case type
-        when 'rss'
+        when "rss"
           @name = name.capitalize
-          @resource = 'journals'
+          @resource = "journals"
           @link = @fa.fa_url("journals/#{name}/")
           @posts = @fa.journals(name, 1).take(FAExport.config[:rss_limit]).map do |journal|
             cache "journal:#{journal[:id]}.rss" do
@@ -290,14 +294,14 @@ Please note this is a header, not a cookie."
             end
           end
           builder :feed
-        when 'json'
+        when "json"
           journals = @fa.journals(name, page)
-          journals = journals.map{|j| j[:id]} unless full
+          journals = journals.map { |j| j[:id] } unless full
           JSON.pretty_generate journals
-        when 'xml'
+        when "xml"
           journals = @fa.journals(name, page)
-          journals = journals.map{|j| j[:id]} unless full
-          journals.to_xml(root: 'journals', skip_types: true)
+          journals = journals.map { |j| j[:id] } unless full
+          journals.to_xml(root: "journals", skip_types: true)
         end
       end
     end
@@ -324,12 +328,12 @@ Please note this is a header, not a cookie."
 
       cache("#{folder}:#{name}.#{type}.#{offset}.#{full}.#{include_deleted}") do
         case type
-        when 'rss'
+        when "rss"
           @name = name.capitalize
           @resource = folder.capitalize
           @link = @fa.fa_url("#{folder}/#{name}/")
           subs = @fa.submissions(name, folder, {})
-          subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
+          subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
           @posts = subs.take(FAExport.config[:rss_limit]).map do |sub|
             cache "submission:#{sub[:id]}.rss" do
               @post = @fa.submission(sub[:id])
@@ -339,16 +343,16 @@ Please note this is a header, not a cookie."
             end
           end
           builder :feed
-        when 'json'
-          subs =  @fa.submissions(name, folder, offset)
-          subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
-          subs = subs.map{|sub| sub[:id]} unless full
+        when "json"
+          subs = @fa.submissions(name, folder, offset)
+          subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
+          subs = subs.map { |sub| sub[:id] } unless full
           JSON.pretty_generate subs
-        when 'xml'
-          subs =  @fa.submissions(name, folder, offset)
-          subs = subs.reject{|sub| sub[:id].blank?} unless include_deleted
-          subs = subs.map{|sub| sub[:id]} unless full
-          subs.to_xml(root: 'submissions', skip_types: true)
+        when "xml"
+          subs = @fa.submissions(name, folder, offset)
+          subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
+          subs = subs.map { |sub| sub[:id] } unless full
+          subs.to_xml(root: "submissions", skip_types: true)
         end
       end
     end
@@ -360,10 +364,10 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("submission:#{id}.#{type}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.submission(id, is_login)
-        when 'xml'
-          @fa.submission(id, is_login).to_xml(root: 'submission', skip_types: true)
+        when "xml"
+          @fa.submission(id, is_login).to_xml(root: "submission", skip_types: true)
         end
       end
     end
@@ -372,12 +376,12 @@ Please note this is a header, not a cookie."
     post %r{/submission/#{ID_REGEX}/favorite\.(json|)} do |id|
       ensure_login!
       fav = case type
-            when '.json' then JSON.parse(request.body.read)
+            when ".json" then JSON.parse(request.body.read)
             else params
             end
-      result = @fa.favorite_submission(id, fav['fav_status'], fav['fav_key'])
+      result = @fa.favorite_submission(id, fav["fav_status"], fav["fav_key"])
 
-      set_content_type('json')
+      set_content_type("json")
       JSON.pretty_generate(result)
     end
 
@@ -387,10 +391,10 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("journal:#{id}.#{type}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.journal(id)
-        when 'xml'
-          @fa.journal(id).to_xml(root: 'journal', skip_types: true)
+        when "xml"
+          @fa.journal(id).to_xml(root: "journal", skip_types: true)
         end
       end
     end
@@ -402,10 +406,10 @@ Please note this is a header, not a cookie."
       include_hidden = !!params[:include_hidden]
       cache("submissions_comments:#{id}.#{type}.#{include_hidden}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.submission_comments(id, include_hidden)
-        when 'xml'
-          @fa.submission_comments(id, include_hidden).to_xml(root: 'comments', skip_types: true)
+        when "xml"
+          @fa.submission_comments(id, include_hidden).to_xml(root: "comments", skip_types: true)
         end
       end
     end
@@ -417,10 +421,10 @@ Please note this is a header, not a cookie."
       include_hidden = !!params[:include_hidden]
       cache("journal_comments:#{id}.#{type}.#{include_hidden}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.journal_comments(id, include_hidden)
-        when 'xml'
-          @fa.journal_comments(id, include_hidden).to_xml(root: 'comments', skip_types: true)
+        when "xml"
+          @fa.journal_comments(id, include_hidden).to_xml(root: "comments", skip_types: true)
         end
       end
     end
@@ -433,20 +437,20 @@ Please note this is a header, not a cookie."
       full = !!params[:full]
       cache("search_results:#{params}.#{type}") do
         case type
-        when 'json'
+        when "json"
           results = @fa.search(params)
-          results = results.map{|result| result[:id]} unless full
+          results = results.map { |result| result[:id] } unless full
           JSON.pretty_generate results
-        when 'xml'
+        when "xml"
           results = @fa.search(params)
-          results = results.map{|result| result[:id]} unless full
-          results.to_xml(root: 'results', skip_types: true)
-        when 'rss'
+          results = results.map { |result| result[:id] } unless full
+          results.to_xml(root: "results", skip_types: true)
+        when "rss"
           results = @fa.search(params)
 
-          @name = params['q']
-          @info = "Search for '#{params['q']}'"
-          @link = "https://www.furaffinity.net/search/?q=#{params['q']}"
+          @name = params["q"]
+          @info = "Search for '#{params["q"]}'"
+          @link = "https://www.furaffinity.net/search/?q=#{params["q"]}"
           @posts = results.take(FAExport.config[:rss_limit]).map do |sub|
             cache "submission:#{sub[:id]}.rss" do
               @post = @fa.submission(sub[:id])
@@ -466,14 +470,14 @@ Please note this is a header, not a cookie."
     get %r{/notifications/submissions\.(json|xml|rss)} do |type|
       ensure_login!
       set_content_type(type)
-      from_id = params['from'] if params['from'] =~ ID_REGEX
+      from_id = params["from"] if params["from"] =~ ID_REGEX
       cache("submissions:#{@user_cookie}:#{from_id}.#{type}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.new_submissions(from_id)
-        when 'xml'
-          @fa.new_submissions(from_id).to_xml(root: 'results', skip_types: true)
-        when 'rss'
+        when "xml"
+          @fa.new_submissions(from_id).to_xml(root: "results", skip_types: true)
+        when "rss"
           results = @fa.new_submissions(from_id)
 
           @name = "New submissions"
@@ -500,10 +504,10 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("notifications:#{@user_cookie}:#{include_deleted}.#{type}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.notifications(include_deleted)
-        when 'xml'
-          @fa.notifications(include_deleted).to_xml(root: 'results', skip_types: true)
+        when "xml"
+          @fa.notifications(include_deleted).to_xml(root: "results", skip_types: true)
         end
       end
     end
@@ -515,7 +519,7 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("notifications/watches:#{@user_cookie}:#{include_deleted}.#{type}") do
         case type
-        when 'rss'
+        when "rss"
           results = @fa.notifications(include_deleted)
           watches = results[:new_watches]
           @name = "New watch notifications"
@@ -523,9 +527,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#watches"
           @posts = watches.map do |watch|
             @post = {
-                title: "New watch by #{watch[:name]}",
-                link: watch[:profile],
-                posted: watch[:posted]
+              title: "New watch by #{watch[:name]}",
+              link: watch[:profile],
+              posted: watch[:posted]
             }
             @description = "You have been watched by a new user <a href=\"#{watch[:profile]}\">#{watch[:name]}</a> <img src=\"#{watch[:avatar]}\" alt=\"avatar\"/>"
             builder :post
@@ -542,7 +546,7 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("notifications/submission_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
         case type
-        when 'rss'
+        when "rss"
           results = @fa.notifications(include_deleted)
           submission_comments = results[:new_submission_comments]
           @name = "New submission comment notifications"
@@ -550,9 +554,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#comments"
           @posts = submission_comments.map do |comment|
             @post = {
-                title: "New submission comment by #{comment[:name]}",
-                link: "https://www.furaffinity.net/view/#{comment[:submission_id]}/#cid:#{comment[:comment_id]}",
-                posted: comment[:posted]
+              title: "New submission comment by #{comment[:name]}",
+              link: "https://www.furaffinity.net/view/#{comment[:submission_id]}/#cid:#{comment[:comment_id]}",
+              posted: comment[:posted]
             }
             @description = "You have a new submission comment notification.
 <a href=\"#{comment[:profile]}\">#{comment[:name]}</a> has made a new comment #{comment[:is_reply] ? "in response to your comment " : ""}on
@@ -571,7 +575,7 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("notifications/journal_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
         case type
-        when 'rss'
+        when "rss"
           results = @fa.notifications(include_deleted)
           journal_comments = results[:new_journal_comments]
           @name = "New journal comment notifications"
@@ -579,9 +583,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#comments"
           @posts = journal_comments.map do |comment|
             @post = {
-                title: "New journal comment by #{comment[:name]}",
-                link: "https://www.furaffinity.net/journal/#{comment[:journal_id]}/#cid:#{comment[:comment_id]}",
-                posted: comment[:posted]
+              title: "New journal comment by #{comment[:name]}",
+              link: "https://www.furaffinity.net/journal/#{comment[:journal_id]}/#cid:#{comment[:comment_id]}",
+              posted: comment[:posted]
             }
             @description = "You have a new journal comment notification.
 <a href=\"#{comment[:profile]}\">#{comment[:name]}</a> has made a new comment #{comment[:is_reply] ? "in response to your comment " : ""}on
@@ -600,7 +604,7 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("notifications/shouts:#{@user_cookie}:#{include_deleted}.#{type}") do
         case type
-        when 'rss'
+        when "rss"
           results = @fa.notifications(include_deleted)
           shouts = results[:new_shouts]
           @name = "New shout notifications"
@@ -608,9 +612,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#shouts"
           @posts = shouts.map do |shout|
             @post = {
-                title: "New shout by #{shout[:name]}",
-                link: "#{results[:current_user][:profile]}#shout-#{shout[:shout_id]}",
-                posted: shout[:posted]
+              title: "New shout by #{shout[:name]}",
+              link: "#{results[:current_user][:profile]}#shout-#{shout[:shout_id]}",
+              posted: shout[:posted]
             }
             @description = "You have a new shout, from <a href=\"#{shout[:profile]}\">#{shout[:name]}</a>."
             builder :post
@@ -627,7 +631,7 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("notifications/favorites:#{@user_cookie}:#{include_deleted}.#{type}") do
         case type
-        when 'rss'
+        when "rss"
           results = @fa.notifications(include_deleted)
           favorites = results[:new_favorites]
           @name = "New favorite notifications"
@@ -635,9 +639,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#favorite"
           @posts = favorites.map do |favorite|
             @post = {
-                title: "#{favorite[:name]} has favorited \"#{favorite[:submission_name]}\"",
-                link: "https://furaffinity.net/view/#{favorite[:submission_id]}",
-                posted: favorite[:posted]
+              title: "#{favorite[:name]} has favorited \"#{favorite[:submission_name]}\"",
+              link: "https://furaffinity.net/view/#{favorite[:submission_id]}",
+              posted: favorite[:posted]
             }
             @description = "You have a new favorite notification. <a href=\"#{favorite[:profile]}\">#{favorite[:name]}</a> has favorited your submission
 \"<a href=\"https://furaffinity.net/view/#{favorite[:submission_id]}\">#{favorite[:submission_name]}</a>\"."
@@ -655,7 +659,7 @@ Please note this is a header, not a cookie."
       set_content_type(type)
       cache("notifications/journals:#{@user_cookie}:#{include_deleted}.#{type}") do
         case type
-        when 'rss'
+        when "rss"
           results = @fa.notifications(include_deleted)
           journals = results[:new_journals]
           @name = "New journal notifications"
@@ -663,9 +667,9 @@ Please note this is a header, not a cookie."
           @link = "https://www.furaffinity.net/msg/others/#journals"
           @posts = journals.map do |journal|
             @post = {
-                title: "New journal from #{journal[:name]} \"#{journal[:title]}\".",
-                link: "https://furaffinity.net/journal/#{journal[:journal_id]}",
-                posted: journal[:posted]
+              title: "New journal from #{journal[:name]} \"#{journal[:title]}\".",
+              link: "https://furaffinity.net/journal/#{journal[:journal_id]}",
+              posted: journal[:posted]
             }
             @description = "A new journal has been posted by <a href=\"#{journal[:profile]}\">#{journal[:name]}</a>, titled: \"<a href=\"https://furaffinity.net/journal/#{journal[:journal_id]}\">#{journal[:name]}</a>\"."
             builder :post
@@ -682,20 +686,20 @@ Please note this is a header, not a cookie."
       ensure_login!
       cache("notes/#{folder}:#{@user_cookie}.#{type}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.notes(folder)
-        when 'xml'
-          @fa.notes(folder).to_xml(root: 'results', skip_types: true)
-        when 'rss'
+        when "xml"
+          @fa.notes(folder).to_xml(root: "results", skip_types: true)
+        when "rss"
           results = @fa.notes(folder)
           @name = "Notes in folder: #{folder}"
           @info = @name
           @link = "https://www.furaffinity.net/msg/pms/"
           @posts = results.map do |note|
             @post = {
-                title: note[:subject],
-                link: note[:link],
-                posted: note[:posted]
+              title: note[:subject],
+              link: note[:link],
+              posted: note[:posted]
             }
             @description = "A new note has been received, from <a href=\"#{note[:profile]}\">#{note[:name]}</a>, the subject is \"<a href=\"#{note[:link]}\">#{note[:subject]}</a>\"."
             builder :post
@@ -711,10 +715,10 @@ Please note this is a header, not a cookie."
       ensure_login!
       cache("note/#{id}:#{@user_cookie}.#{type}") do
         case type
-        when 'json'
+        when "json"
           JSON.pretty_generate @fa.note(id)
-        when 'xml'
-          @fa.note(id).to_xml(root: 'note', skip_types: true)
+        when "xml"
+          @fa.note(id).to_xml(root: "note", skip_types: true)
         end
       end
     end
@@ -723,34 +727,36 @@ Please note this is a header, not a cookie."
     post %r{/journal(\.json|)} do |type|
       ensure_login!
       journal = case type
-                when '.json' then JSON.parse(request.body.read)
+                when ".json" then JSON.parse(request.body.read)
                 else params
                 end
-      result = @fa.submit_journal(journal['title'], journal['description'])
+      result = @fa.submit_journal(journal["title"], journal["description"])
 
-      set_content_type('json')
+      set_content_type("json")
       JSON.pretty_generate(result)
     end
 
     error FAError do
-      err = env['sinatra.error']
-      status case err
-      when FASearchError      then 400
-      when FALoginCookieError then 400
-      when FAFormError        then 400
-      when FAOffsetError      then 400
-      when FALoginError       then @user_cookie ? 401 : 503
-      when FASystemError      then 404
-      when FAStatusError      then 502
-      else 500
-      end
+      err = env["sinatra.error"]
+      status(
+        case err
+        when FASearchError      then 400
+        when FALoginCookieError then 400
+        when FAFormError        then 400
+        when FAOffsetError      then 400
+        when FALoginError       then @user_cookie ? 401 : 503
+        when FASystemError      then 404
+        when FAStatusError      then 502
+        else 500
+        end
+      )
 
       JSON.pretty_generate error: err.message, url: err.url
     end
 
     error do
       status 500
-      'FAExport encounter an internal error'
+      "FAExport encounter an internal error"
     end
   end
 end

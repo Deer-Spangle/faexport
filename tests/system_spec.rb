@@ -1,15 +1,16 @@
+# frozen_string_literal: true
 
-require 'rspec'
-require 'open-uri'
-require 'sinatra/json'
-require 'nokogiri'
+require "rspec"
+require "open-uri"
+require "sinatra/json"
+require "nokogiri"
 
-describe 'FA export server' do
-  COOKIE_DEFAULT = ENV['test_cookie']
-  TEST_USER_2 = "fafeed-2"
-  COOKIE_TEST_USER_2 = ENV['test_cookie_user_2']
-  SERVER_URL = ENV['server_url']
+COOKIE_DEFAULT = ENV["test_cookie"]
+TEST_USER_2 = "fafeed-2"
+COOKIE_TEST_USER_2 = ENV["test_cookie_user_2"]
+SERVER_URL = ENV["server_url"]
 
+describe "FA export server" do
   def fetch_with_retry(path, cookie: nil, check_status: true)
     wait_between_tries = 5
     retries = 0
@@ -17,29 +18,25 @@ describe 'FA export server' do
 
     begin
       if cookie
-       open(url, 'FA_COOKIE' => "#{cookie}")
+        URI.parse(url).open({ "FA_COOKIE" => cookie.to_s })
       else
-       open(url)
+        URI.parse(url).open
       end
     rescue OpenURI::HTTPError => e
-      if check_status
-        raise
-      else
-        e.io
-      end
-    rescue => e
-      if (retries += 1) <= 5
-        puts "Error fetching page: #{url}, #{e}, retry #{retries} in #{wait_between_tries} second(s)..."
-        sleep(wait_between_tries)
-        retry
-      else
-        raise
-      end
+      raise if check_status
+
+      e.io
+    rescue StandardError => e
+      raise unless (retries += 1) <= 5
+
+      puts "Error fetching page: #{url}, #{e}, retry #{retries} in #{wait_between_tries} second(s)..."
+      sleep(wait_between_tries)
+      retry
     end
   end
 
-  context 'when checking the home page' do
-    it 'returns a webpage' do
+  context "when checking the home page" do
+    it "returns a webpage" do
       resp = fetch_with_retry("/")
       body = resp.read
       expect(body).not_to be_empty
@@ -47,8 +44,8 @@ describe 'FA export server' do
     end
   end
 
-  context 'when checking the home.json endpoint' do
-    it 'is valid json' do
+  context "when checking the home.json endpoint" do
+    it "is valid json" do
       resp = fetch_with_retry("/home.json")
       body = resp.read
       expect(body).not_to be_empty
@@ -58,8 +55,8 @@ describe 'FA export server' do
     end
   end
 
-  context 'when checking the home.xml endpoint' do
-    it 'is valid xml' do
+  context "when checking the home.xml endpoint" do
+    it "is valid xml" do
       resp = fetch_with_retry("/home.xml")
       body = resp.read
       expect(body).not_to be_empty
@@ -69,8 +66,8 @@ describe 'FA export server' do
     end
   end
 
-  context 'when checking a journals.rss feed' do
-    it 'is valid rss' do
+  context "when checking a journals.rss feed" do
+    it "is valid rss" do
       resp = fetch_with_retry("/user/#{TEST_USER_2}/journals.rss")
       body = resp.read
       expect(body).not_to be_empty
@@ -89,8 +86,8 @@ describe 'FA export server' do
     end
   end
 
-  context 'when checking restricted endpoint' do
-    it 'returns an error if cookie is not given' do
+  context "when checking restricted endpoint" do
+    it "returns an error if cookie is not given" do
       resp = fetch_with_retry("/notifications/others.json", check_status: false)
       expect(resp.status[0]).to eq("400")
       body = resp.read
@@ -101,7 +98,7 @@ describe 'FA export server' do
       expect(data["error"]).to include("FA_COOKIE")
     end
 
-    it 'returns data if given a cookie' do
+    it "returns data if given a cookie" do
       resp = fetch_with_retry("/notifications/others.json", cookie: COOKIE_DEFAULT)
       body = resp.read
       expect(body).not_to be_empty
@@ -111,7 +108,7 @@ describe 'FA export server' do
       expect(data["current_user"]["name"]).not_to be_empty
     end
 
-    it 'returns a different user if given a different cookie' do
+    it "returns a different user if given a different cookie" do
       resp1 = fetch_with_retry("/notifications/others.json", cookie: COOKIE_DEFAULT)
       data1 = JSON.parse(resp1.read)
 

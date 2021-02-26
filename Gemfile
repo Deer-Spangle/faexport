@@ -1,15 +1,17 @@
-source 'https://rubygems.org'
+# frozen_string_literal: true
 
-gem 'thin'
-gem 'sinatra'
-gem 'sinatra-contrib'
-gem 'redis'
-gem 'haml'
-gem 'redcarpet'
-gem 'builder'
-gem 'nokogiri'
-gem 'activesupport'
+source "https://rubygems.org"
+
+gem "activesupport"
+gem "builder"
+gem "haml"
+gem "nokogiri"
+gem "redcarpet"
+gem "redis"
+gem "sinatra"
+gem "sinatra-contrib"
+gem "thin"
 
 group :test do
-  gem 'rspec'
+  gem "rspec"
 end
