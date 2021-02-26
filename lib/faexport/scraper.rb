@@ -321,7 +321,7 @@ class Furaffinity
       raise FASystemError.new(url)
     end
 
-    html.css(".artist_name").map { |elem| elem.content }
+    html.css(".artist_name").map &:content
   end
 
   def submission(id, is_login = false)
