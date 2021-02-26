@@ -25,6 +25,7 @@ The storage inspector can be opened by pressing `Shift+F9` on Firefox, and on Ch
 with `F12` and then selecting the "Application" tab, and then "Cookies".  
 You may want to do this in a private browsing session as logging out of your account will invalidate
 the cookie and break the scraper.
+This cookie must be for an account that is set to view the site in classic mode. Modern style cannot be parsed by this API.
 
 To authenticate with the API, you will need to provide that string in the FA_COOKIE header. (Header. Not a cookie)
 
