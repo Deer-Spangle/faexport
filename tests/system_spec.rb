@@ -26,7 +26,7 @@ describe "FA export server" do
       raise if check_status
 
       e.io
-    rescue => e
+    rescue StandardError => e
       raise unless (retries += 1) <= 5
 
       puts "Error fetching page: #{url}, #{e}, retry #{retries} in #{wait_between_tries} second(s)..."

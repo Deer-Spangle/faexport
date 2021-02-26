@@ -1188,7 +1188,7 @@ class Furaffinity
     status_json = JSON.pretty_generate status
     @cache.save_status(status_json)
     status_json
-  rescue
+  rescue StandardError
     # If we fail to read and save status, it's no big deal
   end
 
