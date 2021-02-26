@@ -60,6 +60,7 @@ SEARCH_MULTIPLE = %w[rating type]
 
 class FAError < StandardError
   attr_accessor :url
+
   def initialize(url)
     super("Error accessing FA")
     @url = url
@@ -178,8 +179,8 @@ class RedisCache
   rescue Redis::BaseError => e
     if e.message.include? "OOM"
       raise CacheError.new(
-              "The page returned from FA was too large to fit in the cache"
-            )
+        "The page returned from FA was too large to fit in the cache"
+      )
     end
 
     raise CacheError.new("Error accessing Redis Cache: #{e.message}")

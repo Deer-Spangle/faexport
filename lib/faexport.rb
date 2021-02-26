@@ -118,9 +118,9 @@ module FAExport
         return if @user_cookie
 
         raise FALoginCookieError.new(
-                'You must provide a valid login cookie in the header "FA_COOKIE".'\
-                "Please note this is a header, not a cookie."
-              )
+          'You must provide a valid login cookie in the header "FA_COOKIE".'\
+          "Please note this is a header, not a cookie."
+        )
       end
     end
 
@@ -132,9 +132,9 @@ module FAExport
           @fa.login_cookie = @user_cookie.strip
         else
           raise FALoginCookieError.new(
-                  "The login cookie provided must be in the format"\
-                  '"b=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx; a=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
-                )
+            "The login cookie provided must be in the format"\
+            '"b=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx; a=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
+          )
         end
       else
         @fa.login_cookie = @system_cookie
