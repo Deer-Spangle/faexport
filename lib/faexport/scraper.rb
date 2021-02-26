@@ -177,13 +177,12 @@ class RedisCache
     end
   rescue Redis::BaseError => e
     if e.message.include? "OOM"
-      raise(
-        CacheError,
-        "The page returned from FA was too large to fit in the cache"
-      )
+      raise CacheError.new(
+              "The page returned from FA was too large to fit in the cache"
+            )
     end
 
-    raise(CacheError, "Error accessing Redis Cache: #{e.message}")
+    raise CacheError.new("Error accessing Redis Cache: #{e.message}")
   end
 
   def save_status(status)
