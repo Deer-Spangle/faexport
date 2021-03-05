@@ -747,6 +747,7 @@ module FAExport
         when FALoginError       then @user_cookie ? 401 : 503
         when FASystemError      then 404
         when FAStatusError      then 502
+        when FACloudflareError  then 503
         else 500
         end
       )
