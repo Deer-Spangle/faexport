@@ -150,7 +150,7 @@ class FALoginCookieError < FAError
 end
 
 class FACloudflareError < FAError
-  def to_json(*args)
+  def to_s
     "Cannot access FA, #{@url} as cloudflare protection is up"
   end
 end
