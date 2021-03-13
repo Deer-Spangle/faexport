@@ -2029,66 +2029,6 @@ describe "FA parser" do
     end
   end
 
-  context "when browsing" do
-    it "returns a list of submissions" do
-      submissions = @fa.browse({ "page" => "1" })
-
-      submissions.each do |submission|
-        expect(submission).to be_valid_submission
-      end
-    end
-
-    it "returns a second page, different to the first" do
-      submissions1 = @fa.browse({ "page" => "1" })
-      submissions2 = @fa.browse({ "page" => "2" })
-
-      submissions1.each do |submission|
-        expect(submission).to be_valid_submission
-      end
-      submissions2.each do |submission|
-        expect(submission).to be_valid_submission
-      end
-
-      expect(submissions1).to be_different_results_to(submissions2)
-    end
-
-    it "defaults to 72 results" do
-      submissions = @fa.browse({})
-
-      submissions.each do |submission|
-        expect(submission).to be_valid_submission
-      end
-      expect(submissions.length).to eql(72)
-    end
-
-    it "returns as many submissions as perpage specifies" do
-      submissions24 = @fa.browse({ "perpage" => "24" })
-      submissions48 = @fa.browse({ "perpage" => "48" })
-      submissions72 = @fa.browse({ "perpage" => "72" })
-
-      expect(submissions24.length).to eql(24)
-      expect(submissions48.length).to eql(48)
-      expect(submissions72.length).to eql(72)
-    end
-
-    it "can specify ratings to display, and honours that selection" do
-      only_adult = @fa.browse({ "perpage" => 24, "rating" => "adult" })
-      only_sfw_or_mature = @fa.browse({ "perpage" => 24, "rating" => "mature,general" })
-
-      expect(only_adult).to be_different_results_to(only_sfw_or_mature)
-
-      only_adult[0..5].each do |submission|
-        full_submission = @fa.submission(submission[:id])
-        expect(full_submission[:rating]).to eql("Adult")
-      end
-
-      only_sfw_or_mature[0..5].each do |submission|
-        full_submission = @fa.submission(submission[:id])
-        expect(full_submission[:rating]).not_to eql("Adult")
-      end
-    end
-  end
-
   context "when checking FA status" do
     it "displays the usual status information" do
       status = @fa.status
