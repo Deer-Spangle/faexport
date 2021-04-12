@@ -45,7 +45,7 @@ require "tilt"
 Tilt.register Tilt::RedcarpetTemplate, "markdown", "md"
 
 # Do not update this manually, the github workflow does it.
-VERSION = "2021.03.1"
+VERSION = "2021.04.1"
 
 module FAExport
   class << self
