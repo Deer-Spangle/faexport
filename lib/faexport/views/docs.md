@@ -903,7 +903,8 @@ As deleted journal notifications are hidden on FA now, you cannot display these 
 
 Login cookie required.
 
-Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox`, `unread`, `archive`, `trash`, `high`, `medium`, or `low`.
+Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox`, `unread`, `archive`, `trash`, `high`, `medium`, or `low`.  
+If the user the note is to/from has been deleted, "name", "profile", and "profile_name" will be null, and "user_deleted" will be true.
 
 ~~~json
 [
@@ -915,6 +916,7 @@ Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox
     "name": "John Oliver",
     "profile": "https://furaffinity.net/user/john_oliver/",
     "profile_name": "john_oliver",
+    "user_deleted": false,
     "posted": "on May 3rd, 2019 01:04 PM",
     "posted_at": "2019-05-03T13:04:00Z"
   },
@@ -928,7 +930,8 @@ Lists the notes in a specified folder. Specified folders can be `inbox`, `outbox
 
 Login cookie required.
 
-Views a specific note.
+Views a specific note.  
+If the user the note is to/from has been deleted, "name", "profile", and "profile_name" will be null, and "user_deleted" will be true.
 
 ~~~json
 {
@@ -938,6 +941,7 @@ Views a specific note.
   "name": "John Oliver",
   "profile": "https://furaffinity.net/user/john_oliver/",
   "profile_name": "john_oliver",
+  "user_deleted": false,
   "posted": "on May 3rd, 2019 01:04 PM",
   "posted_at": "2019-05-03T13:04:00Z",
   "description": "Not really. How are you?\n\n______<snip>",
