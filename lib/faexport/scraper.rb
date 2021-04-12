@@ -862,14 +862,25 @@ class Furaffinity
         is_inbound = profile_to.content.strip == "me"
         profile = is_inbound ? profile_from.at_css("a") : profile_to.at_css("a")
       end
+      name = profile&.content
+      if profile.nil?
+        profile_link = nil
+        profile_name = nil
+        user_deleted = true
+      else
+        profile_link = fa_url(profile["href"][1..-1])
+        profile_name = last_path(profile["href"])
+        user_deleted = false
+      end
       {
         note_id: note.at_css("input")["value"].to_i,
         subject: subject.at_css("a.notelink").content,
         is_inbound: is_inbound,
         is_read: subject.at_css("a.notelink.note-unread").nil?,
-        name: profile.content,
-        profile: fa_url(profile["href"][1..-1]),
-        profile_name: last_path(profile["href"]),
+        name: name,
+        profile: profile_link,
+        profile_name: profile_name,
+        user_deleted: user_deleted,
         posted: date,
         posted_at: to_iso8601(date)
       }
@@ -891,16 +902,29 @@ class Furaffinity
     date = pick_date(note_table.at_css("span.popup_date"))
     description = note_table.at_css("td.text")
     desc_split = description.inner_html.split("—————————")
+    name = profile&.content
+    if profile.nil?
+      profile_link = nil
+      profile_name = nil
+      avatar = nil
+      user_deleted = true
+    else
+      profile_link = fa_url(profile["href"][1..-1])
+      profile_name = last_path(profile["href"])
+      avatar = "https#{note_table.at_css("img.avatar")["src"]}"
+      user_deleted = false
+    end
     {
       note_id: id,
       subject: note_header.at_css("em.title").content,
       is_inbound: is_inbound,
-      name: profile.content,
-      profile: fa_url(profile["href"][1..-1]),
-      profile_name: last_path(profile["href"]),
+      name: name,
+      profile: profile_link,
+      profile_name: profile_name,
+      user_deleted: user_deleted,
       posted: date,
       posted_at: to_iso8601(date),
-      avatar: "https#{note_table.at_css("img.avatar")["src"]}",
+      avatar: avatar,
       description: description.inner_html.strip,
       description_body: html_strip(desc_split.first.strip),
       preceding_notes: desc_split[1..-1].map do |note|
