@@ -862,14 +862,22 @@ class Furaffinity
         is_inbound = profile_to.content.strip == "me"
         profile = is_inbound ? profile_from.at_css("a") : profile_to.at_css("a")
       end
+      name = profile&.content
+      if profile.nil?
+        profile_link = nil
+        profile_name = nil
+      else
+        profile_link = fa_url(profile["href"][1..-1])
+        profile_name = last_path(profile["href"])
+      end
       {
         note_id: note.at_css("input")["value"].to_i,
         subject: subject.at_css("a.notelink").content,
         is_inbound: is_inbound,
         is_read: subject.at_css("a.notelink.note-unread").nil?,
-        name: profile.content,
-        profile: fa_url(profile["href"][1..-1]),
-        profile_name: last_path(profile["href"]),
+        name: name,
+        profile: profile_link,
+        profile_name: profile_name,
         posted: date,
         posted_at: to_iso8601(date)
       }
