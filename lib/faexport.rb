@@ -220,8 +220,8 @@ module FAExport
       cache("shouts:#{name}.#{type}") do
         case type
         when "rss"
-          @name = name.capitalize
-          @resource = "shouts"
+          @name = "#{name.capitalize}'s shouts"
+          @info = @name
           @link = @fa.fa_url("user/#{name}")
           @posts = @fa.shouts(name).map do |shout|
             @post = {
@@ -283,8 +283,8 @@ module FAExport
       cache("journals:#{name}.#{type}.#{page}.#{full}") do
         case type
         when "rss"
-          @name = name.capitalize
-          @resource = "journals"
+          @name = "#{@name}'s journals"
+          @info = @name
           @link = @fa.fa_url("journals/#{name}/")
           @posts = @fa.journals(name, 1).take(FAExport.config[:rss_limit]).map do |journal|
             cache "journal:#{journal[:id]}.rss" do
@@ -329,8 +329,8 @@ module FAExport
       cache("#{folder}:#{name}.#{type}.#{offset}.#{full}.#{include_deleted}") do
         case type
         when "rss"
-          @name = name.capitalize
-          @resource = folder.capitalize
+          @name = "#{name.capitalize}'s #{folder.capitalize}"
+          @info = @name
           @link = @fa.fa_url("#{folder}/#{name}/")
           subs = @fa.submissions(name, folder, {})
           subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
