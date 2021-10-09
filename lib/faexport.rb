@@ -283,7 +283,7 @@ module FAExport
       cache("journals:#{name}.#{type}.#{page}.#{full}") do
         case type
         when "rss"
-          @name = "#{@name}'s journals"
+          @name = "#{name.capitalize}'s journals"
           @info = @name
           @link = @fa.fa_url("journals/#{name}/")
           @posts = @fa.journals(name, 1).take(FAExport.config[:rss_limit]).map do |journal|
