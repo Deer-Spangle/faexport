@@ -522,6 +522,8 @@ module FAExport
           subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
           subs = subs.map { |sub| sub[:id] } unless full
           subs.to_xml(root: "submissions", skip_types: true)
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -537,6 +539,8 @@ module FAExport
           JSON.pretty_generate @fa.submission(id, is_login)
         when "xml"
           @fa.submission(id, is_login).to_xml(root: "submission", skip_types: true)
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -564,6 +568,8 @@ module FAExport
           JSON.pretty_generate @fa.journal(id)
         when "xml"
           @fa.journal(id).to_xml(root: "journal", skip_types: true)
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -579,6 +585,8 @@ module FAExport
           JSON.pretty_generate @fa.submission_comments(id, include_hidden)
         when "xml"
           @fa.submission_comments(id, include_hidden).to_xml(root: "comments", skip_types: true)
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -594,6 +602,8 @@ module FAExport
           JSON.pretty_generate @fa.journal_comments(id, include_hidden)
         when "xml"
           @fa.journal_comments(id, include_hidden).to_xml(root: "comments", skip_types: true)
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -629,6 +639,8 @@ module FAExport
             end
           end
           builder :feed
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -661,6 +673,8 @@ module FAExport
             end
           end
           builder :feed
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -677,6 +691,8 @@ module FAExport
           JSON.pretty_generate @fa.notifications(include_deleted)
         when "xml"
           @fa.notifications(include_deleted).to_xml(root: "results", skip_types: true)
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -704,6 +720,8 @@ module FAExport
             builder :post
           end
           builder :feed
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -733,6 +751,8 @@ module FAExport
             builder :post
           end
           builder :feed
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -762,6 +782,8 @@ module FAExport
             builder :post
           end
           builder :feed
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -789,6 +811,8 @@ module FAExport
             builder :post
           end
           builder :feed
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -817,6 +841,8 @@ module FAExport
             builder :post
           end
           builder :feed
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -844,6 +870,8 @@ module FAExport
             builder :post
           end
           builder :feed
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -874,6 +902,8 @@ module FAExport
             builder :post
           end
           builder :feed
+        else
+          raise Sinatra::NotFound
         end
       end
     end
@@ -888,6 +918,8 @@ module FAExport
           JSON.pretty_generate @fa.note(id)
         when "xml"
           @fa.note(id).to_xml(root: "note", skip_types: true)
+        else
+          raise Sinatra::NotFound
         end
       end
     end
