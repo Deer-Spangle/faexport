@@ -280,7 +280,8 @@ module FAExport
     end
 
     get "/docs" do
-      record_metrics(HTML_ENDPOINTS[:docs], "html") do
+      record_metrics(HTML_ENDPOINTS[:docs], "html") do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
         haml :page, locals: { version: VERSION } do
           markdown :docs
         end
