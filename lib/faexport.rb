@@ -96,7 +96,12 @@ $endpoint_cache_misses = prom.counter(
   docstring: "How many cache misses were there for API responses, which required building a new response.",
   labels: [:endpoint, :format]
 )
-# TODO: rss length histogram
+$rss_length_histogram = prom.histogram(
+  :faexport_rss_feed_item_count,
+  docstring: "How many items are in each generated rss feed.",
+  labels: [:endpoint],
+  buckets: [0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+)
 HTML_ENDPOINTS.each_value do |endpoint_label|
   labels = {endpoint: endpoint_label, format: "html"}
   $endpoint_histogram.init_label_set(labels)
@@ -119,6 +124,7 @@ API_ENDPOINTS.each_value do |endpoint_label|
   end
 end
 RSS_ENDPOINTS.each_value do |endpoint_label|
+  $rss_length_histogram.init_label_set(endpoint: endpoint_label)
   formats= %w[json xml rss]
   formats.each do |format|
     labels = {endpoint: endpoint_label, format: format}
@@ -370,6 +376,7 @@ module FAExport
               @description = shout[:text]
               builder :post
             end
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:user_shouts]})
             builder :feed
           when "json"
             JSON.pretty_generate @fa.shouts(name)
