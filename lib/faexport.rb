@@ -69,6 +69,8 @@ API_ENDPOINTS = {
   browse: "api_browse",
   status: "api_status",
   user_page: "api_user_page",
+  user_watchers: "api_user_watchers",
+  user_watching: "api_user_watching",
 }
 RSS_ENDPOINTS = {
   user_shouts: "api_user_shouts",
@@ -397,12 +399,18 @@ module FAExport
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
       is_watchers = mode == "watchers"
-      cache("watching:#{name}.#{type}.#{mode}.#{page}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.budlist(name, page, is_watchers)
-        when "xml"
-          @fa.budlist(name, page, is_watchers).to_xml(root: "users", skip_types: true)
+      endpoint_label = is_watchers ? API_ENDPOINTS[:user_watchers] : API_ENDPOINTS[:user_watching]
+      record_metrics(endpoint_label, type) do |metrics_labels|
+        cache("watching:#{name}.#{type}.#{mode}.#{page}") do
+          $endpoint_cache_misses.increment(labels: metrics_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.budlist(name, page, is_watchers)
+          when "xml"
+            @fa.budlist(name, page, is_watchers).to_xml(root: "users", skip_types: true)
+          else
+            Sinatra::NotFound
+          end
         end
       end
     end
