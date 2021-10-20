@@ -77,6 +77,8 @@ RSS_ENDPOINTS = {
   user_shouts: "api_user_shouts",
   journals: "api_journals",
   gallery: "api_gallery",
+  scraps: "api_scraps",
+  favorites: "api_favorites",
 }
 ERROR_TYPES = {
   fa_search: "fa_search",
@@ -495,35 +497,38 @@ module FAExport
       full = !!params[:full]
       include_deleted = !!params[:include_deleted]
 
-      cache("#{folder}:#{name}.#{type}.#{offset}.#{full}.#{include_deleted}") do
-        case type
-        when "rss"
-          @name = "#{name.capitalize}'s #{folder.capitalize}"
-          @info = @name
-          @link = @fa.fa_url("#{folder}/#{name}/")
-          subs = @fa.submissions(name, folder, {})
-          subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
-          @posts = subs.take(FAExport.config[:rss_limit]).map do |sub|
-            cache "submission:#{sub[:id]}.rss" do
-              @post = @fa.submission(sub[:id])
-              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
-                             "\"/></a><br/><br/><p>#{@post[:description]}</p>"
-              builder :post
+      record_metrics(RSS_ENDPOINTS[folder.to_s], type) do |metric_labels|
+        cache("#{folder}:#{name}.#{type}.#{offset}.#{full}.#{include_deleted}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "rss"
+            @name = "#{name.capitalize}'s #{folder.capitalize}"
+            @info = @name
+            @link = @fa.fa_url("#{folder}/#{name}/")
+            subs = @fa.submissions(name, folder, {})
+            subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
+            @posts = subs.take(FAExport.config[:rss_limit]).map do |sub|
+              cache "submission:#{sub[:id]}.rss" do
+                @post = @fa.submission(sub[:id])
+                @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
+                               "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+                builder :post
+              end
             end
+            builder :feed
+          when "json"
+            subs = @fa.submissions(name, folder, offset)
+            subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
+            subs = subs.map { |sub| sub[:id] } unless full
+            JSON.pretty_generate subs
+          when "xml"
+            subs = @fa.submissions(name, folder, offset)
+            subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
+            subs = subs.map { |sub| sub[:id] } unless full
+            subs.to_xml(root: "submissions", skip_types: true)
+          else
+            raise Sinatra::NotFound
           end
-          builder :feed
-        when "json"
-          subs = @fa.submissions(name, folder, offset)
-          subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
-          subs = subs.map { |sub| sub[:id] } unless full
-          JSON.pretty_generate subs
-        when "xml"
-          subs = @fa.submissions(name, folder, offset)
-          subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
-          subs = subs.map { |sub| sub[:id] } unless full
-          subs.to_xml(root: "submissions", skip_types: true)
-        else
-          raise Sinatra::NotFound
         end
       end
     end
