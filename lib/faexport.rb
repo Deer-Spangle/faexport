@@ -71,6 +71,7 @@ API_ENDPOINTS = {
   user_page: "api_user_page",
   user_watchers: "api_user_watchers",
   user_watching: "api_user_watching",
+  commissions: "api_commissions",
 }
 RSS_ENDPOINTS = {
   user_shouts: "api_user_shouts",
@@ -419,12 +420,17 @@ module FAExport
     # GET /user/{name}/commissions.xml
     get %r{/user/#{USER_REGEX}/commissions\.(json|xml)} do |name, type|
       set_content_type(type)
-      cache("commissions:#{name}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.commissions(name)
-        when "xml"
-          @fa.commissions(name).to_xml(root: "commissions", skip_types: true)
+      record_metrics(API_ENDPOINTS[:commissions], type) do |metrics_labels|
+        cache("commissions:#{name}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metrics_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.commissions(name)
+          when "xml"
+            @fa.commissions(name).to_xml(root: "commissions", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
