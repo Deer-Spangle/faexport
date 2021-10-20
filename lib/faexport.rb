@@ -73,6 +73,7 @@ API_ENDPOINTS = {
   user_watching: "api_user_watching",
   commissions: "api_commissions",
   submission: "api_submission",
+  journal: "api_journal",
 }
 POST_ENDPOINTS = {
   favorite: "api_post_favorite",
@@ -587,14 +588,17 @@ module FAExport
     # GET /journal/{id}.xml
     get %r{/journal/#{ID_REGEX}\.(json|xml)} do |id, type|
       set_content_type(type)
-      cache("journal:#{id}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.journal(id)
-        when "xml"
-          @fa.journal(id).to_xml(root: "journal", skip_types: true)
-        else
-          raise Sinatra::NotFound
+      record_metrics(API_ENDPOINTS[:journal], type) do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        cache("journal:#{id}.#{type}") do
+          case type
+          when "json"
+            JSON.pretty_generate @fa.journal(id)
+          when "xml"
+            @fa.journal(id).to_xml(root: "journal", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
