@@ -41,11 +41,97 @@ require "sinatra/base"
 require "sinatra/json"
 require "yaml"
 require "tilt"
+require "prometheus/client"
 
 Tilt.register Tilt::RedcarpetTemplate, "markdown", "md"
 
 # Do not update this manually, the github workflow does it.
 VERSION = "2021.10.2"
+prom = Prometheus::Client.registry
+version_info = prom.gauge(
+  :faexport_info,
+  docstring: "Version of FAExport which is running",
+  labels: [:version]
+)
+version_info.set(1.0, labels: {version: VERSION})
+startup_time = prom.gauge(
+  :faexport_startup_unixtime,
+  docstring: "Last time FAExport was started"
+)
+startup_time.set(Time.now.to_i)
+
+HTML_ENDPOINTS = {
+  index: "index",
+  docs: "docs",
+}
+API_ENDPOINTS = {
+  home: "api_home",
+  browse: "api_browse",
+  status: "api_status",
+  user_page: "api_user_page",
+}
+RSS_ENDPOINTS = {
+  gallery: "api_gallery",
+}
+ERROR_TYPES = {
+  fa_search: "fa_search",
+  fa_cloudflare: "fa_cloudflare",
+  fa_unknown: "fa_unknown",
+  unknown: "unknown",
+  # TODO
+}
+$endpoint_histogram = prom.histogram(
+  :faexport_endpoint_request_time_seconds,
+  docstring: "How long each request to the given endpoint took, in seconds",
+  labels: [:endpoint, :format]
+)
+$endpoint_error_count = prom.counter(
+  :faexport_endpoint_error_total,
+  docstring: "How many errors each request type has observed.",
+  labels: [:endpoint, :format, :error_type]
+)
+$endpoint_cache_misses = prom.counter(
+  :faexport_endpoint_cache_miss_total,
+  docstring: "How many cache misses were there for API responses, which required building a new response.",
+  labels: [:endpoint, :format]
+)
+# TODO: rss length histogram
+HTML_ENDPOINTS.each_value do |endpoint_label|
+  labels = {endpoint: endpoint_label, format: "html"}
+  $endpoint_histogram.init_label_set(labels)
+  $endpoint_cache_misses.init_label_set(labels)
+  ERROR_TYPES.each_value do |error_type|
+    labels[:error_type] = error_type
+    $endpoint_error_count.init_label_set(labels)
+  end
+end
+API_ENDPOINTS.each_value do |endpoint_label|
+  formats = %w[json xml]
+  formats.each do |format|
+    labels = {endpoint: endpoint_label, format: format}
+    $endpoint_histogram.init_label_set(labels)
+    $endpoint_cache_misses.init_label_set(labels)
+    ERROR_TYPES.each_value do |error_type|
+      labels[:error_type] = error_type
+      $endpoint_error_count.init_label_set(labels)
+    end
+  end
+end
+RSS_ENDPOINTS.each_value do |endpoint_label|
+  formats= %w[json xml rss]
+  formats.each do |format|
+    labels = {endpoint: endpoint_label, format: format}
+    $endpoint_histogram.init_label_set(labels)
+    $endpoint_cache_misses.init_label_set(labels)
+    ERROR_TYPES.each_value do |error_type|
+      labels[:error_type] = error_type
+      $endpoint_error_count.init_label_set(labels)
+    end
+  end
+end
+
+
+
 
 module FAExport
   class << self
@@ -122,6 +208,30 @@ module FAExport
           "Please note this is a header, not a cookie."
         )
       end
+
+      def record_metrics(endpoint, format, &block)
+        labels = {endpoint: endpoint, format: format}
+        resp = nil
+        start = Time.now
+        begin
+          resp = block.call(labels)
+        rescue => e
+          error_type = case e
+                       when FAError  # TODO
+                         ERROR_TYPES[:fa_unknown]
+                       else
+                         ERROR_TYPES[:unknown]
+                       end
+          $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: error_type})
+          raise e
+        ensure
+          finish = Time.now
+          time = finish - start
+          p time
+          $endpoint_histogram.observe(time, labels: labels)
+        end
+        resp
+      end
     end
 
     before do
@@ -149,12 +259,17 @@ module FAExport
     end
 
     get "/" do
-      haml :index, layout: :page, locals: { version: VERSION }
+      record_metrics(HTML_ENDPOINTS[:index], "html") do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        haml :index, layout: :page, locals: { version: VERSION }
+      end
     end
 
     get "/docs" do
-      haml :page, locals: { version: VERSION } do
-        markdown :docs
+      record_metrics(HTML_ENDPOINTS[:docs], "html") do
+        haml :page, locals: { version: VERSION } do
+          markdown :docs
+        end
       end
     end
 
@@ -162,12 +277,17 @@ module FAExport
     # GET /home.xml
     get %r{/home\.(json|xml)} do |type|
       set_content_type(type)
-      cache("home:#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.home
-        when "xml"
-          @fa.home.to_xml(root: "home", skip_types: true)
+      record_metrics(API_ENDPOINTS[:home], type) do |metric_labels|
+        cache("home:#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.home
+          when "xml"
+            @fa.home.to_xml(root: "home", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
@@ -176,25 +296,35 @@ module FAExport
     # GET /browse.xml
     get %r{/browse\.(json|xml)} do |type|
       set_content_type(type)
-      cache("browse:#{type}.#{params}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.browse(params)
-        when "xml"
-          @fa.browse(params).to_xml(root: "browse", skip_types: true)
+      record_metrics(API_ENDPOINTS[:browse], type) do |metric_labels|
+        cache("browse:#{type}.#{params}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.browse(params)
+          when "xml"
+            @fa.browse(params).to_xml(root: "browse", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
 
     # GET /status.json
-    # GET /home.xml
+    # GET /status.xml
     get %r{/status\.(json|xml)} do |type|
       set_content_type(type)
-      case type
-      when "json"
-        JSON.pretty_generate @fa.status
-      when "xml"
-        @fa.status.to_xml(root: "home", skip_types: true)
+      record_metrics(API_ENDPOINTS[:status], type) do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        case type
+        when "json"
+          JSON.pretty_generate @fa.status
+        when "xml"
+          @fa.status.to_xml(root: "home", skip_types: true)
+        else
+          raise Sinatra::NotFound
+        end
       end
     end
 
@@ -202,12 +332,17 @@ module FAExport
     # GET /user/{name}.xml
     get %r{/user/#{USER_REGEX}\.(json|xml)} do |name, type|
       set_content_type(type)
-      cache("data:#{name}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.user(name)
-        when "xml"
-          @fa.user(name).to_xml(root: "user", skip_types: true)
+      record_metrics(API_ENDPOINTS[:user_page], type) do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        cache("data:#{name}.#{type}") do
+          case type
+          when "json"
+            JSON.pretty_generate @fa.user(name)
+          when "xml"
+            @fa.user(name).to_xml(root: "user", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
