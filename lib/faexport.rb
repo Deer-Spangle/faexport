@@ -72,6 +72,7 @@ API_ENDPOINTS = {
   user_watchers: "api_user_watchers",
   user_watching: "api_user_watching",
   commissions: "api_commissions",
+  submission: "api_submission",
 }
 RSS_ENDPOINTS = {
   user_shouts: "api_user_shouts",
@@ -538,14 +539,17 @@ module FAExport
     get %r{/submission/#{ID_REGEX}\.(json|xml)} do |id, type|
       is_login = !!@user_cookie
       set_content_type(type)
-      cache("submission:#{id}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.submission(id, is_login)
-        when "xml"
-          @fa.submission(id, is_login).to_xml(root: "submission", skip_types: true)
-        else
-          raise Sinatra::NotFound
+      record_metrics(API_ENDPOINTS[:submission], type) do |metric_labels|
+        cache("submission:#{id}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.submission(id, is_login)
+          when "xml"
+            @fa.submission(id, is_login).to_xml(root: "submission", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
