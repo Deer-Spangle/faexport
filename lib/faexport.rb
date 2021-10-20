@@ -71,6 +71,7 @@ API_ENDPOINTS = {
   user_page: "api_user_page",
 }
 RSS_ENDPOINTS = {
+  user_shouts: "api_user_shouts",
   gallery: "api_gallery",
 }
 ERROR_TYPES = {
@@ -352,26 +353,31 @@ module FAExport
     # GET /user/{name}/shouts.xml
     get %r{/user/#{USER_REGEX}/shouts\.(rss|json|xml)} do |name, type|
       set_content_type(type)
-      cache("shouts:#{name}.#{type}") do
-        case type
-        when "rss"
-          @name = "#{name.capitalize}'s shouts"
-          @info = @name
-          @link = @fa.fa_url("user/#{name}")
-          @posts = @fa.shouts(name).map do |shout|
-            @post = {
-              title: "Shout from #{shout[:name]}",
-              link: @fa.fa_url("user/#{name}/##{shout[:id]}"),
-              posted: shout[:posted]
-            }
-            @description = shout[:text]
-            builder :post
+      record_metrics(RSS_ENDPOINTS[:user_shouts], type) do |metric_labels|
+        cache("shouts:#{name}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "rss"
+            @name = "#{name.capitalize}'s shouts"
+            @info = @name
+            @link = @fa.fa_url("user/#{name}")
+            @posts = @fa.shouts(name).map do |shout|
+              @post = {
+                title: "Shout from #{shout[:name]}",
+                link: @fa.fa_url("user/#{name}/##{shout[:id]}"),
+                posted: shout[:posted]
+              }
+              @description = shout[:text]
+              builder :post
+            end
+            builder :feed
+          when "json"
+            JSON.pretty_generate @fa.shouts(name)
+          when "xml"
+            @fa.shouts(name).to_xml(root: "shouts", skip_types: true)
+          else
+            raise Sinatra::NotFound
           end
-          builder :feed
-        when "json"
-          JSON.pretty_generate @fa.shouts(name)
-        when "xml"
-          @fa.shouts(name).to_xml(root: "shouts", skip_types: true)
         end
       end
     end
