@@ -75,6 +75,7 @@ API_ENDPOINTS = {
 }
 RSS_ENDPOINTS = {
   user_shouts: "api_user_shouts",
+  journals: "api_journals",
   gallery: "api_gallery",
 }
 ERROR_TYPES = {
@@ -442,28 +443,34 @@ module FAExport
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
       full = !!params[:full]
-      cache("journals:#{name}.#{type}.#{page}.#{full}") do
-        case type
-        when "rss"
-          @name = "#{name.capitalize}'s journals"
-          @info = @name
-          @link = @fa.fa_url("journals/#{name}/")
-          @posts = @fa.journals(name, 1).take(FAExport.config[:rss_limit]).map do |journal|
-            cache "journal:#{journal[:id]}.rss" do
-              @post = @fa.journal(journal[:id])
-              @description = "<p>#{@post[:description]}</p>"
-              builder :post
+      record_metrics(RSS_ENDPOINTS[:journals], type) do |metric_labels|
+        cache("journals:#{name}.#{type}.#{page}.#{full}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "rss"
+            @name = "#{name.capitalize}'s journals"
+            @info = @name
+            @link = @fa.fa_url("journals/#{name}/")
+            @posts = @fa.journals(name, 1).take(FAExport.config[:rss_limit]).map do |journal|
+              cache "journal:#{journal[:id]}.rss" do
+                @post = @fa.journal(journal[:id])
+                @description = "<p>#{@post[:description]}</p>"
+                builder :post
+              end
             end
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:journals]})
+            builder :feed
+          when "json"
+            journals = @fa.journals(name, page)
+            journals = journals.map { |j| j[:id] } unless full
+            JSON.pretty_generate journals
+          when "xml"
+            journals = @fa.journals(name, page)
+            journals = journals.map { |j| j[:id] } unless full
+            journals.to_xml(root: "journals", skip_types: true)
+          else
+            Sinatra::NotFound
           end
-          builder :feed
-        when "json"
-          journals = @fa.journals(name, page)
-          journals = journals.map { |j| j[:id] } unless full
-          JSON.pretty_generate journals
-        when "xml"
-          journals = @fa.journals(name, page)
-          journals = journals.map { |j| j[:id] } unless full
-          journals.to_xml(root: "journals", skip_types: true)
         end
       end
     end
