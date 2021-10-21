@@ -33,6 +33,7 @@
 require "net/http"
 require "nokogiri"
 require "open-uri"
+require "prometheus/client"
 require "redis"
 
 USER_AGENT = "FAExport"
@@ -94,7 +95,7 @@ $cloudflare_errors = prom.counter(
   docstring: "Total number of cloudflare errors returned by FA",
   labels: [:page_type]
 )
-(PAGE_TYPES + [PAGE_OTHER]).each_value do |page_type|
+(PAGE_TYPES.values + [PAGE_OTHER]).each do |page_type|
   $page_fetch_calls.init_label_set(page_type: page_type)
   $page_request_time.init_label_set(page_type: page_type)
   $http_errors.init_label_set(page_type: page_type)
