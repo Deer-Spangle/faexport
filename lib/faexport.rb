@@ -81,6 +81,7 @@ API_ENDPOINTS = {
 }
 POST_ENDPOINTS = {
   favorite: "api_post_favorite",
+  journal: "api_post_journal",
 }
 RSS_ENDPOINTS = {
   user_shouts: "api_user_shouts",
@@ -150,12 +151,15 @@ API_ENDPOINTS.each_value do |endpoint_label|
   end
 end
 POST_ENDPOINTS.each_value do |endpoint_label|
-  labels = {endpoint: endpoint_label, format: "json"}
-  $endpoint_histogram.init_label_set(labels)
-  $endpoint_cache_misses.init_label_set(labels)
-  ERROR_TYPES.each_value do |error_type|
-    labels[:error_type] = error_type
-    $endpoint_error_count.init_label_set(labels)
+  formats = %w[json formdata]
+  formats.each do |format|
+    labels = {endpoint: endpoint_label, format: format}
+    $endpoint_histogram.init_label_set(labels)
+    $endpoint_cache_misses.init_label_set(labels)
+    ERROR_TYPES.each_value do |error_type|
+      labels[:error_type] = error_type
+      $endpoint_error_count.init_label_set(labels)
+    end
   end
 end
 RSS_ENDPOINTS.each_value do |endpoint_label|
@@ -594,8 +598,9 @@ module FAExport
     end
 
     # POST /submission/{id}/favorite.json
-    post %r{/submission/#{ID_REGEX}/favorite\.json} do |id|
-      record_metrics(POST_ENDPOINTS[:favorite], "json") do |metric_labels|
+    post %r{/submission/#{ID_REGEX}/favorite(\.json|)} do |id, type|
+      metric_type = type == ".json" ? "json" : "formdata"
+      record_metrics(POST_ENDPOINTS[:favorite], metric_type) do |metric_labels|
         $endpoint_cache_misses.increment(labels: metric_labels)
         ensure_login!
         fav = case type
@@ -998,15 +1003,19 @@ module FAExport
 
     # POST /journal.json
     post %r{/journal(\.json|)} do |type|
-      ensure_login!
-      journal = case type
-                when ".json" then JSON.parse(request.body.read)
-                else params
-                end
-      result = @fa.submit_journal(journal["title"], journal["description"])
+      metric_type = type == ".json" ? "json" : "formdata"
+      record_metrics(POST_ENDPOINTS[:journal], metric_type) do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        ensure_login!
+        journal = case type
+                  when ".json" then JSON.parse(request.body.read)
+                  else params
+                  end
+        result = @fa.submit_journal(journal["title"], journal["description"])
 
-      set_content_type("json")
-      JSON.pretty_generate(result)
+        set_content_type("json")
+        JSON.pretty_generate(result)
+      end
     end
 
     error FAError do
