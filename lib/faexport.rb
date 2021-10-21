@@ -74,6 +74,7 @@ API_ENDPOINTS = {
   commissions: "api_commissions",
   submission: "api_submission",
   journal: "api_journal",
+  submission_comments: "api_submission_comments",
 }
 POST_ENDPOINTS = {
   favorite: "api_post_favorite",
@@ -608,14 +609,17 @@ module FAExport
     get %r{/submission/#{ID_REGEX}/comments\.(json|xml)} do |id, type|
       set_content_type(type)
       include_hidden = !!params[:include_hidden]
-      cache("submissions_comments:#{id}.#{type}.#{include_hidden}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.submission_comments(id, include_hidden)
-        when "xml"
-          @fa.submission_comments(id, include_hidden).to_xml(root: "comments", skip_types: true)
-        else
-          raise Sinatra::NotFound
+      record_metrics(API_ENDPOINTS[:submission_comments], type) do |metric_labels|
+        cache("submissions_comments:#{id}.#{type}.#{include_hidden}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.submission_comments(id, include_hidden)
+          when "xml"
+            @fa.submission_comments(id, include_hidden).to_xml(root: "comments", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
