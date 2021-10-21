@@ -59,19 +59,19 @@ SEARCH_DEFAULTS = {
 }
 SEARCH_MULTIPLE = %w[rating type]
 PAGE_TYPES = {
-  "view": "fa/view",
-  "user": "fa/user",
-  "": "fa/home",
-  "journal": "fa/journal",
-  "journals": "fa/journals",
-  "msg": "fa/private",
-  "watchlist": "fa/watchlist",
-  "fav": "fa/mark_favorite",
-  "unfav": "fa/mark_favorite",
-  "gallery": "fa/gallery",
-  "scraps": "fa/scraps",
-  "favorites": "fa/favorites",
-  "controls": "fa/controls",
+  "view" => "fa/view",
+  "user" => "fa/user",
+  "" => "fa/home",
+  "journal" => "fa/journal",
+  "journals" => "fa/journals",
+  "msg" => "fa/private",
+  "watchlist" => "fa/watchlist",
+  "fav" => "fa/mark_favorite",
+  "unfav" => "fa/mark_favorite",
+  "gallery" => "fa/gallery",
+  "scraps" => "fa/scraps",
+  "favorites" => "fa/favorites",
+  "controls" => "fa/controls",
 }
 PAGE_OTHER = "other"
 prom = Prometheus::Client.registry
@@ -1098,7 +1098,7 @@ class Furaffinity
 
   def fetch(path, extra_cookie = nil)
     split_path = strip_leading_slash(path).split("/", 2)
-    page_type = PAGE_TYPES.key?(split_path[0]) ? PAGE_TYPES[split_path[0]] : PAGE_OTHER
+    page_type = PAGE_TYPES.fetch(split_path[0], PAGE_OTHER)
     $page_fetch_calls.increment(labels: {page_type: page_type})
     url = fetch_url(path)
     raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
