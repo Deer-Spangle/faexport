@@ -76,6 +76,7 @@ API_ENDPOINTS = {
   journal: "api_journal",
   submission_comments: "api_submission_comments",
   journal_comments: "api_journal_comments",
+  notifs_other: "api_notifications_other",
 }
 POST_ENDPOINTS = {
   favorite: "api_post_favorite",
@@ -87,7 +88,15 @@ RSS_ENDPOINTS = {
   scraps: "api_scraps",
   favorites: "api_favorites",
   search: "api_search",
-  notifications_submissions: "api_notifications_submission",
+  notifs_submissions: "api_notifications_submission",
+}
+RSS_ONLY_ENDPOINTS = {
+  notifs_watches: "api_notifications_watches",
+  notifs_sub_comments: "api_notifications_submission_comments",
+  notifs_jou_comments: "api_notifications_journal_comments",
+  notifs_shouts: "api_notifications_shouts",
+  notifs_favs: "api_notifications_favorites",
+  notifs_journals: "api_notifications_journals",
 }
 ERROR_TYPES = {
   fa_search: "fa_search",
@@ -158,6 +167,16 @@ RSS_ENDPOINTS.each_value do |endpoint_label|
       labels[:error_type] = error_type
       $endpoint_error_count.init_label_set(labels)
     end
+  end
+end
+RSS_ONLY_ENDPOINTS.each_value do |endpoint_label|
+  $rss_length_histogram.init_label_set(endpoint: endpoint_label)
+  labels = {endpoint: endpoint_label, format: "rss"}
+  $endpoint_histogram.init_label_set(labels)
+  $endpoint_cache_misses.init_label_set(labels)
+  ERROR_TYPES.each_value do |error_type|
+    labels[:error_type] = error_type
+    $endpoint_error_count.init_label_set(labels)
   end
 end
 
@@ -692,7 +711,7 @@ module FAExport
     # GET /notifications/submissions.xml
     # GET /notifications/submissions.rss
     get %r{/notifications/submissions\.(json|xml|rss)} do |type|
-      record_metrics(RSS_ENDPOINTS[:notifications_submissions], type) do |metric_labels|
+      record_metrics(RSS_ENDPOINTS[:notifs_submissions], type) do |metric_labels|
         ensure_login!
         set_content_type(type)
         from_id = params["from"] =~ ID_REGEX ? params["from"] : nil
@@ -717,7 +736,7 @@ module FAExport
                 builder :post
               end
             end
-            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:notifications_submissions]})
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:notifs_submissions]})
             builder :feed
           else
             raise Sinatra::NotFound
@@ -729,29 +748,32 @@ module FAExport
     # GET /notifications/others.json
     # GET /notifications/others.xml
     get %r{/notifications/others\.(json|xml)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.notifications(include_deleted)
-        when "xml"
-          @fa.notifications(include_deleted).to_xml(root: "results", skip_types: true)
-        else
-          raise Sinatra::NotFound
+      record_metrics(API_ENDPOINTS[:notifs_other], type) do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type(type)
+        cache("notifications:#{@user_cookie}:#{include_deleted}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.notifications(include_deleted)
+          when "xml"
+            @fa.notifications(include_deleted).to_xml(root: "results", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
 
     # GET /notifications/watches.rss
-    get %r{/notifications/watches\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/watches:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/watches\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_watches], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/watches:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           watches = results[:new_watches]
           @name = "New watch notifications"
@@ -766,21 +788,20 @@ module FAExport
             @description = "You have been watched by a new user <a href=\"#{watch[:profile]}\">#{watch[:name]}</a> <img src=\"#{watch[:avatar]}\" alt=\"avatar\"/>"
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_watches]})
           builder :feed
-        else
-          raise Sinatra::NotFound
         end
       end
     end
 
     # GET /notifications/submission_comments.rss
-    get %r{/notifications/submission_comments\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/submission_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/submission_comments\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_sub_comments], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/submission_comments:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           submission_comments = results[:new_submission_comments]
           @name = "New submission comment notifications"
@@ -797,21 +818,20 @@ module FAExport
 #{comment[:your_submission] ? "your" : "their"} submission <a href=\"https://furaffinity.net/view/#{comment[:submission_id]}/\">#{comment[:title]}</a>"
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_sub_comments]})
           builder :feed
-        else
-          raise Sinatra::NotFound
         end
       end
     end
 
     # GET /notifications/journal_comments.rss
-    get %r{/notifications/journal_comments\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/journal_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/journal_comments\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_jou_comments], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/journal_comments:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           journal_comments = results[:new_journal_comments]
           @name = "New journal comment notifications"
@@ -828,21 +848,20 @@ module FAExport
 #{comment[:your_journal] ? "your" : "their"} journal <a href=\"https://furaffinity.net/journal/#{comment[:journal_id]}/\">#{comment[:title]}</a>"
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_jou_comments]})
           builder :feed
-        else
-          raise Sinatra::NotFound
         end
       end
     end
 
     # GET /notifications/shouts.rss
-    get %r{/notifications/shouts\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/shouts:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/shouts\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_shouts], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/shouts:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           shouts = results[:new_shouts]
           @name = "New shout notifications"
@@ -857,21 +876,20 @@ module FAExport
             @description = "You have a new shout, from <a href=\"#{shout[:profile]}\">#{shout[:name]}</a>."
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_shouts]})
           builder :feed
-        else
-          raise Sinatra::NotFound
         end
       end
     end
 
     # GET /notifications/favorites.rss
-    get %r{/notifications/favorites\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/favorites:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/favorites\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_favs], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/favorites:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           favorites = results[:new_favorites]
           @name = "New favorite notifications"
@@ -887,21 +905,20 @@ module FAExport
 \"<a href=\"https://furaffinity.net/view/#{favorite[:submission_id]}\">#{favorite[:submission_name]}</a>\"."
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_favs]})
           builder :feed
-        else
-          raise Sinatra::NotFound
         end
       end
     end
 
     # GET /notifications/journals.rss
-    get %r{/notifications/journals\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/journals:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/journals\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_journals], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/journals:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           journals = results[:new_journals]
           @name = "New journal notifications"
@@ -916,9 +933,8 @@ module FAExport
             @description = "A new journal has been posted by <a href=\"#{journal[:profile]}\">#{journal[:name]}</a>, titled: \"<a href=\"https://furaffinity.net/journal/#{journal[:journal_id]}\">#{journal[:name]}</a>\"."
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_journals]})
           builder :feed
-        else
-          raise Sinatra::NotFound
         end
       end
     end
