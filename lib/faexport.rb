@@ -87,6 +87,7 @@ RSS_ENDPOINTS = {
   scraps: "api_scraps",
   favorites: "api_favorites",
   search: "api_search",
+  notifications_submissions: "api_notifications_submission",
 }
 ERROR_TYPES = {
   fa_search: "fa_search",
@@ -691,32 +692,36 @@ module FAExport
     # GET /notifications/submissions.xml
     # GET /notifications/submissions.rss
     get %r{/notifications/submissions\.(json|xml|rss)} do |type|
-      ensure_login!
-      set_content_type(type)
-      from_id = params["from"] if params["from"] =~ ID_REGEX
-      cache("submissions:#{@user_cookie}:#{from_id}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.new_submissions(from_id)
-        when "xml"
-          @fa.new_submissions(from_id).to_xml(root: "results", skip_types: true)
-        when "rss"
-          results = @fa.new_submissions(from_id)
+      record_metrics(RSS_ENDPOINTS[:notifications_submissions], type) do |metric_labels|
+        ensure_login!
+        set_content_type(type)
+        from_id = params["from"] =~ ID_REGEX ? params["from"] : nil
+        cache("submissions:#{@user_cookie}:#{from_id}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.new_submissions(from_id)
+          when "xml"
+            @fa.new_submissions(from_id).to_xml(root: "results", skip_types: true)
+          when "rss"
+            results = @fa.new_submissions(from_id)
 
-          @name = "New submissions"
-          @info = "New submissions for #{results[:current_user][:name]}"
-          @link = "https://www.furaffinity.net/msg/submissions/"
-          @posts = results[:new_submissions].take(FAExport.config[:rss_limit]).map do |sub|
-            cache "submission:#{sub[:id]}.rss" do
-              @post = @fa.submission(sub[:id])
-              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
-                             "\"/></a><br/><br/><p>#{@post[:description]}</p>"
-              builder :post
+            @name = "New submissions"
+            @info = "New submissions for #{results[:current_user][:name]}"
+            @link = "https://www.furaffinity.net/msg/submissions/"
+            @posts = results[:new_submissions].take(FAExport.config[:rss_limit]).map do |sub|
+              cache "submission:#{sub[:id]}.rss" do
+                @post = @fa.submission(sub[:id])
+                @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
+                               "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+                builder :post
+              end
             end
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:notifications_submissions]})
+            builder :feed
+          else
+            raise Sinatra::NotFound
           end
-          builder :feed
-        else
-          raise Sinatra::NotFound
         end
       end
     end
