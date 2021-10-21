@@ -103,10 +103,15 @@ RSS_ONLY_ENDPOINTS = {
 }
 ERROR_TYPES = {
   fa_search: "fa_search",
+  fa_login_cookie: "fa_login_cookie",
+  fa_form: "fa_form",
+  fa_offset: "fa_offset",
+  fa_login: "fa_login",
+  fa_system: "fa_system",
+  fa_status: "fa_status",
   fa_cloudflare: "fa_cloudflare",
   fa_unknown: "fa_unknown",
   unknown: "unknown",
-  # TODO
 }
 $endpoint_histogram = prom.histogram(
   :faexport_endpoint_request_time_seconds,
@@ -273,7 +278,23 @@ module FAExport
           resp = block.call(labels)
         rescue => e
           error_type = case e
-                       when FAError  # TODO
+                       when FASearchError
+                         ERROR_TYPES[:fa_search]
+                       when FALoginCookieError
+                         ERROR_TYPES[:fa_login_cookie]
+                       when FAFormError
+                         ERROR_TYPES[:fa_form]
+                       when FAOffsetError
+                         ERROR_TYPES[:fa_offset]
+                       when FALoginError
+                         ERROR_TYPES[:fa_login]
+                       when FASystemError
+                         ERROR_TYPES[:fa_system]
+                       when FAStatusError
+                         ERROR_TYPES[:fa_status]
+                       when FACloudflareError
+                         ERROR_TYPES[:fa_cloudflare]
+                       when FAError
                          ERROR_TYPES[:fa_unknown]
                        else
                          ERROR_TYPES[:unknown]
