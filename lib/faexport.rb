@@ -77,6 +77,7 @@ API_ENDPOINTS = {
   submission_comments: "api_submission_comments",
   journal_comments: "api_journal_comments",
   notifs_other: "api_notifications_other",
+  note: "api_note",
 }
 POST_ENDPOINTS = {
   favorite: "api_post_favorite",
@@ -89,6 +90,7 @@ RSS_ENDPOINTS = {
   favorites: "api_favorites",
   search: "api_search",
   notifs_submissions: "api_notifications_submission",
+  notes: "api_notes",
 }
 RSS_ONLY_ENDPOINTS = {
   notifs_watches: "api_notifications_watches",
@@ -943,30 +945,34 @@ module FAExport
     # GET /notes/{folder}.xml
     # GET /notes/{folder}.rss
     get %r{/notes/#{NOTE_FOLDER_REGEX}\.(json|xml|rss)} do |folder, type|
-      ensure_login!
-      cache("notes/#{folder}:#{@user_cookie}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.notes(folder)
-        when "xml"
-          @fa.notes(folder).to_xml(root: "results", skip_types: true)
-        when "rss"
-          results = @fa.notes(folder)
-          @name = "Notes in folder: #{folder}"
-          @info = @name
-          @link = "https://www.furaffinity.net/msg/pms/"
-          @posts = results.map do |note|
-            @post = {
-              title: note[:subject],
-              link: note[:link],
-              posted: note[:posted]
-            }
-            @description = "A new note has been received, from <a href=\"#{note[:profile]}\">#{note[:name]}</a>, the subject is \"<a href=\"#{note[:link]}\">#{note[:subject]}</a>\"."
-            builder :post
+      record_metrics(RSS_ENDPOINTS[:notes], type) do |metric_labels|
+        ensure_login!
+        cache("notes/#{folder}:#{@user_cookie}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.notes(folder)
+          when "xml"
+            @fa.notes(folder).to_xml(root: "results", skip_types: true)
+          when "rss"
+            results = @fa.notes(folder)
+            @name = "Notes in folder: #{folder}"
+            @info = @name
+            @link = "https://www.furaffinity.net/msg/pms/"
+            @posts = results.map do |note|
+              @post = {
+                title: note[:subject],
+                link: note[:link],
+                posted: note[:posted]
+              }
+              @description = "A new note has been received, from <a href=\"#{note[:profile]}\">#{note[:name]}</a>, the subject is \"<a href=\"#{note[:link]}\">#{note[:subject]}</a>\"."
+              builder :post
+            end
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:notes]})
+            builder :feed
+          else
+            raise Sinatra::NotFound
           end
-          builder :feed
-        else
-          raise Sinatra::NotFound
         end
       end
     end
@@ -974,15 +980,18 @@ module FAExport
     # GET /note/{id}.json
     # GET /note/{id}.xml
     get %r{/note/#{ID_REGEX}\.(json|xml)} do |id, type|
-      ensure_login!
-      cache("note/#{id}:#{@user_cookie}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.note(id)
-        when "xml"
-          @fa.note(id).to_xml(root: "note", skip_types: true)
-        else
-          raise Sinatra::NotFound
+      record_metrics(API_ENDPOINTS[:note], type) do |metric_labels|
+        ensure_login!
+        cache("note/#{id}:#{@user_cookie}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.note(id)
+          when "xml"
+            @fa.note(id).to_xml(root: "note", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
