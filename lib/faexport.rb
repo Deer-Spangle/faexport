@@ -302,9 +302,7 @@ module FAExport
           $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: error_type})
           raise e
         ensure
-          finish = Time.now
-          time = finish - start
-          p time
+          time = Time.now - start
           $endpoint_histogram.observe(time, labels: labels)
         end
         resp
