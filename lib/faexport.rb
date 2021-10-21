@@ -86,6 +86,7 @@ RSS_ENDPOINTS = {
   gallery: "api_gallery",
   scraps: "api_scraps",
   favorites: "api_favorites",
+  search: "api_search",
 }
 ERROR_TYPES = {
   fa_search: "fa_search",
@@ -651,33 +652,37 @@ module FAExport
     get %r{/search\.(json|xml|rss)} do |type|
       set_content_type(type)
       full = !!params[:full]
-      cache("search_results:#{params}.#{type}") do
-        case type
-        when "json"
-          results = @fa.search(params)
-          results = results.map { |result| result[:id] } unless full
-          JSON.pretty_generate results
-        when "xml"
-          results = @fa.search(params)
-          results = results.map { |result| result[:id] } unless full
-          results.to_xml(root: "results", skip_types: true)
-        when "rss"
-          results = @fa.search(params)
+      record_metrics(RSS_ENDPOINTS[:search], type) do |metric_labels|
+        cache("search_results:#{params}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            results = @fa.search(params)
+            results = results.map { |result| result[:id] } unless full
+            JSON.pretty_generate results
+          when "xml"
+            results = @fa.search(params)
+            results = results.map { |result| result[:id] } unless full
+            results.to_xml(root: "results", skip_types: true)
+          when "rss"
+            results = @fa.search(params)
 
-          @name = params["q"]
-          @info = "Search for '#{params["q"]}'"
-          @link = "https://www.furaffinity.net/search/?q=#{params["q"]}"
-          @posts = results.take(FAExport.config[:rss_limit]).map do |sub|
-            cache "submission:#{sub[:id]}.rss" do
-              @post = @fa.submission(sub[:id])
-              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
-                             "\"/></a><br/><br/><p>#{@post[:description]}</p>"
-              builder :post
+            @name = params["q"]
+            @info = "Search for '#{params["q"]}'"
+            @link = "https://www.furaffinity.net/search/?q=#{params["q"]}"
+            @posts = results.take(FAExport.config[:rss_limit]).map do |sub|
+              cache "submission:#{sub[:id]}.rss" do
+                @post = @fa.submission(sub[:id])
+                @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
+                               "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+                builder :post
+              end
             end
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:search]})
+            builder :feed
+          else
+            raise Sinatra::NotFound
           end
-          builder :feed
-        else
-          raise Sinatra::NotFound
         end
       end
     end
