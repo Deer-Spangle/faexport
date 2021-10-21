@@ -932,6 +932,7 @@ Login cookie required.
 
 Views a specific note.  
 If the user the note is to/from has been deleted, "name", "profile", and "profile_name" will be null, and "user_deleted" will be true.
+If the note is unread, this will mark it as read.
 
 ~~~json
 {
