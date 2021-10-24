@@ -11,7 +11,7 @@ rack_app = Rack::Builder.app do
   use FAExport::Application, config
 
   map "/metrics" do
-    if ENV['PROMETHEUS_PASS']
+    unless ENV['PROMETHEUS_PASS'].blank?
       use Rack::Auth::Basic, "Prometheus Metrics" do |username, password|
         Rack::Utils.secure_compare(ENV['PROMETHEUS_PASS'], password)
       end
