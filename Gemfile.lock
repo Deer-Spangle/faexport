@@ -24,6 +24,7 @@ GEM
     nokogiri (1.12.5)
       mini_portile2 (~> 2.6.1)
       racc (~> 1.4)
+    prometheus-client (2.1.0)
     racc (1.5.2)
     rack (2.2.3)
     rack-protection (2.0.4)
@@ -74,6 +75,7 @@ DEPENDENCIES
   builder
   haml
   nokogiri
+  prometheus-client
   redcarpet
   redis
   rspec
@@ -82,4 +84,4 @@ DEPENDENCIES
   thin
 
 BUNDLED WITH
-   2.0.2
+   2.1.2

@@ -33,6 +33,7 @@
 require "net/http"
 require "nokogiri"
 require "open-uri"
+require "prometheus/client"
 require "redis"
 
 USER_AGENT = "FAExport"
@@ -57,6 +58,49 @@ SEARCH_DEFAULTS = {
   "type" => SEARCH_OPTIONS["type"].join(",")
 }
 SEARCH_MULTIPLE = %w[rating type]
+PAGE_TYPES = {
+  "view" => "fa/view",
+  "user" => "fa/user",
+  "" => "fa/home",
+  "journal" => "fa/journal",
+  "journals" => "fa/journals",
+  "msg" => "fa/private",
+  "watchlist" => "fa/watchlist",
+  "fav" => "fa/mark_favorite",
+  "unfav" => "fa/mark_favorite",
+  "gallery" => "fa/gallery",
+  "scraps" => "fa/scraps",
+  "favorites" => "fa/favorites",
+  "controls" => "fa/controls",
+}
+PAGE_OTHER = "other"
+prom = Prometheus::Client.registry
+$page_fetch_calls = prom.counter(
+  :faexport_scraper_fetch_call_count,
+  docstring: "Total number of calls which were made to the fetch method",
+  labels: [:page_type]
+)
+$page_request_time = prom.histogram(
+  :faexport_scraper_request_time_seconds,
+  docstring: "How long the scraper took to scrape the specified page on FA, in seconds",
+  labels: [:page_type]
+)
+$http_errors = prom.counter(
+  :faexport_scraper_http_error_total,
+  docstring: "Total number of http errors raised while making requests to FA",
+  labels: [:page_type]
+)
+$cloudflare_errors = prom.counter(
+  :faexport_scraper_cloudflare_error_total,
+  docstring: "Total number of cloudflare errors returned by FA",
+  labels: [:page_type]
+)
+(PAGE_TYPES.values + [PAGE_OTHER]).each do |page_type|
+  $page_fetch_calls.init_label_set(page_type: page_type)
+  $page_request_time.init_label_set(page_type: page_type)
+  $http_errors.init_label_set(page_type: page_type)
+  $cloudflare_errors.init_label_set(page_type: page_type)
+end
 
 class FAError < StandardError
   attr_accessor :url
@@ -389,7 +433,7 @@ class Furaffinity
     elsif folder == "favorites" && offset[:page]
       raise FAOffsetError.new(
         fa_url("#{folder}/#{escape(user)}/"),
-        "Due to a change by Furaffinity, favorites can no longer be accessed by page. See http://faexport.boothale.net/docs#get-user-name-folder for more details."
+        "Due to a change by Furaffinity, favorites can no longer be accessed by page. See https://faexport.spangle.org.uk/docs#get-user-name-folder for more details."
       )
     elsif folder != "favorites" && (offset[:next] || offset[:prev])
       raise FAOffsetError.new(
@@ -1053,8 +1097,12 @@ class Furaffinity
   end
 
   def fetch(path, extra_cookie = nil)
+    split_path = strip_leading_slash(path).split("/", 2)
+    page_type = PAGE_TYPES.fetch(split_path[0], PAGE_OTHER)
+    $page_fetch_calls.increment(labels: {page_type: page_type})
     url = fetch_url(path)
     raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
+      start = Time.now
       begin
         URI.parse(url).open({ "User-Agent" => USER_AGENT, "Cookie" => "#{@login_cookie};#{extra_cookie}" }) do |response|
           raise FAStatusError.new(url, response.status.join(" ")) if response.status[0] != "200"
@@ -1062,10 +1110,15 @@ class Furaffinity
           response.read
         end
       rescue OpenURI::HTTPError => e
+        $http_errors.increment(labels: {page_type: page_type})
         if e.io.status[0] == "503"
+          $cloudflare_errors.increment(labels: {page_type: page_type})
           raise FACloudflareError.new(url)
         end
         raise
+      ensure
+        request_time = Time.now - start
+        $page_request_time.observe(request_time, labels: {page_type: page_type})
       end
     end
 

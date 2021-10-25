@@ -41,11 +41,158 @@ require "sinatra/base"
 require "sinatra/json"
 require "yaml"
 require "tilt"
+require "prometheus/client"
 
 Tilt.register Tilt::RedcarpetTemplate, "markdown", "md"
 
 # Do not update this manually, the github workflow does it.
 VERSION = "2021.10.2"
+prom = Prometheus::Client.registry
+version_info = prom.gauge(
+  :faexport_info,
+  docstring: "Version of FAExport which is running",
+  labels: [:version]
+)
+version_info.set(1.0, labels: {version: VERSION})
+startup_time = prom.gauge(
+  :faexport_startup_unixtime,
+  docstring: "Last time FAExport was started"
+)
+startup_time.set(Time.now.to_i)
+
+HTML_ENDPOINTS = {
+  index: "index",
+  docs: "docs",
+}
+API_ENDPOINTS = {
+  home: "api_home",
+  browse: "api_browse",
+  status: "api_status",
+  user_page: "api_user_page",
+  user_watchers: "api_user_watchers",
+  user_watching: "api_user_watching",
+  commissions: "api_commissions",
+  submission: "api_submission",
+  journal: "api_journal",
+  submission_comments: "api_submission_comments",
+  journal_comments: "api_journal_comments",
+  notifs_other: "api_notifications_other",
+  note: "api_note",
+}
+POST_ENDPOINTS = {
+  favorite: "api_post_favorite",
+  journal: "api_post_journal",
+}
+RSS_ENDPOINTS = {
+  user_shouts: "api_user_shouts",
+  journals: "api_journals",
+  gallery: "api_gallery",
+  scraps: "api_scraps",
+  favorites: "api_favorites",
+  search: "api_search",
+  notifs_submissions: "api_notifications_submission",
+  notes: "api_notes",
+}
+RSS_ONLY_ENDPOINTS = {
+  notifs_watches: "api_notifications_watches",
+  notifs_sub_comments: "api_notifications_submission_comments",
+  notifs_jou_comments: "api_notifications_journal_comments",
+  notifs_shouts: "api_notifications_shouts",
+  notifs_favs: "api_notifications_favorites",
+  notifs_journals: "api_notifications_journals",
+}
+ERROR_TYPES = {
+  fa_search: "fa_search",
+  fa_login_cookie: "fa_login_cookie",
+  fa_form: "fa_form",
+  fa_offset: "fa_offset",
+  fa_login: "fa_login",
+  fa_system: "fa_system",
+  fa_status: "fa_status",
+  fa_cloudflare: "fa_cloudflare",
+  fa_unknown: "fa_unknown",
+  unknown: "unknown",
+}
+$endpoint_histogram = prom.histogram(
+  :faexport_endpoint_request_time_seconds,
+  docstring: "How long each request to the given endpoint took, in seconds",
+  labels: [:endpoint, :format]
+)
+$endpoint_error_count = prom.counter(
+  :faexport_endpoint_error_total,
+  docstring: "How many errors each request type has observed.",
+  labels: [:endpoint, :format, :error_type]
+)
+$endpoint_cache_misses = prom.counter(
+  :faexport_endpoint_cache_miss_total,
+  docstring: "How many cache misses were there for API responses, which required building a new response.",
+  labels: [:endpoint, :format]
+)
+$rss_length_histogram = prom.histogram(
+  :faexport_rss_feed_item_count,
+  docstring: "How many items are in each generated rss feed.",
+  labels: [:endpoint],
+  buckets: [0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+)
+HTML_ENDPOINTS.each_value do |endpoint_label|
+  labels = {endpoint: endpoint_label, format: "html"}
+  $endpoint_histogram.init_label_set(labels)
+  $endpoint_cache_misses.init_label_set(labels)
+  ERROR_TYPES.each_value do |error_type|
+    labels[:error_type] = error_type
+    $endpoint_error_count.init_label_set(labels)
+  end
+end
+API_ENDPOINTS.each_value do |endpoint_label|
+  formats = %w[json xml]
+  formats.each do |format|
+    labels = {endpoint: endpoint_label, format: format}
+    $endpoint_histogram.init_label_set(labels)
+    $endpoint_cache_misses.init_label_set(labels)
+    ERROR_TYPES.each_value do |error_type|
+      labels[:error_type] = error_type
+      $endpoint_error_count.init_label_set(labels)
+    end
+  end
+end
+POST_ENDPOINTS.each_value do |endpoint_label|
+  formats = %w[json formdata]
+  formats.each do |format|
+    labels = {endpoint: endpoint_label, format: format}
+    $endpoint_histogram.init_label_set(labels)
+    $endpoint_cache_misses.init_label_set(labels)
+    ERROR_TYPES.each_value do |error_type|
+      labels[:error_type] = error_type
+      $endpoint_error_count.init_label_set(labels)
+    end
+  end
+end
+RSS_ENDPOINTS.each_value do |endpoint_label|
+  $rss_length_histogram.init_label_set(endpoint: endpoint_label)
+  formats= %w[json xml rss]
+  formats.each do |format|
+    labels = {endpoint: endpoint_label, format: format}
+    $endpoint_histogram.init_label_set(labels)
+    $endpoint_cache_misses.init_label_set(labels)
+    ERROR_TYPES.each_value do |error_type|
+      labels[:error_type] = error_type
+      $endpoint_error_count.init_label_set(labels)
+    end
+  end
+end
+RSS_ONLY_ENDPOINTS.each_value do |endpoint_label|
+  $rss_length_histogram.init_label_set(endpoint: endpoint_label)
+  labels = {endpoint: endpoint_label, format: "rss"}
+  $endpoint_histogram.init_label_set(labels)
+  $endpoint_cache_misses.init_label_set(labels)
+  ERROR_TYPES.each_value do |error_type|
+    labels[:error_type] = error_type
+    $endpoint_error_count.init_label_set(labels)
+  end
+end
+
+
+
 
 module FAExport
   class << self
@@ -122,6 +269,44 @@ module FAExport
           "Please note this is a header, not a cookie."
         )
       end
+
+      def record_metrics(endpoint, format, &block)
+        labels = {endpoint: endpoint, format: format}
+        resp = nil
+        start = Time.now
+        begin
+          resp = block.call(labels)
+        rescue => e
+          error_type = case e
+                       when FASearchError
+                         ERROR_TYPES[:fa_search]
+                       when FALoginCookieError
+                         ERROR_TYPES[:fa_login_cookie]
+                       when FAFormError
+                         ERROR_TYPES[:fa_form]
+                       when FAOffsetError
+                         ERROR_TYPES[:fa_offset]
+                       when FALoginError
+                         ERROR_TYPES[:fa_login]
+                       when FASystemError
+                         ERROR_TYPES[:fa_system]
+                       when FAStatusError
+                         ERROR_TYPES[:fa_status]
+                       when FACloudflareError
+                         ERROR_TYPES[:fa_cloudflare]
+                       when FAError
+                         ERROR_TYPES[:fa_unknown]
+                       else
+                         ERROR_TYPES[:unknown]
+                       end
+          $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: error_type})
+          raise e
+        ensure
+          time = Time.now - start
+          $endpoint_histogram.observe(time, labels: labels)
+        end
+        resp
+      end
     end
 
     before do
@@ -149,12 +334,18 @@ module FAExport
     end
 
     get "/" do
-      haml :index, layout: :page, locals: { version: VERSION }
+      record_metrics(HTML_ENDPOINTS[:index], "html") do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        haml :index, layout: :page, locals: { version: VERSION }
+      end
     end
 
     get "/docs" do
-      haml :page, locals: { version: VERSION } do
-        markdown :docs
+      record_metrics(HTML_ENDPOINTS[:docs], "html") do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        haml :page, locals: { version: VERSION } do
+          markdown :docs
+        end
       end
     end
 
@@ -162,12 +353,17 @@ module FAExport
     # GET /home.xml
     get %r{/home\.(json|xml)} do |type|
       set_content_type(type)
-      cache("home:#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.home
-        when "xml"
-          @fa.home.to_xml(root: "home", skip_types: true)
+      record_metrics(API_ENDPOINTS[:home], type) do |metric_labels|
+        cache("home:#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.home
+          when "xml"
+            @fa.home.to_xml(root: "home", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
@@ -176,25 +372,35 @@ module FAExport
     # GET /browse.xml
     get %r{/browse\.(json|xml)} do |type|
       set_content_type(type)
-      cache("browse:#{type}.#{params}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.browse(params)
-        when "xml"
-          @fa.browse(params).to_xml(root: "browse", skip_types: true)
+      record_metrics(API_ENDPOINTS[:browse], type) do |metric_labels|
+        cache("browse:#{type}.#{params}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.browse(params)
+          when "xml"
+            @fa.browse(params).to_xml(root: "browse", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
 
     # GET /status.json
-    # GET /home.xml
+    # GET /status.xml
     get %r{/status\.(json|xml)} do |type|
       set_content_type(type)
-      case type
-      when "json"
-        JSON.pretty_generate @fa.status
-      when "xml"
-        @fa.status.to_xml(root: "home", skip_types: true)
+      record_metrics(API_ENDPOINTS[:status], type) do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        case type
+        when "json"
+          JSON.pretty_generate @fa.status
+        when "xml"
+          @fa.status.to_xml(root: "home", skip_types: true)
+        else
+          raise Sinatra::NotFound
+        end
       end
     end
 
@@ -202,12 +408,17 @@ module FAExport
     # GET /user/{name}.xml
     get %r{/user/#{USER_REGEX}\.(json|xml)} do |name, type|
       set_content_type(type)
-      cache("data:#{name}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.user(name)
-        when "xml"
-          @fa.user(name).to_xml(root: "user", skip_types: true)
+      record_metrics(API_ENDPOINTS[:user_page], type) do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        cache("data:#{name}.#{type}") do
+          case type
+          when "json"
+            JSON.pretty_generate @fa.user(name)
+          when "xml"
+            @fa.user(name).to_xml(root: "user", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
@@ -217,26 +428,32 @@ module FAExport
     # GET /user/{name}/shouts.xml
     get %r{/user/#{USER_REGEX}/shouts\.(rss|json|xml)} do |name, type|
       set_content_type(type)
-      cache("shouts:#{name}.#{type}") do
-        case type
-        when "rss"
-          @name = "#{name.capitalize}'s shouts"
-          @info = @name
-          @link = @fa.fa_url("user/#{name}")
-          @posts = @fa.shouts(name).map do |shout|
-            @post = {
-              title: "Shout from #{shout[:name]}",
-              link: @fa.fa_url("user/#{name}/##{shout[:id]}"),
-              posted: shout[:posted]
-            }
-            @description = shout[:text]
-            builder :post
+      record_metrics(RSS_ENDPOINTS[:user_shouts], type) do |metric_labels|
+        cache("shouts:#{name}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "rss"
+            @name = "#{name.capitalize}'s shouts"
+            @info = @name
+            @link = @fa.fa_url("user/#{name}")
+            @posts = @fa.shouts(name).map do |shout|
+              @post = {
+                title: "Shout from #{shout[:name]}",
+                link: @fa.fa_url("user/#{name}/##{shout[:id]}"),
+                posted: shout[:posted]
+              }
+              @description = shout[:text]
+              builder :post
+            end
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:user_shouts]})
+            builder :feed
+          when "json"
+            JSON.pretty_generate @fa.shouts(name)
+          when "xml"
+            @fa.shouts(name).to_xml(root: "shouts", skip_types: true)
+          else
+            raise Sinatra::NotFound
           end
-          builder :feed
-        when "json"
-          JSON.pretty_generate @fa.shouts(name)
-        when "xml"
-          @fa.shouts(name).to_xml(root: "shouts", skip_types: true)
         end
       end
     end
@@ -249,12 +466,18 @@ module FAExport
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
       is_watchers = mode == "watchers"
-      cache("watching:#{name}.#{type}.#{mode}.#{page}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.budlist(name, page, is_watchers)
-        when "xml"
-          @fa.budlist(name, page, is_watchers).to_xml(root: "users", skip_types: true)
+      endpoint_label = is_watchers ? API_ENDPOINTS[:user_watchers] : API_ENDPOINTS[:user_watching]
+      record_metrics(endpoint_label, type) do |metrics_labels|
+        cache("watching:#{name}.#{type}.#{mode}.#{page}") do
+          $endpoint_cache_misses.increment(labels: metrics_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.budlist(name, page, is_watchers)
+          when "xml"
+            @fa.budlist(name, page, is_watchers).to_xml(root: "users", skip_types: true)
+          else
+            Sinatra::NotFound
+          end
         end
       end
     end
@@ -263,12 +486,17 @@ module FAExport
     # GET /user/{name}/commissions.xml
     get %r{/user/#{USER_REGEX}/commissions\.(json|xml)} do |name, type|
       set_content_type(type)
-      cache("commissions:#{name}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.commissions(name)
-        when "xml"
-          @fa.commissions(name).to_xml(root: "commissions", skip_types: true)
+      record_metrics(API_ENDPOINTS[:commissions], type) do |metrics_labels|
+        cache("commissions:#{name}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metrics_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.commissions(name)
+          when "xml"
+            @fa.commissions(name).to_xml(root: "commissions", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
@@ -280,28 +508,34 @@ module FAExport
       set_content_type(type)
       page = params[:page] =~ /^[0-9]+$/ ? params[:page] : 1
       full = !!params[:full]
-      cache("journals:#{name}.#{type}.#{page}.#{full}") do
-        case type
-        when "rss"
-          @name = "#{name.capitalize}'s journals"
-          @info = @name
-          @link = @fa.fa_url("journals/#{name}/")
-          @posts = @fa.journals(name, 1).take(FAExport.config[:rss_limit]).map do |journal|
-            cache "journal:#{journal[:id]}.rss" do
-              @post = @fa.journal(journal[:id])
-              @description = "<p>#{@post[:description]}</p>"
-              builder :post
+      record_metrics(RSS_ENDPOINTS[:journals], type) do |metric_labels|
+        cache("journals:#{name}.#{type}.#{page}.#{full}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "rss"
+            @name = "#{name.capitalize}'s journals"
+            @info = @name
+            @link = @fa.fa_url("journals/#{name}/")
+            @posts = @fa.journals(name, 1).take(FAExport.config[:rss_limit]).map do |journal|
+              cache "journal:#{journal[:id]}.rss" do
+                @post = @fa.journal(journal[:id])
+                @description = "<p>#{@post[:description]}</p>"
+                builder :post
+              end
             end
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:journals]})
+            builder :feed
+          when "json"
+            journals = @fa.journals(name, page)
+            journals = journals.map { |j| j[:id] } unless full
+            JSON.pretty_generate journals
+          when "xml"
+            journals = @fa.journals(name, page)
+            journals = journals.map { |j| j[:id] } unless full
+            journals.to_xml(root: "journals", skip_types: true)
+          else
+            Sinatra::NotFound
           end
-          builder :feed
-        when "json"
-          journals = @fa.journals(name, page)
-          journals = journals.map { |j| j[:id] } unless full
-          JSON.pretty_generate journals
-        when "xml"
-          journals = @fa.journals(name, page)
-          journals = journals.map { |j| j[:id] } unless full
-          journals.to_xml(root: "journals", skip_types: true)
         end
       end
     end
@@ -326,33 +560,38 @@ module FAExport
       full = !!params[:full]
       include_deleted = !!params[:include_deleted]
 
-      cache("#{folder}:#{name}.#{type}.#{offset}.#{full}.#{include_deleted}") do
-        case type
-        when "rss"
-          @name = "#{name.capitalize}'s #{folder.capitalize}"
-          @info = @name
-          @link = @fa.fa_url("#{folder}/#{name}/")
-          subs = @fa.submissions(name, folder, {})
-          subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
-          @posts = subs.take(FAExport.config[:rss_limit]).map do |sub|
-            cache "submission:#{sub[:id]}.rss" do
-              @post = @fa.submission(sub[:id])
-              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
-                             "\"/></a><br/><br/><p>#{@post[:description]}</p>"
-              builder :post
+      record_metrics(RSS_ENDPOINTS[folder.to_s], type) do |metric_labels|
+        cache("#{folder}:#{name}.#{type}.#{offset}.#{full}.#{include_deleted}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "rss"
+            @name = "#{name.capitalize}'s #{folder.capitalize}"
+            @info = @name
+            @link = @fa.fa_url("#{folder}/#{name}/")
+            subs = @fa.submissions(name, folder, {})
+            subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
+            @posts = subs.take(FAExport.config[:rss_limit]).map do |sub|
+              cache "submission:#{sub[:id]}.rss" do
+                @post = @fa.submission(sub[:id])
+                @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
+                               "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+                builder :post
+              end
             end
+            builder :feed
+          when "json"
+            subs = @fa.submissions(name, folder, offset)
+            subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
+            subs = subs.map { |sub| sub[:id] } unless full
+            JSON.pretty_generate subs
+          when "xml"
+            subs = @fa.submissions(name, folder, offset)
+            subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
+            subs = subs.map { |sub| sub[:id] } unless full
+            subs.to_xml(root: "submissions", skip_types: true)
+          else
+            raise Sinatra::NotFound
           end
-          builder :feed
-        when "json"
-          subs = @fa.submissions(name, folder, offset)
-          subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
-          subs = subs.map { |sub| sub[:id] } unless full
-          JSON.pretty_generate subs
-        when "xml"
-          subs = @fa.submissions(name, folder, offset)
-          subs = subs.reject { |sub| sub[:id].blank? } unless include_deleted
-          subs = subs.map { |sub| sub[:id] } unless full
-          subs.to_xml(root: "submissions", skip_types: true)
         end
       end
     end
@@ -362,39 +601,53 @@ module FAExport
     get %r{/submission/#{ID_REGEX}\.(json|xml)} do |id, type|
       is_login = !!@user_cookie
       set_content_type(type)
-      cache("submission:#{id}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.submission(id, is_login)
-        when "xml"
-          @fa.submission(id, is_login).to_xml(root: "submission", skip_types: true)
+      record_metrics(API_ENDPOINTS[:submission], type) do |metric_labels|
+        cache("submission:#{id}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.submission(id, is_login)
+          when "xml"
+            @fa.submission(id, is_login).to_xml(root: "submission", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
 
     # POST /submission/{id}/favorite.json
-    post %r{/submission/#{ID_REGEX}/favorite\.(json|)} do |id|
-      ensure_login!
-      fav = case type
-            when ".json" then JSON.parse(request.body.read)
-            else params
-            end
-      result = @fa.favorite_submission(id, fav["fav_status"], fav["fav_key"])
+    post %r{/submission/#{ID_REGEX}/favorite(\.json|)} do |id, type|
+      metric_type = type == ".json" ? "json" : "formdata"
+      record_metrics(POST_ENDPOINTS[:favorite], metric_type) do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        ensure_login!
+        fav = case type
+              when ".json" then JSON.parse(request.body.read)
+              else params
+              end
+        result = @fa.favorite_submission(id, fav["fav_status"], fav["fav_key"])
 
-      set_content_type("json")
-      JSON.pretty_generate(result)
+        set_content_type("json")
+        JSON.pretty_generate(result)
+      end
     end
 
     # GET /journal/{id}.json
     # GET /journal/{id}.xml
     get %r{/journal/#{ID_REGEX}\.(json|xml)} do |id, type|
       set_content_type(type)
-      cache("journal:#{id}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.journal(id)
-        when "xml"
-          @fa.journal(id).to_xml(root: "journal", skip_types: true)
+      record_metrics(API_ENDPOINTS[:journal], type) do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        cache("journal:#{id}.#{type}") do
+          case type
+          when "json"
+            JSON.pretty_generate @fa.journal(id)
+          when "xml"
+            @fa.journal(id).to_xml(root: "journal", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
@@ -404,12 +657,17 @@ module FAExport
     get %r{/submission/#{ID_REGEX}/comments\.(json|xml)} do |id, type|
       set_content_type(type)
       include_hidden = !!params[:include_hidden]
-      cache("submissions_comments:#{id}.#{type}.#{include_hidden}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.submission_comments(id, include_hidden)
-        when "xml"
-          @fa.submission_comments(id, include_hidden).to_xml(root: "comments", skip_types: true)
+      record_metrics(API_ENDPOINTS[:submission_comments], type) do |metric_labels|
+        cache("submissions_comments:#{id}.#{type}.#{include_hidden}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.submission_comments(id, include_hidden)
+          when "xml"
+            @fa.submission_comments(id, include_hidden).to_xml(root: "comments", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
@@ -419,12 +677,17 @@ module FAExport
     get %r{/journal/#{ID_REGEX}/comments\.(json|xml)} do |id, type|
       set_content_type(type)
       include_hidden = !!params[:include_hidden]
-      cache("journal_comments:#{id}.#{type}.#{include_hidden}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.journal_comments(id, include_hidden)
-        when "xml"
-          @fa.journal_comments(id, include_hidden).to_xml(root: "comments", skip_types: true)
+      record_metrics(API_ENDPOINTS[:journal_comments], type) do |metric_labels|
+        cache("journal_comments:#{id}.#{type}.#{include_hidden}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.journal_comments(id, include_hidden)
+          when "xml"
+            @fa.journal_comments(id, include_hidden).to_xml(root: "comments", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
@@ -435,31 +698,37 @@ module FAExport
     get %r{/search\.(json|xml|rss)} do |type|
       set_content_type(type)
       full = !!params[:full]
-      cache("search_results:#{params}.#{type}") do
-        case type
-        when "json"
-          results = @fa.search(params)
-          results = results.map { |result| result[:id] } unless full
-          JSON.pretty_generate results
-        when "xml"
-          results = @fa.search(params)
-          results = results.map { |result| result[:id] } unless full
-          results.to_xml(root: "results", skip_types: true)
-        when "rss"
-          results = @fa.search(params)
+      record_metrics(RSS_ENDPOINTS[:search], type) do |metric_labels|
+        cache("search_results:#{params}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            results = @fa.search(params)
+            results = results.map { |result| result[:id] } unless full
+            JSON.pretty_generate results
+          when "xml"
+            results = @fa.search(params)
+            results = results.map { |result| result[:id] } unless full
+            results.to_xml(root: "results", skip_types: true)
+          when "rss"
+            results = @fa.search(params)
 
-          @name = params["q"]
-          @info = "Search for '#{params["q"]}'"
-          @link = "https://www.furaffinity.net/search/?q=#{params["q"]}"
-          @posts = results.take(FAExport.config[:rss_limit]).map do |sub|
-            cache "submission:#{sub[:id]}.rss" do
-              @post = @fa.submission(sub[:id])
-              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
-                             "\"/></a><br/><br/><p>#{@post[:description]}</p>"
-              builder :post
+            @name = params["q"]
+            @info = "Search for '#{params["q"]}'"
+            @link = "https://www.furaffinity.net/search/?q=#{params["q"]}"
+            @posts = results.take(FAExport.config[:rss_limit]).map do |sub|
+              cache "submission:#{sub[:id]}.rss" do
+                @post = @fa.submission(sub[:id])
+                @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
+                               "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+                builder :post
+              end
             end
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:search]})
+            builder :feed
+          else
+            raise Sinatra::NotFound
           end
-          builder :feed
         end
       end
     end
@@ -468,30 +737,36 @@ module FAExport
     # GET /notifications/submissions.xml
     # GET /notifications/submissions.rss
     get %r{/notifications/submissions\.(json|xml|rss)} do |type|
-      ensure_login!
-      set_content_type(type)
-      from_id = params["from"] if params["from"] =~ ID_REGEX
-      cache("submissions:#{@user_cookie}:#{from_id}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.new_submissions(from_id)
-        when "xml"
-          @fa.new_submissions(from_id).to_xml(root: "results", skip_types: true)
-        when "rss"
-          results = @fa.new_submissions(from_id)
+      record_metrics(RSS_ENDPOINTS[:notifs_submissions], type) do |metric_labels|
+        ensure_login!
+        set_content_type(type)
+        from_id = params["from"] =~ ID_REGEX ? params["from"] : nil
+        cache("submissions:#{@user_cookie}:#{from_id}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.new_submissions(from_id)
+          when "xml"
+            @fa.new_submissions(from_id).to_xml(root: "results", skip_types: true)
+          when "rss"
+            results = @fa.new_submissions(from_id)
 
-          @name = "New submissions"
-          @info = "New submissions for #{results[:current_user][:name]}"
-          @link = "https://www.furaffinity.net/msg/submissions/"
-          @posts = results[:new_submissions].take(FAExport.config[:rss_limit]).map do |sub|
-            cache "submission:#{sub[:id]}.rss" do
-              @post = @fa.submission(sub[:id])
-              @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
-                             "\"/></a><br/><br/><p>#{@post[:description]}</p>"
-              builder :post
+            @name = "New submissions"
+            @info = "New submissions for #{results[:current_user][:name]}"
+            @link = "https://www.furaffinity.net/msg/submissions/"
+            @posts = results[:new_submissions].take(FAExport.config[:rss_limit]).map do |sub|
+              cache "submission:#{sub[:id]}.rss" do
+                @post = @fa.submission(sub[:id])
+                @description = "<a href=\"#{@post[:link]}\"><img src=\"#{@post[:thumbnail]}"\
+                               "\"/></a><br/><br/><p>#{@post[:description]}</p>"
+                builder :post
+              end
             end
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:notifs_submissions]})
+            builder :feed
+          else
+            raise Sinatra::NotFound
           end
-          builder :feed
         end
       end
     end
@@ -499,27 +774,32 @@ module FAExport
     # GET /notifications/others.json
     # GET /notifications/others.xml
     get %r{/notifications/others\.(json|xml)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.notifications(include_deleted)
-        when "xml"
-          @fa.notifications(include_deleted).to_xml(root: "results", skip_types: true)
+      record_metrics(API_ENDPOINTS[:notifs_other], type) do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type(type)
+        cache("notifications:#{@user_cookie}:#{include_deleted}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.notifications(include_deleted)
+          when "xml"
+            @fa.notifications(include_deleted).to_xml(root: "results", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
 
     # GET /notifications/watches.rss
-    get %r{/notifications/watches\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/watches:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/watches\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_watches], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/watches:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           watches = results[:new_watches]
           @name = "New watch notifications"
@@ -534,19 +814,20 @@ module FAExport
             @description = "You have been watched by a new user <a href=\"#{watch[:profile]}\">#{watch[:name]}</a> <img src=\"#{watch[:avatar]}\" alt=\"avatar\"/>"
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_watches]})
           builder :feed
         end
       end
     end
 
     # GET /notifications/submission_comments.rss
-    get %r{/notifications/submission_comments\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/submission_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/submission_comments\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_sub_comments], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/submission_comments:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           submission_comments = results[:new_submission_comments]
           @name = "New submission comment notifications"
@@ -563,19 +844,20 @@ module FAExport
 #{comment[:your_submission] ? "your" : "their"} submission <a href=\"https://furaffinity.net/view/#{comment[:submission_id]}/\">#{comment[:title]}</a>"
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_sub_comments]})
           builder :feed
         end
       end
     end
 
     # GET /notifications/journal_comments.rss
-    get %r{/notifications/journal_comments\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/journal_comments:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/journal_comments\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_jou_comments], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/journal_comments:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           journal_comments = results[:new_journal_comments]
           @name = "New journal comment notifications"
@@ -592,19 +874,20 @@ module FAExport
 #{comment[:your_journal] ? "your" : "their"} journal <a href=\"https://furaffinity.net/journal/#{comment[:journal_id]}/\">#{comment[:title]}</a>"
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_jou_comments]})
           builder :feed
         end
       end
     end
 
     # GET /notifications/shouts.rss
-    get %r{/notifications/shouts\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/shouts:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/shouts\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_shouts], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/shouts:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           shouts = results[:new_shouts]
           @name = "New shout notifications"
@@ -619,19 +902,20 @@ module FAExport
             @description = "You have a new shout, from <a href=\"#{shout[:profile]}\">#{shout[:name]}</a>."
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_shouts]})
           builder :feed
         end
       end
     end
 
     # GET /notifications/favorites.rss
-    get %r{/notifications/favorites\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/favorites:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/favorites\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_favs], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/favorites:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           favorites = results[:new_favorites]
           @name = "New favorite notifications"
@@ -647,19 +931,20 @@ module FAExport
 \"<a href=\"https://furaffinity.net/view/#{favorite[:submission_id]}\">#{favorite[:submission_name]}</a>\"."
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_favs]})
           builder :feed
         end
       end
     end
 
     # GET /notifications/journals.rss
-    get %r{/notifications/journals\.(rss)} do |type|
-      ensure_login!
-      include_deleted = !!params[:include_deleted]
-      set_content_type(type)
-      cache("notifications/journals:#{@user_cookie}:#{include_deleted}.#{type}") do
-        case type
-        when "rss"
+    get %r{/notifications/journals\.rss} do
+      record_metrics(RSS_ONLY_ENDPOINTS[:notifs_journals], "rss") do |metric_labels|
+        ensure_login!
+        include_deleted = !!params[:include_deleted]
+        set_content_type("rss")
+        cache("notifications/journals:#{@user_cookie}:#{include_deleted}.rss") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
           results = @fa.notifications(include_deleted)
           journals = results[:new_journals]
           @name = "New journal notifications"
@@ -674,6 +959,7 @@ module FAExport
             @description = "A new journal has been posted by <a href=\"#{journal[:profile]}\">#{journal[:name]}</a>, titled: \"<a href=\"https://furaffinity.net/journal/#{journal[:journal_id]}\">#{journal[:name]}</a>\"."
             builder :post
           end
+          $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ONLY_ENDPOINTS[:notifs_journals]})
           builder :feed
         end
       end
@@ -683,28 +969,34 @@ module FAExport
     # GET /notes/{folder}.xml
     # GET /notes/{folder}.rss
     get %r{/notes/#{NOTE_FOLDER_REGEX}\.(json|xml|rss)} do |folder, type|
-      ensure_login!
-      cache("notes/#{folder}:#{@user_cookie}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.notes(folder)
-        when "xml"
-          @fa.notes(folder).to_xml(root: "results", skip_types: true)
-        when "rss"
-          results = @fa.notes(folder)
-          @name = "Notes in folder: #{folder}"
-          @info = @name
-          @link = "https://www.furaffinity.net/msg/pms/"
-          @posts = results.map do |note|
-            @post = {
-              title: note[:subject],
-              link: note[:link],
-              posted: note[:posted]
-            }
-            @description = "A new note has been received, from <a href=\"#{note[:profile]}\">#{note[:name]}</a>, the subject is \"<a href=\"#{note[:link]}\">#{note[:subject]}</a>\"."
-            builder :post
+      record_metrics(RSS_ENDPOINTS[:notes], type) do |metric_labels|
+        ensure_login!
+        cache("notes/#{folder}:#{@user_cookie}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.notes(folder)
+          when "xml"
+            @fa.notes(folder).to_xml(root: "results", skip_types: true)
+          when "rss"
+            results = @fa.notes(folder)
+            @name = "Notes in folder: #{folder}"
+            @info = @name
+            @link = "https://www.furaffinity.net/msg/pms/"
+            @posts = results.map do |note|
+              @post = {
+                title: note[:subject],
+                link: note[:link],
+                posted: note[:posted]
+              }
+              @description = "A new note has been received, from <a href=\"#{note[:profile]}\">#{note[:name]}</a>, the subject is \"<a href=\"#{note[:link]}\">#{note[:subject]}</a>\"."
+              builder :post
+            end
+            $rss_length_histogram.observe(@posts.length, labels: {endpoint: RSS_ENDPOINTS[:notes]})
+            builder :feed
+          else
+            raise Sinatra::NotFound
           end
-          builder :feed
         end
       end
     end
@@ -712,28 +1004,37 @@ module FAExport
     # GET /note/{id}.json
     # GET /note/{id}.xml
     get %r{/note/#{ID_REGEX}\.(json|xml)} do |id, type|
-      ensure_login!
-      cache("note/#{id}:#{@user_cookie}.#{type}") do
-        case type
-        when "json"
-          JSON.pretty_generate @fa.note(id)
-        when "xml"
-          @fa.note(id).to_xml(root: "note", skip_types: true)
+      record_metrics(API_ENDPOINTS[:note], type) do |metric_labels|
+        ensure_login!
+        cache("note/#{id}:#{@user_cookie}.#{type}") do
+          $endpoint_cache_misses.increment(labels: metric_labels)
+          case type
+          when "json"
+            JSON.pretty_generate @fa.note(id)
+          when "xml"
+            @fa.note(id).to_xml(root: "note", skip_types: true)
+          else
+            raise Sinatra::NotFound
+          end
         end
       end
     end
 
     # POST /journal.json
     post %r{/journal(\.json|)} do |type|
-      ensure_login!
-      journal = case type
-                when ".json" then JSON.parse(request.body.read)
-                else params
-                end
-      result = @fa.submit_journal(journal["title"], journal["description"])
+      metric_type = type == ".json" ? "json" : "formdata"
+      record_metrics(POST_ENDPOINTS[:journal], metric_type) do |metric_labels|
+        $endpoint_cache_misses.increment(labels: metric_labels)
+        ensure_login!
+        journal = case type
+                  when ".json" then JSON.parse(request.body.read)
+                  else params
+                  end
+        result = @fa.submit_journal(journal["title"], journal["description"])
 
-      set_content_type("json")
-      JSON.pretty_generate(result)
+        set_content_type("json")
+        JSON.pretty_generate(result)
+      end
     end
 
     error FAError do
