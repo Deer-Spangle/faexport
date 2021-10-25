@@ -560,7 +560,7 @@ module FAExport
       full = !!params[:full]
       include_deleted = !!params[:include_deleted]
 
-      record_metrics(RSS_ENDPOINTS[folder.to_s], type) do |metric_labels|
+      record_metrics(RSS_ENDPOINTS[folder.to_sym], type) do |metric_labels|
         cache("#{folder}:#{name}.#{type}.#{offset}.#{full}.#{include_deleted}") do
           $endpoint_cache_misses.increment(labels: metric_labels)
           case type
