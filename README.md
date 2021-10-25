@@ -81,3 +81,12 @@ make FA_COOKIE="b\=...\;a\=..." deploy_bypass
 This application can be run on Heroku, just add an instance of 'Redis To Go' for caching.
 Rather than uploading `settings.yml`, set the environment variable `FA_COOKIE`
 to the generated cookie you gathered from FA.
+
+## Prometheus metrics and security
+
+There are a number of metrics exposed at `/metrics`, which can be used for observability and such.
+Metrics are available for deployed version, error rates, request/response times, and usage patterns between endpoints and format types.
+Metrics are grouped into API metrics, and scraper metrics. Scraper metrics are prefixed with "faexport_scraper", API endpoint metrics are prefixed with "faexport_endpoint", and all others are prefixed with just "faexport_".
+
+The prometheus metrics endpoint can be secured with basic auth by passing a PROMETHEUS_PASS environment variable. This will set the password for the `/metrics` endpoint, with a blank username. This environment variable can be passed to locally running instances, or to docker or docker compose.
+
