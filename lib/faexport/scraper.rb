@@ -101,6 +101,14 @@ $cloudflare_errors = prom.counter(
   $http_errors.init_label_set(page_type: page_type)
   $cloudflare_errors.init_label_set(page_type: page_type)
 end
+$fa_users_online = prom.gauge(
+  :faexport_fa_users_online_total,
+  docstring: "Total number of users online, as reported by FA",
+  labels: [:user_type]
+)
+%w[total guests registered other].each do |user_type|
+  $fa_users_online.init_label_set(user_type: user_type)
+end
 
 class FAError < StandardError
   attr_accessor :url
@@ -1276,6 +1284,9 @@ class Furaffinity
       fa_server_time: timestamp,
       fa_server_time_at: to_iso8601(timestamp)
     }
+    status[:online].each do |key, value|
+      $fa_users_online.set(value, labels: {user_type: key})
+    end
     status_json = JSON.pretty_generate status
     @cache.save_status(status_json)
     status_json
