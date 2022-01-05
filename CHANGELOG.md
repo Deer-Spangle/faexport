@@ -11,6 +11,12 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2022.1.1] - 2022-01-05
+
+### Added
+
+- Added prometheus metrics for current number of users online, `faexport_fa_users_online_total`
+
 ## [v2021.10.4] - 2021-10-25
 
 ### Fixed
