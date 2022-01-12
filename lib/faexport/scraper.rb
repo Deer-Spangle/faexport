@@ -262,21 +262,6 @@ class Furaffinity
     @safe_for_work = false
   end
 
-  def login(username, password)
-    response = post(
-      "/login/",
-      {
-        "action" => "login",
-        "retard_protection" => "1",
-        "name" => username,
-        "pass" => password,
-        "login" => "Login to Furaffinity"
-      }
-    )
-    "b=#{response["set-cookie"][/b=([a-z0-9\-]+);/, 1]}; "\
-    "a=#{response["set-cookie"][/a=([a-z0-9\-]+);/, 1]}"
-  end
-
   def home
     html = fetch("")
     groups = html.css("#frontpage > .old-table-emulation")
