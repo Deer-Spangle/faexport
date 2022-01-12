@@ -226,8 +226,6 @@ module FAExport
       FAExport.config[:cache_time] ||= 30 # 30 seconds
       FAExport.config[:cache_time_long] ||= 86_400 # 1 day
       FAExport.config[:redis_url] ||= (ENV["REDIS_URL"] || ENV["REDISTOGO_URL"])
-      FAExport.config[:username] ||= ENV["FA_USERNAME"]
-      FAExport.config[:password] ||= ENV["FA_PASSWORD"]
       FAExport.config[:cookie] ||= ENV["FA_COOKIE"]
       FAExport.config[:rss_limit] ||= 10
       FAExport.config[:content_types] ||= {
@@ -242,10 +240,6 @@ module FAExport
       @fa = Furaffinity.new(@cache)
 
       @system_cookie = FAExport.config[:cookie] || @cache.redis.get("login_cookie")
-      unless @system_cookie
-        @system_cookie = @fa.login(FAExport.config[:username], FAExport.config[:password])
-        @cache.redis.set("login_cookie", @system_cookie)
-      end
 
       super(app)
     end
