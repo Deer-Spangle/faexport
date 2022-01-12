@@ -237,8 +237,6 @@ module FAExport
       @cache = RedisCache.new(FAExport.config[:redis_url],
                               FAExport.config[:cache_time],
                               FAExport.config[:cache_time_long])
-      @fa = Furaffinity.new(@cache)
-
       @system_cookie = FAExport.config[:cookie] || @cache.redis.get("login_cookie")
 
       super(app)
@@ -306,6 +304,7 @@ module FAExport
     before do
       env["rack.errors"] = error_log
       @user_cookie = request.env["HTTP_FA_COOKIE"]
+      @fa = Furaffinity.new(@cache)
       if @user_cookie
         if @user_cookie =~ COOKIE_REGEX
           @fa.login_cookie = @user_cookie.strip
