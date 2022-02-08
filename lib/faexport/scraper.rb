@@ -874,7 +874,7 @@ class Furaffinity
   def notes(folder)
     note_cookie = {
       inbox: "inbox",
-      outbox: "outbox",
+      outbox: "sent",
       unread: "unread",
       archive: "archive",
       trash: "trash",
