@@ -11,6 +11,21 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2022.02.1] - 2022-02-09
+
+### Added
+
+- Added new search time ranges: `24hours`, `72hours`, `30days`, `90days`, `1year`, `3years`, `5years`.
+  - Default is still `all`.
+  - The old values of `day`, `3days` and `month` are automatically mapped to `24hours`, `72hours`, or `30days` respectively.
+  - The old value of `week`has been **removed**.
+
+## Removed
+- Removed time range option `week` from the search endpoint's time range options.
+
+## Fixed
+- Fix note outbox listing, which has been renamed to `sent` on Furaffinity. But will remain as outbox here for backward compatibility.
+
 ## [v2022.01.2] - 2022-01-12
 
 ### Security
