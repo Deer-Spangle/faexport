@@ -154,6 +154,17 @@ describe "FA parser search endpoint" do
       big_results = search_with_retry({ "q" => "garden", "perpage" => 72 })
       expect(big_results).to be_instance_of Array
       expect(big_results).not_to be_empty
+      small_results = search_with_retry({ "q" => "garden", "perpage" => 72, "range" => "24hours" })
+      expect(small_results).to be_instance_of Array
+      expect(small_results).not_to be_empty
+
+      expect(big_results.length).to be > small_results.length
+    end
+
+    it "can specify an old style shorter range, which delivers fewer results" do
+      big_results = search_with_retry({ "q" => "garden", "perpage" => 72 })
+      expect(big_results).to be_instance_of Array
+      expect(big_results).not_to be_empty
       small_results = search_with_retry({ "q" => "garden", "perpage" => 72, "range" => "day" })
       expect(small_results).to be_instance_of Array
       expect(small_results).not_to be_empty

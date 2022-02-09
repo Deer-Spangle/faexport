@@ -669,7 +669,7 @@ The following parameters can be provided:
 * **perpage**: How many results to display per page.  Can be one of: `24`, `48` or `72`.  Defaults to: `72`.
 * **order_by**: How the results should be ordered.  Can be one of: `relevancy`, `date` or `popularity`.  Defaults to: `date`.
 * **order_direction**: if results should be ordered in ascending or descending order.  Can be one of: `asc` or `desc`.  Defaults to: `desc`.
-* **range**: How far in the past should results be loaded from.  Can be one of: `day`, `3days`, `week`, `month` or `all`.  Defaults to: `all`.
+* **range**: How far in the past should results be loaded from.  Can be one of: `24hours`, `72hours`, `30days`, `90days`, `1year`, `3years`, `5years` or `all`. Defaults to: `all`. (Previously accepted `week`, but that has been removed)
 * **mode**: How the words from this search should be interpreted.  Can be one of: `all`, `any` or `extended`.  Defaults to: `extended`.
 * **rating**: what rating levels are included.  Can be any of: `general`, `mature` and `adult` separated by commas.  Defaults to: `general,mature,adult`.
 * **type**: Content type of results.  Can be any of: `art`, `flash`, `photo`, `music`, `story` and `poetry` separated by commas.  Defaults to: `art,flash,photo,music,story,poetry`.

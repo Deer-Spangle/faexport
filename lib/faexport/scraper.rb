@@ -41,7 +41,7 @@ SEARCH_OPTIONS = {
   "perpage" => %w[24 48 72],
   "order_by" => %w[relevancy date popularity],
   "order_direction" => %w[asc desc],
-  "range" => %w[day 3days week month all],
+  "range" => %w[24hours day 72hours 3days 30days month 90days 1year 3years 5years all],
   "mode" => %w[all any extended],
   "rating" => %w[general mature adult],
   "type" => %w[art flash photo music story poetry]
@@ -58,6 +58,11 @@ SEARCH_DEFAULTS = {
   "type" => SEARCH_OPTIONS["type"].join(",")
 }
 SEARCH_MULTIPLE = %w[rating type]
+SEARCH_OLD_RANGE = {
+  "day" => "24hours",
+  "3days" => "72hours",
+  "month" => "30days"
+}
 PAGE_TYPES = {
   "view" => "fa/view",
   "user" => "fa/user",
@@ -537,6 +542,14 @@ class Furaffinity
     # Construct params, to send in POST request
     options.each do |key, value|
       name = key.gsub("_", "-")
+      # If this is the range, remap old values to new ones
+      if name == "range"
+        if SEARCH_OLD_RANGE.include? value
+          value = SEARCH_OLD_RANGE[value]
+        end
+      end
+
+      # Convert from API format, to FA format
       if SEARCH_MULTIPLE.include? key
         values = options[key].gsub(" ", "").split(",")
         unless values.all? { |v| SEARCH_OPTIONS[key].include? v }
@@ -874,7 +887,7 @@ class Furaffinity
   def notes(folder)
     note_cookie = {
       inbox: "inbox",
-      outbox: "outbox",
+      outbox: "sent",
       unread: "unread",
       archive: "archive",
       trash: "trash",
