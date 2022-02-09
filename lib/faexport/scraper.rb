@@ -58,6 +58,11 @@ SEARCH_DEFAULTS = {
   "type" => SEARCH_OPTIONS["type"].join(",")
 }
 SEARCH_MULTIPLE = %w[rating type]
+SEARCH_OLD_RANGE = {
+  "day" => "24hours",
+  "3days" => "72hours",
+  "month" => "30days"
+}
 PAGE_TYPES = {
   "view" => "fa/view",
   "user" => "fa/user",
@@ -537,6 +542,14 @@ class Furaffinity
     # Construct params, to send in POST request
     options.each do |key, value|
       name = key.gsub("_", "-")
+      # If this is the range, remap old values to new ones
+      if name == "range"
+        if SEARCH_OLD_RANGE.include? value
+          value = SEARCH_OLD_RANGE[value]
+        end
+      end
+
+      # Convert from API format, to FA format
       if SEARCH_MULTIPLE.include? key
         values = options[key].gsub(" ", "").split(",")
         unless values.all? { |v| SEARCH_OPTIONS[key].include? v }
