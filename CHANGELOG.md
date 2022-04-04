@@ -11,6 +11,14 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2022.04.1] - 2022-04-04
+
+## Added
+
+- Added new search time ranges: `1day`, `3days`, `7days`.
+  - Default remains `all`.
+  - Old values of `24hours`, `72hours`, `week` are automatically mapped to `1day`, `3days`, or `7days` respectively.
+
 ## [v2022.02.1] - 2022-02-09
 
 ### Added
