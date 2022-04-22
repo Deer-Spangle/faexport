@@ -191,6 +191,12 @@ account is using classic theme. Please change your style to classic and try agai
   end
 end
 
+class FAGuestAccessError < FAError
+  def to_json(*args)
+    "This page is not available to guests"
+  end
+end
+
 class FALoginError < FAError
   def to_s
     "Unable to log into FA to access #{@url}."
@@ -333,6 +339,12 @@ class Furaffinity
       title = table.at_css("td.cat b")
       tables[title.content.strip] = table if title
     end
+    guest_access = begin
+                     fetch(profile, as_guest: true)
+                     true
+                   rescue => e
+                     e.class != FAGuestAccessError
+                   end
 
     {
       id: nil,
@@ -345,6 +357,7 @@ class Furaffinity
       user_title: user_title,
       registered_since: date,
       registered_at: to_iso8601(date),
+      guest_access: guest_access,
       current_mood: html_field(info, "Current Mood"),
       artist_profile: html_long_field(info, "Artist Profile"),
       pageviews: html_field(stats, "Page Visits"),
@@ -1103,16 +1116,24 @@ class Furaffinity
   def escape(name)
     CGI.escape(name)
   end
+  
+  def full_cookie(extra_cookie: nil, as_guest: false)
+    [
+      (@login_cookie unless as_guest),
+      extra_cookie
+    ].compact().join(";")
+  end
 
-  def fetch(path, extra_cookie = nil)
+  def fetch(path, extra_cookie = nil, as_guest: false)
     split_path = strip_leading_slash(path).split("/", 2)
     page_type = PAGE_TYPES.fetch(split_path[0], PAGE_OTHER)
     $page_fetch_calls.increment(labels: {page_type: page_type})
     url = fetch_url(path)
-    raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
+    cookie_str = full_cookie(extra_cookie: extra_cookie, as_guest: as_guest)
+    raw = @cache.add("url:#{url}:#{cookie_str}") do
       start = Time.now
       begin
-        URI.parse(url).open({ "User-Agent" => USER_AGENT, "Cookie" => "#{@login_cookie};#{extra_cookie}" }) do |response|
+        URI.parse(url).open({ "User-Agent" => USER_AGENT, "Cookie" => "#{cookie_str}" }) do |response|
           raise FAStatusError.new(url, response.status.join(" ")) if response.status[0] != "200"
 
           response.read
@@ -1136,8 +1157,8 @@ class Furaffinity
     raise FASystemError.new(url) if !head || head.content == "System Error"
 
     page = html.to_s
-    if page.include?("has elected to make their content available to registered users only.")
-      raise FALoginError.new(url)
+    if page.include?("has elected to make it available to registered users only.")
+      raise FAGuestAccessError.new(url)
     end
 
     if page.include?("has voluntarily disabled access to their account and all of its contents.")

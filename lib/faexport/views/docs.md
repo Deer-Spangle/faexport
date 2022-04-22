@@ -219,6 +219,7 @@ FA has removed the user id number from the profile page now, which means that "i
   "user_title": "Watcher",
   "registered_since": "Dec 4th, 2005 10:49",
   "registered_at": "2005-12-04T10:49:00Z",
+  "guest_access": true,
   "current_mood": "accomplished",
   "artist_profile": "<snip>",
   "pageviews": "681266",
