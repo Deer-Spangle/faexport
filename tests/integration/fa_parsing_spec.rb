@@ -105,6 +105,7 @@ describe "FA parser" do
       expect(profile[:user_title]).not_to be_blank
       expect(profile[:user_title]).to eql(profile[:artist_type])
       expect(profile[:current_mood]).to eql("accomplished")
+      expect(profile[:guest_access]).to eql(true)
       # Check registration date
       expect(profile[:registered_since]).to be_valid_date_and_match_iso(profile[:registered_at])
       # Check description
@@ -118,6 +119,12 @@ describe "FA parser" do
 
     it "fails when given a non-existent profile" do
       expect { @fa.user(TEST_USER_NOT_EXIST) }.to raise_error(FASystemError)
+    end
+
+    it "determines whether guests can access it" do
+      profile_without_guest_access = TEST_USER_2
+      profile = @fa.user(profile_without_guest_access)
+      expect(profile[:guest_access]).to eql(false)
     end
 
     it "handles square brackets in profile name" do
