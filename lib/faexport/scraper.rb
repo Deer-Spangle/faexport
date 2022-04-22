@@ -1103,16 +1103,24 @@ class Furaffinity
   def escape(name)
     CGI.escape(name)
   end
+  
+  def full_cookie(extra_cookie: nil, as_guest: false)
+    [
+      (@login_cookie unless as_guest),
+      extra_cookie
+    ].compact().join(";")
+  end
 
-  def fetch(path, extra_cookie = nil)
+  def fetch(path, extra_cookie = nil, as_guest: false)
     split_path = strip_leading_slash(path).split("/", 2)
     page_type = PAGE_TYPES.fetch(split_path[0], PAGE_OTHER)
     $page_fetch_calls.increment(labels: {page_type: page_type})
     url = fetch_url(path)
-    raw = @cache.add("url:#{url}:#{@login_cookie}:#{extra_cookie}") do
+    cookie_str = full_cookie(extra_cookie: extra_cookie, as_guest: as_guest)
+    raw = @cache.add("url:#{url}:#{cookie_str}") do
       start = Time.now
       begin
-        URI.parse(url).open({ "User-Agent" => USER_AGENT, "Cookie" => "#{@login_cookie};#{extra_cookie}" }) do |response|
+        URI.parse(url).open({ "User-Agent" => USER_AGENT, "Cookie" => "#{cookie_str}" }) do |response|
           raise FAStatusError.new(url, response.status.join(" ")) if response.status[0] != "200"
 
           response.read
