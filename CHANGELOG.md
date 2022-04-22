@@ -11,6 +11,12 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2022.04.2] - 2022-04-22
+
+## Added
+
+- Added "guest_access" parameter to user profile endpoint, which says whether a user's page is available to guests without logging in.
+
 ## [v2022.04.1] - 2022-04-04
 
 ## Added
