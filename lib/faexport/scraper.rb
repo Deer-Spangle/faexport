@@ -191,6 +191,12 @@ account is using classic theme. Please change your style to classic and try agai
   end
 end
 
+class FAGuestAccessError < FAError
+  def to_json(*args)
+    "This page is not available to guests"
+  end
+end
+
 class FALoginError < FAError
   def to_s
     "Unable to log into FA to access #{@url}."
@@ -334,11 +340,11 @@ class Furaffinity
       tables[title.content.strip] = table if title
     end
     guest_access = begin
-      fetch(profile, as_guest: true)
-      true
-    rescue => e
-      e.class != FALoginError
-    end
+                     fetch(profile, as_guest: true)
+                     true
+                   rescue => e
+                     e.class != FAGuestAccessError
+                   end
 
     {
       id: nil,
@@ -1151,8 +1157,8 @@ class Furaffinity
     raise FASystemError.new(url) if !head || head.content == "System Error"
 
     page = html.to_s
-    if page.include?("has elected to make their content available to registered users only.")
-      raise FALoginError.new(url)
+    if page.include?("has elected to make it available to registered users only.")
+      raise FAGuestAccessError.new(url)
     end
 
     if page.include?("has voluntarily disabled access to their account and all of its contents.")
