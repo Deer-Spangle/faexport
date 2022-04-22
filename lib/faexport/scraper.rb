@@ -333,6 +333,12 @@ class Furaffinity
       title = table.at_css("td.cat b")
       tables[title.content.strip] = table if title
     end
+    guest_access = begin
+      fetch(profile, as_guest: true)
+      true
+    rescue => e
+      e.class != FALoginError
+    end
 
     {
       id: nil,
@@ -345,6 +351,7 @@ class Furaffinity
       user_title: user_title,
       registered_since: date,
       registered_at: to_iso8601(date),
+      guest_access: guest_access,
       current_mood: html_field(info, "Current Mood"),
       artist_profile: html_long_field(info, "Artist Profile"),
       pageviews: html_field(stats, "Page Visits"),
