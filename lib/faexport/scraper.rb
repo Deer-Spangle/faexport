@@ -214,6 +214,17 @@ class FALoginCookieError < FAError
   end
 end
 
+class FANotFoundError < FAError
+  def initialize(url)
+    super(nil)
+    @message = "Submission could not be found on #{@url}."
+  end
+
+  def to_s
+    @message
+  end
+end
+
 class FACloudflareError < FAError
   def to_s
     "Cannot access FA, #{@url} as cloudflare protection is up"
@@ -391,8 +402,14 @@ class Furaffinity
     url = "view/#{id}/"
     html = fetch(url)
     error_msg = html.at_css("table.maintable td.alt1")
-    if !error_msg.nil? && error_msg.content.strip == "You are not allowed to view this image due to the content filter settings."
-      raise FASystemError.new(url)
+    unless error_msg.nil?
+      if error_msg.content.strip == "You are not allowed to view this image due to the content filter settings."
+        raise FASystemError.new(url)
+      elsif error_msg.content.strip.include? "The submission you are trying to find is not in our database."
+        raise FANotFoundError.new(url)
+      else
+        raise FAError.new(url)
+      end
     end
 
     parse_submission_page(id, html, is_login)
@@ -1154,7 +1171,7 @@ class Furaffinity
     html = Nokogiri::HTML(raw)
 
     head = html.xpath("//head//title").first
-    raise FASystemError.new(url) if !head || head.content == "System Error"
+    raise FASystemError.new(url) unless head
 
     page = html.to_s
     if page.include?("has elected to make it available to registered users only.")
@@ -1163,6 +1180,10 @@ class Furaffinity
 
     if page.include?("has voluntarily disabled access to their account and all of its contents.")
       raise FASystemError.new(url)
+    end
+
+    if page.include?("The submission you are trying to find is not in our database.")
+      raise FANotFoundError.new(url)
     end
 
     raise FALoginError.new(url) if page.include?('<a href="/register"><strong>Create an Account</strong></a>')

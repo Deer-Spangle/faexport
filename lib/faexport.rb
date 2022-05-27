@@ -599,9 +599,17 @@ module FAExport
           $endpoint_cache_misses.increment(labels: metric_labels)
           case type
           when "json"
-            JSON.pretty_generate @fa.submission(id, is_login)
+            begin
+              JSON.pretty_generate @fa.submission(id, is_login)
+            rescue FANotFoundError
+              raise Sinatra::NotFound
+            end
           when "xml"
-            @fa.submission(id, is_login).to_xml(root: "submission", skip_types: true)
+            begin
+              @fa.submission(id, is_login).to_xml(root: "submission", skip_types: true)
+            rescue FANotFoundError
+              raise Sinatra::NotFound
+            end
           else
             raise Sinatra::NotFound
           end
