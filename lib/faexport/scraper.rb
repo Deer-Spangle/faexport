@@ -1191,6 +1191,8 @@ class Furaffinity
     stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
     raise FAStyleError.new(url) unless stylesheet.start_with?("/themes/classic/")
 
+    raise FASystemError.new(url) if head.content == "System Error"
+
     # Parse and save the status, most pages have this, but watcher lists do not.
     parse_status(html)
 
