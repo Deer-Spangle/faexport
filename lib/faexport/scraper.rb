@@ -416,16 +416,6 @@ class Furaffinity
   def submission(id, is_login = false)
     url = "view/#{id}/"
     html = fetch(url)
-    error_msg = html.at_css("table.maintable td.alt1")
-    unless error_msg.nil?
-      if error_msg.content.strip == "You are not allowed to view this image due to the content filter settings."
-        raise FAContentFilterError.new(url)  # TODO
-      elsif error_msg.content.strip.include? "The submission you are trying to find is not in our database."
-        raise FANotFoundError.new(url)
-      else
-        raise FAError.new(url)
-      end
-    end
 
     parse_submission_page(id, html, is_login)
   end
@@ -1223,6 +1213,7 @@ class Furaffinity
     # Handle "Fatal system error" type errors
     if head.content == "System Error"
       error_msg = html.at_css("table.maintable td.alt1 font").content
+      # Handle submission/journal not found errors
       if error_msg.include?("you are trying to find is not in our database.")
         raise FANotFoundError.new(url)  # TODO: check if there is a test
       end
@@ -1242,6 +1233,11 @@ class Furaffinity
       # Handle user not existing (this version of the error is raised by watchers lists)
       if maintable_content.include?("Provided username not found in the database.")
         raise FANoUserError.new(url)  # TODO: Check if there is a test
+      end
+
+      # Handle content filter errors, accessing a nsfw submission with a sfw profile
+      if maintable_content.include?("You are not allowed to view this image due to the content filter settings.")
+        raise FAContentFilterError.new(url)  # TODO: Check if there is a test
       end
     end
   end
