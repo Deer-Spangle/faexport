@@ -226,6 +226,12 @@ class FANotFoundError < FAError
   end
 end
 
+class FAContentFilterError < FAError
+  def to_s
+    "Submission cannot be accessed due to content filter settings"
+  end
+end
+
 class FANoUserError < FAError
   def to_s
     "User could not be found on #{@url}"
@@ -413,7 +419,7 @@ class Furaffinity
     error_msg = html.at_css("table.maintable td.alt1")
     unless error_msg.nil?
       if error_msg.content.strip == "You are not allowed to view this image due to the content filter settings."
-        raise FASystemError.new(url)
+        raise FAContentFilterError.new(url)  # TODO
       elsif error_msg.content.strip.include? "The submission you are trying to find is not in our database."
         raise FANotFoundError.new(url)
       else

@@ -1043,6 +1043,8 @@ module FAExport
         when FAGuestAccessError then 403  # Shouldn't reach the user really, as login error should cover it
         when FALoginCookieError then 400
         when FANotFoundError    then 404
+        when FAContentFilterError then 403
+        when FANoUserError      then 404
         when FAAccountDisabledError then 404
         when FACloudflareError  then 503
         when CacheError         then 500
