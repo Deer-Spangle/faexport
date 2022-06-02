@@ -197,15 +197,15 @@ account is using classic theme. Please change your style to classic and try agai
   end
 end
 
-class FAGuestAccessError < FAError
-  def to_json(*args)
-    "This page is not available to guests"
-  end
-end
-
 class FALoginError < FAError
   def to_s
     "Unable to log into FA to access #{@url}."
+  end
+end
+
+class FAGuestAccessError < FALoginError
+  def to_s(*args)
+    "This page is not available to guests"
   end
 end
 
