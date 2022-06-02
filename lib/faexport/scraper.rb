@@ -180,7 +180,7 @@ end
 
 class FASystemError < FAError
   def to_s
-    "FA returned a system error page when trying to access #{@url}."
+    "FA returned an unknown system error page when trying to access #{@url}."
   end
 end
 
@@ -223,6 +223,18 @@ end
 class FANotFoundError < FAError
   def to_s
     "Submission or journal could not be found on #{@url}."
+  end
+end
+
+class FANoUserError < FAError
+  def to_s
+    "User could not be found on #{@url}"
+  end
+end
+
+class FAAccountDisabledError < FAError
+  def to_s
+    "User has disabled their account on #{url}"
   end
 end
 
@@ -393,7 +405,7 @@ class Furaffinity
     html = fetch(url)
     error_msg = html.at_css("table.maintable td.alt1 b")
     if !error_msg.nil? && error_msg.content == "Provided username not found in the database."
-      raise FASystemError.new(url)
+      raise FANoUserError.new(url)
     end
 
     html.css(".artist_name").map(&:content)
@@ -490,7 +502,7 @@ class Furaffinity
          error_msg.text == "The username \"#{user}\" could not be found." ||
          error_msg.text == "User \"#{user}\" was not found in our database."
        )
-      raise FASystemError.new(url)
+      raise FANoUserError.new(url)
     end
 
     html.css(".gallery > figure").map { |art| build_submission(art) }
