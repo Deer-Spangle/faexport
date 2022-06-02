@@ -1209,6 +1209,7 @@ class Furaffinity
         raise FAGuestAccessError.new(url)
       end
 
+      # Check if the user is not logged in
       nav_bar = html.at_css("nav#ddmenu span.top-heading a")
       if nav_bar.inner_html.include?('<a href="/register"><strong>Create an Account</strong></a>')
         raise FALoginError.new(url)  # TODO: check there is a test
@@ -1217,15 +1218,19 @@ class Furaffinity
       raise FAStyleError.new(url)  # TODO: check there is a test
     end
 
+    # Handle "Fatal system error" type errors
+    if head.content == "System Error"
+      error_msg = html.at_css("table.maintable td.alt1 font").content
+      if error_msg.include?("you are trying to find is not in our database.")
+        raise FANotFoundError.new(url)  # TODO: check if there is a test
+      end
+
+      raise FASystemError.new(url)  # TODO: check if there is a test
+    end
+
     if page.include?("has voluntarily disabled access to their account and all of its contents.")
-      raise FAAccountDisabledError.new(url)  # TODO: check there is a test
+      raise FAAccountDisabledError.new(url)  # TODO: check if there is a test
     end
-
-    if page.include?("you are trying to find is not in our database.")
-      raise FANotFoundError.new(url)  # TODO: check if there is a test
-    end
-
-    raise FASystemError.new(url) if head.content == "System Error"  # TODO: check there is a test
   end
 
   def post(path, params)
