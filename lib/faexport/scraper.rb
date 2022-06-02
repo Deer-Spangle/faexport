@@ -403,10 +403,6 @@ class Furaffinity
     mode = is_watchers ? "to" : "by"
     url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
     html = fetch(url)
-    error_msg = html.at_css("table.maintable td.alt1 b")
-    if !error_msg.nil? && error_msg.content == "Provided username not found in the database."
-      raise FANoUserError.new(url)
-    end
 
     html.css(".artist_name").map(&:content)
   end
@@ -1232,8 +1228,14 @@ class Furaffinity
     maintable_head = html.at_css("table.maintable td.cat b")
     if !maintable_head.nil? and maintable_head.content == "System Message"
       maintable_content = html.at_css("table.maintable td.alt1").content
+      # Handle disabled accounts
       if maintable_content.include?("has voluntarily disabled access to their account and all of its contents.")
         raise FAAccountDisabledError.new(url)  # TODO: check if there is a test
+      end
+
+      # Handle user not existing (this version of the error is raised by watchers lists)
+      if maintable_content.include?("Provided username not found in the database.")
+        raise FANoUserError.new(url)  # TODO: Check if there is a test
       end
     end
   end
