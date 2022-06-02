@@ -1203,7 +1203,9 @@ class Furaffinity
 
       # Check if it's a user page only visible to registered users
       system_message = html.at_css("#site-content section.notice-message")
-      if system_message.at_css("h2").content == "System Message" and system_message.at_css(".redirect-message").content.include?("has elected to make it available to registered users only.")
+      message_header = system_message.at_css("h2").content
+      message_content = system_message.at_css(".redirect-message").content
+      if message_header == "System Message" and message_content.include?("has elected to make it available to registered users only.")
         raise FAGuestAccessError.new(url)
       end
 
