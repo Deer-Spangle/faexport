@@ -215,13 +215,8 @@ class FALoginCookieError < FAError
 end
 
 class FANotFoundError < FAError
-  def initialize(url)
-    super(nil)
-    @message = "Submission could not be found on #{@url}."
-  end
-
   def to_s
-    @message
+    "Submission or journal could not be found on #{@url}."
   end
 end
 

@@ -599,17 +599,9 @@ module FAExport
           $endpoint_cache_misses.increment(labels: metric_labels)
           case type
           when "json"
-            begin
-              JSON.pretty_generate @fa.submission(id, is_login)
-            rescue FANotFoundError
-              raise Sinatra::NotFound
-            end
+            JSON.pretty_generate @fa.submission(id, is_login)
           when "xml"
-            begin
-              @fa.submission(id, is_login).to_xml(root: "submission", skip_types: true)
-            rescue FANotFoundError
-              raise Sinatra::NotFound
-            end
+            @fa.submission(id, is_login).to_xml(root: "submission", skip_types: true)
           else
             raise Sinatra::NotFound
           end
@@ -1042,14 +1034,20 @@ module FAExport
       err = env["sinatra.error"]
       status(
         case err
-        when FASearchError      then 400
-        when FALoginCookieError then 400
         when FAFormError        then 400
         when FAOffsetError      then 400
-        when FALoginError       then @user_cookie ? 401 : 503
-        when FASystemError      then 404
+        when FASearchError      then 400
         when FAStatusError      then 502
+        when FANoTitleError     then 500
+        when FAStyleError       then 400
+        when FAGuestAccessError then 403  # Shouldn't reach the user really, as login error should cover it
+        when FALoginCookieError then 400
+        when FANotFoundError    then 404
+        when FAAccountDisabledError then 404
         when FACloudflareError  then 503
+        when CacheError         then 500
+        when FALoginError       then @user_cookie ? 401 : 403  # Superclass of FAGuestAccessError
+        when FASystemError      then 500  # Superclass of FANoTitleError
         else 500
         end
       )
