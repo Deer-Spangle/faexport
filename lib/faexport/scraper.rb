@@ -1183,7 +1183,7 @@ class Furaffinity
       raise FASystemError.new(url)
     end
 
-    if page.include?("The submission you are trying to find is not in our database.")
+    if page.include?("you are trying to find is not in our database.")
       raise FANotFoundError.new(url)
     end
 
