@@ -1228,8 +1228,13 @@ class Furaffinity
       raise FASystemError.new(url)  # TODO: check if there is a test
     end
 
-    if page.include?("has voluntarily disabled access to their account and all of its contents.")
-      raise FAAccountDisabledError.new(url)  # TODO: check if there is a test
+    # Handle "system message" type errors
+    maintable_head = html.at_css("table.maintable td.cat b")
+    if !maintable_head.nil? and maintable_head.content == "System Message"
+      maintable_content = html.at_css("table.maintable td.alt1").content
+      if maintable_content.include?("has voluntarily disabled access to their account and all of its contents.")
+        raise FAAccountDisabledError.new(url)  # TODO: check if there is a test
+      end
     end
   end
 
