@@ -184,6 +184,12 @@ class FASystemError < FAError
   end
 end
 
+class FANoTitleError < FASystemError
+  def to_s(*args)
+    "FA returned a page without a title when trying to access #{@url}. This should not happen"
+  end
+end
+
 class FAStyleError < FAError
   def to_s
     "FA is not currently set to classic theme. Unfortunately this API currently only works if the authenticated
@@ -1166,7 +1172,7 @@ class Furaffinity
     html = Nokogiri::HTML(raw)
 
     head = html.xpath("//head//title").first
-    raise FASystemError.new(url) unless head
+    raise FANoTitleError.new(url) unless head
 
     page = html.to_s
     if page.include?("has elected to make it available to registered users only.")
