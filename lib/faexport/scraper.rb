@@ -1183,33 +1183,47 @@ class Furaffinity
 
     html = Nokogiri::HTML(raw)
 
-    head = html.xpath("//head//title").first
-    raise FANoTitleError.new(url) unless head
-
-    page = html.to_s
-    if page.include?("has elected to make it available to registered users only.")
-      raise FAGuestAccessError.new(url)
-    end
-
-    if page.include?("has voluntarily disabled access to their account and all of its contents.")
-      raise FASystemError.new(url)
-    end
-
-    if page.include?("you are trying to find is not in our database.")
-      raise FANotFoundError.new(url)
-    end
-
-    raise FALoginError.new(url) if page.include?('<a href="/register"><strong>Create an Account</strong></a>')
-
-    stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
-    raise FAStyleError.new(url) unless stylesheet.start_with?("/themes/classic/")
-
-    raise FASystemError.new(url) if head.content == "System Error"
+    # Check for errors, and raise any that apply
+    check_errors(html, url)
 
     # Parse and save the status, most pages have this, but watcher lists do not.
     parse_status(html)
 
     html
+  end
+
+  def check_errors(html, url)
+    head = html.xpath("//head//title").first
+    raise FANoTitleError.new(url) unless head  # TODO: test
+
+    page = html.to_s
+    # Check style is classic, but check login issues also
+    stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
+    unless stylesheet.start_with?("/themes/classic/")
+
+      # Check if it's a user page only visible to registered users
+      system_message = html.at_css("#site-content section.notice-message")
+      if system_message.at_css("h2").content == "System Message" and system_message.at_css(".redirect-message").content.include?("has elected to make it available to registered users only.")
+        raise FAGuestAccessError.new(url)
+      end
+
+      nav_bar = html.at_css("nav#ddmenu span.top-heading a")
+      if nav_bar.inner_html.include?('<a href="/register"><strong>Create an Account</strong></a>')
+        raise FALoginError.new(url)  # TODO: check there is a test
+      end
+
+      raise FAStyleError.new(url)  # TODO: check there is a test
+    end
+
+    if page.include?("has voluntarily disabled access to their account and all of its contents.")
+      raise FAAccountDisabledError.new(url)  # TODO: check there is a test
+    end
+
+    if page.include?("you are trying to find is not in our database.")
+      raise FANotFoundError.new(url)  # TODO: check if there is a test
+    end
+
+    raise FASystemError.new(url) if head.content == "System Error"  # TODO: check there is a test
   end
 
   def post(path, params)
