@@ -348,7 +348,7 @@ class Furaffinity
 
     {
       id: nil,
-      name: html.at_css(".addpad.lead b").content.strip[1..],
+      name: html.at_css(".addpad.lead b").content.strip[1..-1],
       profile: fa_url(profile),
       account_type: html.at_css(".addpad.lead").content[/\((.+?)\)/, 1].strip,
       avatar: "https:#{html.at_css("td.addpad img")["src"]}",
@@ -411,7 +411,7 @@ class Furaffinity
   def journal(id)
     html = fetch("journal/#{id}/")
     date = pick_date(html.at_css(".journal-title-box .popup_date"))
-    profile_url = html.at_css("td.cat .journal-title-box a")["href"][1..]
+    profile_url = html.at_css("td.cat .journal-title-box a")["href"][1..-1]
     journal_header =
       unless html.at_css(".journal-header").nil?
         html.at_css(".journal-header").children[0..-3].to_s.strip
@@ -489,7 +489,7 @@ class Furaffinity
         id: j["id"].gsub("jid:", ""),
         title: title.content.gsub(/\A[[:space:]]+|[[:space:]]+\z/, ""),
         description: contents.at_css("div.no_overflow").children.to_s.strip,
-        link: fa_url(title["href"][1..]),
+        link: fa_url(title["href"][1..-1]),
         posted: date,
         posted_at: to_iso8601(date)
       }
@@ -501,7 +501,7 @@ class Furaffinity
     html.xpath('//table[starts-with(@id, "shout")]').map do |shout|
       name = shout.at_css("td.lead.addpad a")
       date = pick_date(shout.at_css(".popup_date"))
-      profile_url = name["href"][1..]
+      profile_url = name["href"][1..-1]
       {
         id: shout.attr("id"),
         name: name.content,
@@ -621,7 +621,7 @@ class Furaffinity
     raise FAFormError.new(fa_url("controls/journal/")) unless response.is_a?(Net::HTTPMovedTemporarily)
 
     {
-      url: fa_url(response["location"][1..])
+      url: fa_url(response["location"][1..-1])
     }
   end
 
@@ -933,7 +933,7 @@ class Furaffinity
         profile_name = nil
         user_deleted = true
       else
-        profile_link = fa_url(profile["href"][1..])
+        profile_link = fa_url(profile["href"][1..-1])
         profile_name = last_path(profile["href"])
         user_deleted = false
       end
@@ -974,7 +974,7 @@ class Furaffinity
       avatar = nil
       user_deleted = true
     else
-      profile_link = fa_url(profile["href"][1..])
+      profile_link = fa_url(profile["href"][1..-1])
       profile_name = last_path(profile["href"])
       avatar = "https#{note_table.at_css("img.avatar")["src"]}"
       user_deleted = false
@@ -992,15 +992,15 @@ class Furaffinity
       avatar: avatar,
       description: description.inner_html.strip,
       description_body: html_strip(desc_split.first.strip),
-      preceding_notes: desc_split[1..].map do |note|
+      preceding_notes: desc_split[1..-1].map do |note|
         note_html = Nokogiri::HTML(note)
         profile = note_html.at_css("a.linkusername")
         {
           name: profile.content.to_s,
-          profile: fa_url("#{profile["href"][1..]}/"),
+          profile: fa_url("#{profile["href"][1..-1]}/"),
           profile_name: last_path(profile["href"]),
           description: note,
-          description_body: html_strip(note.to_s.split("</a>:")[1..].join("</a>:"))
+          description_body: html_strip(note.to_s.split("</a>:")[1..-1].join("</a>:"))
         }
       end
     }
@@ -1017,7 +1017,7 @@ class Furaffinity
   end
 
   def strip_leading_slash(path)
-    path = path[1..] while path.to_s.start_with? "/"
+    path = path[1..-1] while path.to_s.start_with? "/"
     path
   end
 
@@ -1100,7 +1100,7 @@ class Furaffinity
 
   def select_watchers_info(elem, selector)
     users = elem.css("##{selector} a").map do |user|
-      link = fa_url(user["href"][1..])
+      link = fa_url(user["href"][1..-1])
       {
         name: user.at_css(".artist_name").content.strip,
         profile_name: last_path(link),
@@ -1207,9 +1207,9 @@ class Furaffinity
         id: id ? id.gsub(/sid[-_]/, "") : "",
         title: title,
         thumbnail: "https:#{elem.at_css("img")["src"]}",
-        link: fa_url(elem.at_css("a")["href"][1..]),
+        link: fa_url(elem.at_css("a")["href"][1..-1]),
         name: author_elem ? author_elem.content : "",
-        profile: author_elem ? fa_url(author_elem["href"][1..]) : "",
+        profile: author_elem ? fa_url(author_elem["href"][1..-1]) : "",
         profile_name: author_elem ? last_path(author_elem["href"]) : ""
       }
       sub[:fav_id] = elem["data-fav-id"] if elem["data-fav-id"]
@@ -1224,9 +1224,9 @@ class Furaffinity
       id: last_path(title_link["href"]),
       title: title_link.content.to_s,
       thumbnail: "https:#{elem.at_css("img")["src"]}",
-      link: fa_url(title_link["href"][1..]),
+      link: fa_url(title_link["href"][1..-1]),
       name: uploader_link.content.to_s,
-      profile: fa_url(uploader_link["href"][1..]),
+      profile: fa_url(uploader_link["href"][1..-1]),
       profile_name: last_path(uploader_link["href"])
     }
   end
@@ -1247,7 +1247,7 @@ class Furaffinity
 
       if has_timestamp
         date = pick_date(comment.at_css(".popup_date"))
-        profile_url = comment.at_css("ul ul li a")["href"][1..]
+        profile_url = comment.at_css("ul ul li a")["href"][1..-1]
         {
           id: id,
           name: comment.at_css(".replyto-name").content.strip,
@@ -1279,7 +1279,7 @@ class Furaffinity
 
     {
       "name": name_elem.content.strip.gsub(/^~/, ""),
-      "profile": fa_url(name_elem["href"][1..]),
+      "profile": fa_url(name_elem["href"][1..-1]),
       "profile_name": last_path(name_elem["href"])
     }
   end
@@ -1325,7 +1325,7 @@ class Furaffinity
     img = html.at_css("img#submissionImg")
     actions_bar = html.css("#page-submission td.alt1 div.actions a")
     download_url = "https:#{actions_bar.select { |a| a.content == "Download" }.first["href"]}"
-    profile_url = html.at_css("td.cat a")["href"][1..]
+    profile_url = html.at_css("td.cat a")["href"][1..-1]
     og_thumb = html.at_css('meta[property="og:image"]')
     thumb_img = if og_thumb.nil? || og_thumb["content"].include?("/banners/fa_logo")
                   img ? "https:#{img["data-preview-src"]}" : nil
