@@ -1180,7 +1180,6 @@ class Furaffinity
     head = html.xpath("//head//title").first
     raise FANoTitleError.new(url) unless head  # TODO: test
 
-    page = html.to_s
     # Check style is classic, but check login issues also
     stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
     unless stylesheet.start_with?("/themes/classic/")
