@@ -218,7 +218,7 @@ describe "FA parser search endpoint" do
         begin
           full_submission = @fa.submission(submission[:id])
           expect(full_submission[:rating]).to eql("General")
-        rescue FASystemError
+        rescue FANotFoundError
           nil
         end
       end

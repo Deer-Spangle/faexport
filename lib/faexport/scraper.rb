@@ -180,7 +180,13 @@ end
 
 class FASystemError < FAError
   def to_s
-    "FA returned a system error page when trying to access #{@url}."
+    "FA returned an unknown system error page when trying to access #{@url}."
+  end
+end
+
+class FANoTitleError < FASystemError
+  def to_s(*args)
+    "FA returned a page without a title when trying to access #{@url}. This should not happen"
   end
 end
 
@@ -191,15 +197,15 @@ account is using classic theme. Please change your style to classic and try agai
   end
 end
 
-class FAGuestAccessError < FAError
-  def to_json(*args)
-    "This page is not available to guests"
-  end
-end
-
 class FALoginError < FAError
   def to_s
     "Unable to log into FA to access #{@url}."
+  end
+end
+
+class FAGuestAccessError < FALoginError
+  def to_s(*args)
+    "This page is not available to guests"
   end
 end
 
@@ -211,6 +217,30 @@ class FALoginCookieError < FAError
 
   def to_s
     @message
+  end
+end
+
+class FANotFoundError < FAError
+  def to_s
+    "Submission or journal could not be found on #{@url}."
+  end
+end
+
+class FAContentFilterError < FAError
+  def to_s
+    "Submission cannot be accessed due to content filter settings"
+  end
+end
+
+class FANoUserError < FAError
+  def to_s
+    "User could not be found on #{@url}"
+  end
+end
+
+class FAAccountDisabledError < FAError
+  def to_s
+    "User has disabled their account on #{url}"
   end
 end
 
@@ -379,10 +409,6 @@ class Furaffinity
     mode = is_watchers ? "to" : "by"
     url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
     html = fetch(url)
-    error_msg = html.at_css("table.maintable td.alt1 b")
-    if !error_msg.nil? && error_msg.content == "Provided username not found in the database."
-      raise FASystemError.new(url)
-    end
 
     html.css(".artist_name").map(&:content)
   end
@@ -390,10 +416,6 @@ class Furaffinity
   def submission(id, is_login = false)
     url = "view/#{id}/"
     html = fetch(url)
-    error_msg = html.at_css("table.maintable td.alt1")
-    if !error_msg.nil? && error_msg.content.strip == "You are not allowed to view this image due to the content filter settings."
-      raise FASystemError.new(url)
-    end
 
     parse_submission_page(id, html, is_login)
   end
@@ -466,14 +488,6 @@ class Furaffinity
           end
 
     html = fetch(url)
-    error_msg = html.at_css("table.maintable td.alt1 b")
-    if !error_msg.nil? &&
-       (
-         error_msg.text == "The username \"#{user}\" could not be found." ||
-         error_msg.text == "User \"#{user}\" was not found in our database."
-       )
-      raise FASystemError.new(url)
-    end
 
     html.css(".gallery > figure").map { |art| build_submission(art) }
   end
@@ -1153,27 +1167,79 @@ class Furaffinity
 
     html = Nokogiri::HTML(raw)
 
-    head = html.xpath("//head//title").first
-    raise FASystemError.new(url) if !head || head.content == "System Error"
-
-    page = html.to_s
-    if page.include?("has elected to make it available to registered users only.")
-      raise FAGuestAccessError.new(url)
-    end
-
-    if page.include?("has voluntarily disabled access to their account and all of its contents.")
-      raise FASystemError.new(url)
-    end
-
-    raise FALoginError.new(url) if page.include?('<a href="/register"><strong>Create an Account</strong></a>')
-
-    stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
-    raise FAStyleError.new(url) unless stylesheet.start_with?("/themes/classic/")
+    # Check for errors, and raise any that apply
+    check_errors(html, url)
 
     # Parse and save the status, most pages have this, but watcher lists do not.
     parse_status(html)
 
     html
+  end
+
+  def check_errors(html, url)
+    head = html.xpath("//head//title").first
+    raise FANoTitleError.new(url) unless head
+
+    # Check style is classic, but check login issues also
+    stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
+    unless stylesheet.start_with?("/themes/classic/")
+
+      # Check if it's a user page only visible to registered users
+      system_message = html.at_css("#site-content section.notice-message")
+      unless system_message.nil?
+        message_header = system_message.at_css("h2").content
+        message_content = system_message.at_css(".redirect-message").content
+        if message_header == "System Message" && message_content.include?("has elected to make it available to registered users only.")
+          raise FAGuestAccessError.new(url)
+        end
+      end
+
+      # Check if the user is not logged in
+      nav_bar = html.at_css("nav#ddmenu span.top-heading a")
+      if nav_bar.to_s.include?('<a href="/login"><strong>Log In</strong></a>')
+        raise FALoginError.new(url)
+      end
+
+      raise FAStyleError.new(url)
+    end
+
+    # Handle "Fatal system error" type errors
+    if head.content == "System Error"
+      error_msg = html.at_css("table.maintable td.alt1 font").content
+      # Handle submission/journal not found errors
+      if error_msg.include?("you are trying to find is not in our database.")
+        raise FANotFoundError.new(url)
+      end
+
+      # Handle user profile not found, and user not found on journal listing
+      if error_msg.include?("This user cannot be found") || error_msg.include?("User not found!")
+        raise FANoUserError.new(url)
+      end
+
+      raise FASystemError.new(url)  # TODO: check if there is a test
+    end
+
+    # Handle "system message" type errors
+    maintable_head = html.at_css("table.maintable td.cat b")
+    if !maintable_head.nil? && maintable_head.content == "System Message"
+      maintable_content = html.at_css("table.maintable td.alt1").content
+      # Handle disabled accounts
+      if maintable_content.include?("has voluntarily disabled access to their account and all of its contents.")
+        raise FAAccountDisabledError.new(url)
+      end
+
+      # Handle user not existing (this version of the error is raised by watchers lists and galleries)
+      if maintable_content.include?("Provided username not found in the database.") ||
+          /The username "[^"]+" could not be found./.match?(maintable_content) ||
+          /User "[^"]+" was not found in our database./.match?(maintable_content)
+        raise FANoUserError.new(url)
+      end
+
+      # Handle content filter errors, accessing a nsfw submission with a sfw profile
+      if maintable_content.include?("You are not allowed to view this image due to the content filter settings.")
+        raise FAContentFilterError.new(url)
+      end
+    end
   end
 
   def post(path, params)

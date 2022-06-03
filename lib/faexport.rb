@@ -102,15 +102,21 @@ RSS_ONLY_ENDPOINTS = {
   notifs_journals: "api_notifications_journals",
 }
 ERROR_TYPES = {
-  fa_search: "fa_search",
-  fa_login_cookie: "fa_login_cookie",
-  fa_form: "fa_form",
-  fa_offset: "fa_offset",
-  fa_login: "fa_login",
-  fa_system: "fa_system",
-  fa_status: "fa_status",
-  fa_cloudflare: "fa_cloudflare",
-  fa_unknown: "fa_unknown",
+  FAFormError => "fa_form",
+  FAOffsetError => "fa_offset",
+  FASearchError => "fa_search",
+  FAStatusError => "fa_status",
+  FANoTitleError => "fa_no_title",
+  FAStyleError => "fa_style",
+  FALoginError => "fa_login_cookie",
+  FANotFoundError => "fa_not_found",
+  FAContentFilterError => "fa_content_filter",
+  FANoUserError => "fa_no_user",
+  FAAccountDisabledError => "fa_account_disabled",
+  FACloudflareError => "fa_cloudflare",
+  FALoginError => "fa_login",
+  FASystemError => "fa_system",
+  FAError => "fa_unknown",
   unknown: "unknown",
 }
 $endpoint_histogram = prom.histogram(
@@ -269,28 +275,7 @@ module FAExport
         begin
           resp = block.call(labels)
         rescue => e
-          error_type = case e
-                       when FASearchError
-                         ERROR_TYPES[:fa_search]
-                       when FALoginCookieError
-                         ERROR_TYPES[:fa_login_cookie]
-                       when FAFormError
-                         ERROR_TYPES[:fa_form]
-                       when FAOffsetError
-                         ERROR_TYPES[:fa_offset]
-                       when FALoginError
-                         ERROR_TYPES[:fa_login]
-                       when FASystemError
-                         ERROR_TYPES[:fa_system]
-                       when FAStatusError
-                         ERROR_TYPES[:fa_status]
-                       when FACloudflareError
-                         ERROR_TYPES[:fa_cloudflare]
-                       when FAError
-                         ERROR_TYPES[:fa_unknown]
-                       else
-                         ERROR_TYPES[:unknown]
-                       end
+          error_type = ERROR_TYPES.fetch(e.class, ERROR_TYPES[:unknown])
           $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: error_type})
           raise e
         ensure
@@ -1034,14 +1019,22 @@ module FAExport
       err = env["sinatra.error"]
       status(
         case err
-        when FASearchError      then 400
-        when FALoginCookieError then 400
         when FAFormError        then 400
         when FAOffsetError      then 400
-        when FALoginError       then @user_cookie ? 401 : 503
-        when FASystemError      then 404
+        when FASearchError      then 400
         when FAStatusError      then 502
+        when FANoTitleError     then 500
+        when FAStyleError       then 400
+        when FAGuestAccessError then 403  # Shouldn't reach the user really, as login error should cover it
+        when FALoginCookieError then 400
+        when FANotFoundError    then 404
+        when FAContentFilterError then 403
+        when FANoUserError      then 404
+        when FAAccountDisabledError then 404
         when FACloudflareError  then 503
+        when CacheError         then 500
+        when FALoginError       then @user_cookie ? 401 : 403  # Superclass of FAGuestAccessError
+        when FASystemError      then 500  # Superclass of FANoTitleError
         else 500
         end
       )

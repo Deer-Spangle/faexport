@@ -44,7 +44,7 @@ describe "FA parser" do
 
   context "when browsing any page" do
     it "returns FASystemError if a user has disabled their account" do
-      expect { @fa.user("drowsylynx") }.to raise_error(FASystemError)
+      expect { @fa.user("drowsylynx") }.to raise_error(FAAccountDisabledError)
     end
 
     it "returns FAStyleError if the current user is not in classic style" do
@@ -83,7 +83,7 @@ describe "FA parser" do
           begin
             full_submission = @fa.submission(submission[:id])
             expect(full_submission[:rating]).to eql("General")
-          rescue FASystemError
+          rescue FANotFoundError
             nil
           end
         end
@@ -118,7 +118,7 @@ describe "FA parser" do
     end
 
     it "fails when given a non-existent profile" do
-      expect { @fa.user(TEST_USER_NOT_EXIST) }.to raise_error(FASystemError)
+      expect { @fa.user(TEST_USER_NOT_EXIST) }.to raise_error(FANoUserError)
     end
 
     it "determines whether guests can access it" do
@@ -237,7 +237,7 @@ describe "FA parser" do
       end
 
       it "fails when given a non-existent profile" do
-        expect { @fa.budlist(TEST_USER_NOT_EXIST, 1, is_watchers) }.to raise_error(FASystemError)
+        expect { @fa.budlist(TEST_USER_NOT_EXIST, 1, is_watchers) }.to raise_error(FANoUserError)
       end
 
       it "handles an empty watchers list" do
@@ -286,7 +286,7 @@ describe "FA parser" do
     end
 
     it "fails when given a non-existent user" do
-      expect { @fa.shouts(TEST_USER_NOT_EXIST) }.to raise_error(FASystemError)
+      expect { @fa.shouts(TEST_USER_NOT_EXIST) }.to raise_error(FANoUserError)
     end
 
     it "handles an empty shouts list" do
@@ -317,7 +317,7 @@ describe "FA parser" do
     end
 
     it "fails when given a non-existent user" do
-      expect { @fa.shouts(TEST_USER_NOT_EXIST) }.to raise_error(FASystemError)
+      expect { @fa.commissions(TEST_USER_NOT_EXIST) }.to raise_error(FANoUserError)
     end
   end
 
@@ -336,7 +336,7 @@ describe "FA parser" do
     end
 
     it "fails when given a non-existent user" do
-      expect { @fa.journals(TEST_USER_NOT_EXIST, 1) }.to raise_error(FASystemError)
+      expect { @fa.journals(TEST_USER_NOT_EXIST, 1) }.to raise_error(FANoUserError)
     end
 
     it "handles an empty journal listing" do
@@ -369,7 +369,7 @@ describe "FA parser" do
       end
 
       it "fails when given a non-existent user" do
-        expect { @fa.submissions(TEST_USER_NOT_EXIST, folder, {}) }.to raise_error(FASystemError)
+        expect { @fa.submissions(TEST_USER_NOT_EXIST, folder, {}) }.to raise_error(FANoUserError)
       end
 
       it "handles an empty gallery" do
@@ -485,7 +485,7 @@ describe "FA parser" do
     end
 
     it "fails when given non-existent submissions" do
-      expect { @fa.submission("16437650") }.to raise_error FASystemError
+      expect { @fa.submission("16437650") }.to raise_error FANotFoundError
     end
 
     it "parses keywords" do
@@ -662,7 +662,7 @@ describe "FA parser" do
 
     it "hides nsfw submission if sfw is set" do
       @fa.safe_for_work = true
-      expect { @fa.submission("32011278") }.to raise_error(FASystemError)
+      expect { @fa.submission("32011278") }.to raise_error(FAContentFilterError)
     end
 
     it "should not display the fav status and fav code if not logged in" do
@@ -811,7 +811,7 @@ describe "FA parser" do
     end
 
     it "fails when given non-existent journal" do
-      expect { @fa.journal("6894929") }.to raise_error(FASystemError)
+      expect { @fa.journal("6894929") }.to raise_error(FANotFoundError)
     end
 
     it "parses journal header, body and footer" do
@@ -914,7 +914,7 @@ describe "FA parser" do
       end
 
       it "fails when given non-existent submission" do
-        expect { @fa.submission_comments("16437650", false) }.to raise_error FASystemError
+        expect { @fa.submission_comments("16437650", false) }.to raise_error(FANotFoundError)
       end
 
       it "correctly parses replies and reply levels" do
@@ -1151,7 +1151,7 @@ describe "FA parser" do
       end
 
       it "fails when given non-existent journal" do
-        expect { @fa.journal_comments("6894929", false) }.to raise_error(FASystemError)
+        expect { @fa.journal_comments("6894929", false) }.to raise_error(FANotFoundError)
       end
 
       it "correctly parses replies and reply levels" do
