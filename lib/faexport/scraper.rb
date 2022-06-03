@@ -1196,7 +1196,7 @@ class Furaffinity
 
       # Check if the user is not logged in
       nav_bar = html.at_css("nav#ddmenu span.top-heading a")
-      if nav_bar.inner_html.include?('<a href="/register"><strong>Create an Account</strong></a>')
+      if nav_bar.to_s.include?('<a href="/login"><strong>Log In</strong></a>')
         raise FALoginError.new(url)
       end
 
