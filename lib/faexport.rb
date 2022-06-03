@@ -102,14 +102,20 @@ RSS_ONLY_ENDPOINTS = {
   notifs_journals: "api_notifications_journals",
 }
 ERROR_TYPES = {
-  fa_search: "fa_search",
-  fa_login_cookie: "fa_login_cookie",
   fa_form: "fa_form",
   fa_offset: "fa_offset",
+  fa_search: "fa_search",
+  fa_status: "fa_status",
+  fa_no_title: "fa_no_title",
+  fa_style: "fa_style",
+  fa_login_cookie: "fa_login_cookie",
+  fa_not_found: "fa_not_found",
+  fa_content_filter: "fa_content_filter",
+  fa_no_user: "fa_no_user",
+  fa_account_disabled: "fa_account_disabled",
+  fa_cloudflare: "fa_cloudflare",
   fa_login: "fa_login",
   fa_system: "fa_system",
-  fa_status: "fa_status",
-  fa_cloudflare: "fa_cloudflare",
   fa_unknown: "fa_unknown",
   unknown: "unknown",
 }
@@ -270,22 +276,34 @@ module FAExport
           resp = block.call(labels)
         rescue => e
           error_type = case e
-                       when FASearchError
-                         ERROR_TYPES[:fa_search]
-                       when FALoginCookieError
-                         ERROR_TYPES[:fa_login_cookie]
                        when FAFormError
                          ERROR_TYPES[:fa_form]
                        when FAOffsetError
                          ERROR_TYPES[:fa_offset]
+                       when FASearchError
+                         ERROR_TYPES[:fa_search]
+                       when FAStatusError
+                         ERROR_TYPES[:fa_status]
+                       when FANoTitleError
+                         ERROR_TYPES[:fa_no_title]
+                       when FAStyleError
+                         ERROR_TYPES[:fa_style]
+                       when FALoginCookieError
+                         ERROR_TYPES[:fa_login_cookie]
+                       when FANotFoundError
+                         ERROR_TYPES[:fa_not_found]
+                       when FAContentFilterError
+                         ERROR_TYPES[:fa_content_filter]
+                       when FANoUserError
+                         ERROR_TYPES[:fa_no_user]
+                       when FAAccountDisabledError
+                         ERROR_TYPES[:fa_account_disabled]
+                       when FACloudflareError
+                         ERROR_TYPES[:fa_cloudflare]
                        when FALoginError
                          ERROR_TYPES[:fa_login]
                        when FASystemError
                          ERROR_TYPES[:fa_system]
-                       when FAStatusError
-                         ERROR_TYPES[:fa_status]
-                       when FACloudflareError
-                         ERROR_TYPES[:fa_cloudflare]
                        when FAError
                          ERROR_TYPES[:fa_unknown]
                        else
