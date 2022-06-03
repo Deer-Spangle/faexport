@@ -11,6 +11,13 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2022.06.2] - 2022-06-03
+
+## Changed
+
+- Correctly returns 404 status code and error messages when submissions, journals, and users do not exist.
+- Changed some of the HTTP status codes for errors, to more correct codes for each error.
+
 ## [v2022.06.1] - 2022-06-03
 
 ## Fixed
