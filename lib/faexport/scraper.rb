@@ -1209,6 +1209,11 @@ class Furaffinity
         raise FANotFoundError.new(url)
       end
 
+      # Handle user profile not found, and user not found on journal listing
+      if error_msg.include?("This user cannot be found") || error_msg.include?("User not found!")
+        raise FANoUserError.new(url)
+      end
+
       raise FASystemError.new(url)  # TODO: check if there is a test
     end
 
