@@ -102,21 +102,21 @@ RSS_ONLY_ENDPOINTS = {
   notifs_journals: "api_notifications_journals",
 }
 ERROR_TYPES = {
-  fa_form: "fa_form",
-  fa_offset: "fa_offset",
-  fa_search: "fa_search",
-  fa_status: "fa_status",
-  fa_no_title: "fa_no_title",
-  fa_style: "fa_style",
-  fa_login_cookie: "fa_login_cookie",
-  fa_not_found: "fa_not_found",
-  fa_content_filter: "fa_content_filter",
-  fa_no_user: "fa_no_user",
-  fa_account_disabled: "fa_account_disabled",
-  fa_cloudflare: "fa_cloudflare",
-  fa_login: "fa_login",
-  fa_system: "fa_system",
-  fa_unknown: "fa_unknown",
+  FAFormError => "fa_form",
+  FAOffsetError => "fa_offset",
+  FASearchError => "fa_search",
+  FAStatusError => "fa_status",
+  FANoTitleError => "fa_no_title",
+  FAStyleError => "fa_style",
+  FALoginError => "fa_login_cookie",
+  FANotFoundError => "fa_not_found",
+  FAContentFilterError => "fa_content_filter",
+  FANoUserError => "fa_no_user",
+  FAAccountDisabledError => "fa_account_disabled",
+  FACloudflareError => "fa_cloudflare",
+  FALoginError => "fa_login",
+  FASystemError => "fa_system",
+  FAError => "fa_unknown",
   unknown: "unknown",
 }
 $endpoint_histogram = prom.histogram(
@@ -275,40 +275,7 @@ module FAExport
         begin
           resp = block.call(labels)
         rescue => e
-          error_type = case e
-                       when FAFormError
-                         ERROR_TYPES[:fa_form]
-                       when FAOffsetError
-                         ERROR_TYPES[:fa_offset]
-                       when FASearchError
-                         ERROR_TYPES[:fa_search]
-                       when FAStatusError
-                         ERROR_TYPES[:fa_status]
-                       when FANoTitleError
-                         ERROR_TYPES[:fa_no_title]
-                       when FAStyleError
-                         ERROR_TYPES[:fa_style]
-                       when FALoginCookieError
-                         ERROR_TYPES[:fa_login_cookie]
-                       when FANotFoundError
-                         ERROR_TYPES[:fa_not_found]
-                       when FAContentFilterError
-                         ERROR_TYPES[:fa_content_filter]
-                       when FANoUserError
-                         ERROR_TYPES[:fa_no_user]
-                       when FAAccountDisabledError
-                         ERROR_TYPES[:fa_account_disabled]
-                       when FACloudflareError
-                         ERROR_TYPES[:fa_cloudflare]
-                       when FALoginError
-                         ERROR_TYPES[:fa_login]
-                       when FASystemError
-                         ERROR_TYPES[:fa_system]
-                       when FAError
-                         ERROR_TYPES[:fa_unknown]
-                       else
-                         ERROR_TYPES[:unknown]
-                       end
+          error_type = ERROR_TYPES.fetch(e.class, ERROR_TYPES[:unknown])
           $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: error_type})
           raise e
         ensure
