@@ -1178,7 +1178,7 @@ class Furaffinity
 
   def check_errors(html, url)
     head = html.xpath("//head//title").first
-    raise FANoTitleError.new(url) unless head  # TODO: test
+    raise FANoTitleError.new(url) unless head
 
     # Check style is classic, but check login issues also
     stylesheet = html.at_css("head link[rel='stylesheet']")["href"]
@@ -1195,10 +1195,10 @@ class Furaffinity
       # Check if the user is not logged in
       nav_bar = html.at_css("nav#ddmenu span.top-heading a")
       if nav_bar.inner_html.include?('<a href="/register"><strong>Create an Account</strong></a>')
-        raise FALoginError.new(url)  # TODO: check there is a test
+        raise FALoginError.new(url)
       end
 
-      raise FAStyleError.new(url)  # TODO: check there is a test
+      raise FAStyleError.new(url)
     end
 
     # Handle "Fatal system error" type errors
@@ -1206,7 +1206,7 @@ class Furaffinity
       error_msg = html.at_css("table.maintable td.alt1 font").content
       # Handle submission/journal not found errors
       if error_msg.include?("you are trying to find is not in our database.")
-        raise FANotFoundError.new(url)  # TODO: check if there is a test
+        raise FANotFoundError.new(url)
       end
 
       raise FASystemError.new(url)  # TODO: check if there is a test
@@ -1218,19 +1218,19 @@ class Furaffinity
       maintable_content = html.at_css("table.maintable td.alt1").content
       # Handle disabled accounts
       if maintable_content.include?("has voluntarily disabled access to their account and all of its contents.")
-        raise FAAccountDisabledError.new(url)  # TODO: check if there is a test
+        raise FAAccountDisabledError.new(url)
       end
 
       # Handle user not existing (this version of the error is raised by watchers lists and galleries)
       if maintable_content.include?("Provided username not found in the database.") ||
           /The username "[^"]+" could not be found./.match?(maintable_content) ||
           /User "[^"]+" was not found in our database./.match?(maintable_content)
-        raise FANoUserError.new(url)  # TODO: Check if there is a test
+        raise FANoUserError.new(url)
       end
 
       # Handle content filter errors, accessing a nsfw submission with a sfw profile
       if maintable_content.include?("You are not allowed to view this image due to the content filter settings.")
-        raise FAContentFilterError.new(url)  # TODO: Check if there is a test
+        raise FAContentFilterError.new(url)
       end
     end
   end
