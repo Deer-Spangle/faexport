@@ -11,6 +11,12 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2022.06.1] - 2022-06-03
+
+## Fixed
+
+- Fixed parsing of profile name on user endpoint
+
 ## [v2022.04.2] - 2022-04-22
 
 ## Added

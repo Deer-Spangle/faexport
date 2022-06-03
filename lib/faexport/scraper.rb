@@ -378,7 +378,7 @@ class Furaffinity
 
     {
       id: nil,
-      name: html.at_css(".addpad.lead b").content[1..-1],
+      name: html.at_css(".addpad.lead b").content.strip[1..-1],
       profile: fa_url(profile),
       account_type: html.at_css(".addpad.lead").content[/\((.+?)\)/, 1].strip,
       avatar: "https:#{html.at_css("td.addpad img")["src"]}",
