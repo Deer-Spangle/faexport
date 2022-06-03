@@ -488,14 +488,6 @@ class Furaffinity
           end
 
     html = fetch(url)
-    error_msg = html.at_css("table.maintable td.alt1 b")
-    if !error_msg.nil? &&
-       (
-         error_msg.text == "The username \"#{user}\" could not be found." ||
-         error_msg.text == "User \"#{user}\" was not found in our database."
-       )
-      raise FANoUserError.new(url)
-    end
 
     html.css(".gallery > figure").map { |art| build_submission(art) }
   end
@@ -1197,7 +1189,7 @@ class Furaffinity
       system_message = html.at_css("#site-content section.notice-message")
       message_header = system_message.at_css("h2").content
       message_content = system_message.at_css(".redirect-message").content
-      if message_header == "System Message" and message_content.include?("has elected to make it available to registered users only.")
+      if message_header == "System Message" && message_content.include?("has elected to make it available to registered users only.")
         raise FAGuestAccessError.new(url)
       end
 
@@ -1223,15 +1215,17 @@ class Furaffinity
 
     # Handle "system message" type errors
     maintable_head = html.at_css("table.maintable td.cat b")
-    if !maintable_head.nil? and maintable_head.content == "System Message"
+    if !maintable_head.nil? && maintable_head.content == "System Message"
       maintable_content = html.at_css("table.maintable td.alt1").content
       # Handle disabled accounts
       if maintable_content.include?("has voluntarily disabled access to their account and all of its contents.")
         raise FAAccountDisabledError.new(url)  # TODO: check if there is a test
       end
 
-      # Handle user not existing (this version of the error is raised by watchers lists)
-      if maintable_content.include?("Provided username not found in the database.")
+      # Handle user not existing (this version of the error is raised by watchers lists and galleries)
+      if maintable_content.include?("Provided username not found in the database.") ||
+          /The username "[^"]+" could not be found./.match?(maintable_content) ||
+          /User "[^"]+" was not found in our database./.match?(maintable_content)
         raise FANoUserError.new(url)  # TODO: Check if there is a test
       end
 
