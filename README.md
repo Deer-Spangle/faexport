@@ -78,7 +78,7 @@ make FA_COOKIE="b\=...\;a\=..." deploy_bypass
 
 ## Deploying - Heroku
 
-This application can be run on Heroku, just add an instance of 'Redis To Go' for caching.
+This application can be run on Heroku, just add an instance of [`Heroku Data for Redis®`](https://elements.heroku.com/addons/heroku-redis) for caching.
 Rather than uploading `settings.yml`, set the environment variable `FA_COOKIE`
 to the generated cookie you gathered from FA.
 
