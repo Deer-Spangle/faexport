@@ -11,6 +11,14 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+
+## [v2022.08.1] - 2022-08-28
+
+## Changed
+
+- Updated Ruby version and dependencies
+- Updated alpine version in the docker image
+
 ## [v2022.06.2] - 2022-06-03
 
 ## Changed
