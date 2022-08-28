@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM alpine:3.16
 MAINTAINER Deer Spangle <deer@spangle.org.uk>
 
 ENV BUILD_PACKAGES bash curl-dev ruby-dev build-base
