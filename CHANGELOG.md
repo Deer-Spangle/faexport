@@ -12,6 +12,12 @@ Changelog for FAExport API, should include entries for these types of changes:
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
 
+## [v2022.10.1] - 2022-10-29
+
+## Fixed
+
+- Fixed a bug where invalid unicode characters in FA page would cause the API to return a 500 error.
+
 ## [v2022.08.1] - 2022-08-28
 
 ## Changed
