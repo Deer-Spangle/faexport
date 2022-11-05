@@ -260,7 +260,7 @@ module FAExport
       end
 
       def ensure_login!
-        return if @user_cookie
+        return if !@user_cookie
 
         raise FALoginCookieError.new(
           'You must provide a valid login cookie in the header "FA_COOKIE".'\
