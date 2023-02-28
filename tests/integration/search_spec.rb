@@ -8,6 +8,10 @@ require "rspec"
 COOKIE_DEFAULT = ENV["test_cookie"]
 
 describe "FA parser search endpoint" do
+  before(:all) do
+    expect(COOKIE_DEFAULT).not_to be_empty, "Test cookie needs to be set for testing"
+  end
+
   before do
     config = File.exist?("settings-test.yml") ? YAML.load_file("settings-test.yml") : {}
     @app = FAExport::Application.new(config).instance_variable_get(:@instance)

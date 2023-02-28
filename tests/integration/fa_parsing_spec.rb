@@ -30,6 +30,10 @@ COOKIE_TEST_USER_JOURNAL_DUMP = COOKIE_TEST_USER_3
 COOKIE_NOT_CLASSIC = ENV["test_cookie_not_classic"]
 
 describe "FA parser" do
+  before(:all) do
+    expect(COOKIE_DEFAULT).not_to be_empty, "Test cookie needs to be set for testing"
+  end
+
   before do
     config = File.exist?("settings-test.yml") ? YAML.load_file("settings-test.yml") : {}
     @app = FAExport::Application.new(config).instance_variable_get(:@instance)
