@@ -11,6 +11,10 @@ COOKIE_TEST_USER_2 = ENV["test_cookie_user_2"]
 SERVER_URL = ENV["server_url"]
 
 describe "FA export server" do
+  before(:all) do
+    expect(COOKIE_DEFAULT).not_to be_empty, "Test cookie needs to be set for testing"
+  end
+
   def fetch_with_retry(path, cookie: nil, check_status: true)
     wait_between_tries = 5
     retries = 0
