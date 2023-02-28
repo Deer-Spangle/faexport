@@ -65,7 +65,7 @@ describe "FA parser browse endpoint" do
         submissions.each do |submission|
           expect(submission).to be_valid_submission
         end
-        expect(submissions.length).to eql(72)
+        expect(submissions.length).to be_between(68, 72)
       end
     end
 
@@ -74,9 +74,9 @@ describe "FA parser browse endpoint" do
       submissions48 = browse_with_retry({ "perpage" => "48" })
       submissions72 = browse_with_retry({ "perpage" => "72" })
 
-      expect(submissions24.length).to eql(24)
-      expect(submissions48.length).to eql(48)
-      expect(submissions72.length).to eql(72)
+      expect(submissions24.length).to be_between(20, 24)
+      expect(submissions48.length).to be_between(44, 48)
+      expect(submissions72.length).to be_between(68, 72)
     end
 
     it "can specify ratings to display, and honours that selection" do

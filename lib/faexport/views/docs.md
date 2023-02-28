@@ -142,7 +142,7 @@ Fetches all the recent uploads on the browse page.
 The following parameters can be provided:
 
 * **page**: Page of results to display.  Defaults to: `1`.
-* **perpage**: How many results to display per page.  Can be one of: `24`, `48` or `72`.  Defaults to: `72`.
+* **perpage**: How many results to display per page. Can be one of: `24`, `48` or `72`.  Defaults to: `72`. This is really a maximum amount, as FA will sometimes return a couple fewer results.
 * **rating**: what rating levels are included.  Can be any of: `general`, `mature` and `adult` separated by commas.  Defaults to: `general,mature,adult`.
 
 The API does not yet allow specifying category, type, species or gender, as FA requires hard coding these by number.
@@ -667,7 +667,7 @@ The following parameters can be provided:
 
 * **q**: Words to search for.
 * **page**: Page of results to display.  Defaults to: `1`.
-* **perpage**: How many results to display per page.  Can be one of: `24`, `48` or `72`.  Defaults to: `72`.
+* **perpage**: How many results to display per page.  Can be one of: `24`, `48` or `72`.  Defaults to: `72`. This is really a maximum amount, as FA will sometimes return a couple fewer results.
 * **order_by**: How the results should be ordered.  Can be one of: `relevancy`, `date` or `popularity`.  Defaults to: `date`.
 * **order_direction**: if results should be ordered in ascending or descending order.  Can be one of: `asc` or `desc`.  Defaults to: `desc`.
 * **range**: How far in the past should results be loaded from.  Can be one of: `1day`, `3days`, `7days`, `30days`, `90days`, `1year`, `3years`, `5years` or `all`. Defaults to: `all`.
