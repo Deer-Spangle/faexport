@@ -1328,9 +1328,15 @@ class Furaffinity
           is_deleted: false
         }
       elsif include_hidden
+        bold_text = comment.at_css("strong")
+        comment_text = if bold_text
+                         bold_text.content
+                       else
+                         comment.at_css(".block__deleted_content").content
+                       end
         {
           id: id,
-          text: comment.at_css("strong").content,
+          text: comment_text,
           reply_to: reply_to,
           reply_level: reply_level,
           is_deleted: true
