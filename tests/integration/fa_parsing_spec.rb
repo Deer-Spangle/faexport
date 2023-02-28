@@ -933,7 +933,7 @@ describe "FA parser" do
         expect(comments).to be_instance_of(Array)
         expect(comments).to satisfy("be longer than other list") { |n| n.length > comments_not_deleted.length}
         # Find and check the deleted comment
-        deleted_comment = comment.find { |comment| comment[:id] == deleted_comment_id}
+        deleted_comment = comments.find { |comment| comment[:id] == deleted_comment_id}
         expect(deleted_comment).not_to be_empty
         expect(deleted_comment[:text]).to eql("[deleted]")
       end
