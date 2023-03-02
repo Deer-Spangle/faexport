@@ -710,6 +710,12 @@ describe "FA parser" do
       expect(submission).to have_key(:thumbnail)
       expect(submission[:thumbnail]).not_to be_nil
     end
+
+    it "should remove null bytes" do
+      submission = @fa.submission("641877")
+      expect(submission).to have_key(:description)
+      expect(submission[:description]).not_to include("\000")
+    end
   end
 
   context "when updating favorite status of a submission" do
