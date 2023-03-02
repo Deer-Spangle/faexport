@@ -1165,7 +1165,7 @@ class Furaffinity
       end
     end
 
-    html = Nokogiri::HTML(raw.encode("UTF-8", invalid: :replace, undef: :replace))
+    html = Nokogiri::HTML(raw.encode("UTF-8", invalid: :replace, undef: :replace).delete("\000"))
 
     # Check for errors, and raise any that apply
     check_errors(html, url)
