@@ -233,7 +233,6 @@ module FAExport
       FAExport.config[:cache_time_long] ||= 86_400 # 1 day
       FAExport.config[:redis_url] ||= (ENV["REDIS_URL"] || ENV["REDISTOGO_URL"])
       FAExport.config[:cookie] ||= ENV["FA_COOKIE"]
-      FAExport.config[:key] ||= ENV["key"]
       FAExport.config[:rss_limit] ||= 10
       FAExport.config[:content_types] ||= {
         "json" => "application/json",
@@ -260,20 +259,13 @@ module FAExport
         content_type FAExport.config[:content_types][type], "charset" => "utf-8"
       end
 
-      def ensure_login!        
-        if @user_cookie
-          raise FALoginCookieError.new(
-          'You must provide a valid login cookie in the header "FA_COOKIE".'\
-          "Please note this is a header, not a cookie. #{@user_cookie}"
-        )
-        end
+      def ensure_login!
+        return if @user_cookie
 
-        if !(params[:key] == FAExport.config[:key])
         raise FALoginCookieError.new(
-          "Unauthorised key provided."
+          'You must provide a valid login cookie in the header "FA_COOKIE".'\
+          "Please note this is a header, not a cookie."
         )
-        end
-        return true
       end
 
       def record_metrics(endpoint, format, &block)
