@@ -923,6 +923,21 @@ describe "FA parser" do
         expect(comments[0][:is_deleted]).to be true
       end
 
+      it "handles non-bold deleted comments when specified" do
+        submission_id = "49714673"
+        deleted_comment_id = "168509004"
+        comments_not_deleted = @fa.submission_comments(submission_id, false)
+        expect(comments_not_deleted).to be_instance_of Array
+        # Ensure comments appear when viewing deleted
+        comments = @fa.submission_comments(submission_id, true)
+        expect(comments).to be_instance_of(Array)
+        expect(comments).to satisfy("be longer than other list") { |n| n.length > comments_not_deleted.length}
+        # Find and check the deleted comment
+        deleted_comment = comments.find { |comment| comment[:id] == deleted_comment_id}
+        expect(deleted_comment).not_to be_empty
+        expect(deleted_comment[:text]).to eql("[deleted]")
+      end
+
       it "fails when given non-existent submission" do
         expect { @fa.submission_comments("16437650", false) }.to raise_error(FANotFoundError)
       end
