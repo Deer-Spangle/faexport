@@ -1,0 +1,16 @@
+name: publish-new-version
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version being published"
+        required: true
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Ensure changelog was updated with new version
+        run: grep "## \[v${{ github.event.inputs.version }}\]" CHANGELOG.md
+      - name: Parse changelog
+        run: sed -z "s/^.*## \[v${{ github.event.inputs.version }}\][^\n]\+\n\+\(.\+\)$/\1/" CHANGELOG.md | sed -z "s/\n\+## \[v.*$//" > release_changelog.txt
