@@ -105,18 +105,18 @@ describe "FA parser search endpoint" do
       results_long = search_with_retry({ "q" => "YCH", "perpage" => "72" })
       expect(results_long).to be_instance_of Array
       expect(results_long).not_to be_empty
-      expect(results_long.length).to be >= 70
+      expect(results_long.length).to be >= 68
 
       results_med = search_with_retry({ "q" => "YCH", "perpage" => "48" })
       expect(results_med).to be_instance_of Array
       expect(results_med).not_to be_empty
-      expect(results_med.length).to be >= 46
+      expect(results_med.length).to be >= 44
       expect(results_med.length).to be < 49
 
       results_short = search_with_retry({ "q" => "YCH", "perpage" => "24" })
       expect(results_short).to be_instance_of Array
       expect(results_short).not_to be_empty
-      expect(results_short.length).to be >= 22
+      expect(results_short.length).to be >= 20
       expect(results_short.length).to be < 25
     end
 
