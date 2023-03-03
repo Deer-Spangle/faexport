@@ -20,7 +20,7 @@ jobs:
       - name: "Run docker compose"
         run: "make deploy_bg PORT=9292"
         env:
-          FA_COOKIE: ${{ secrets.TEST_COOKIE_ESCAPED }}
+          FA_COOKIE: ${{ secrets.TEST_COOKIE }}
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
