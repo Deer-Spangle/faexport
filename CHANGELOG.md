@@ -11,6 +11,19 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2023.03.1] - 2023-03-03
+
+## Changed
+
+- Stripping null bytes from submissions
+- Quote cookie variable in Makefile to avoid need to escape them
+- Docs comment about browse pages not always returning a full page
+- Update dependencies
+
+## Fixed
+
+- Test improvements (handling non-full pages, fast fail on missing tokens)
+- Handling new type of deleted comment on FA (Where the comment is non-bold and simply says `[deleted]`)
 
 ## [v2022.10.1] - 2022-10-29
 
