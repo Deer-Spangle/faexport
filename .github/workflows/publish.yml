@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Ensure changelog was updated with new version
+        run: grep "## \[v${{ github.event.inputs.version }}\]" CHANGELOG.md
       - name: Write version
         run: sed -i 's/^VERSION = "[^"]*"/VERSION = "${{ github.event.inputs.version }}"/g' lib/faexport.rb
       - name: Commit and push git version
