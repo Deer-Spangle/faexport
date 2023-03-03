@@ -36,7 +36,7 @@ jobs:
       - name: Parse changelog
         run: sed -z "s/^.*## \[v${{ github.event.inputs.version }}\][^\n]\+\n\+\(.\+\)$/\1/" CHANGELOG.md | sed -z "s/\n\+## \[v.*$//" | tee release_changelog.md
       - name: Publish Github release
-        uses: ncipollo/release-action
+        uses: ncipollo/release-action@v1
         with:
           bodyFile: release_changelog.md
           tag: "v${{ github.event.inputs.version }}"
