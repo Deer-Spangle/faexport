@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Validate version format
+        run: echo "${{ github.event.inputs.version }}" | grep -E "^[0-9]{4}\.(0[1-9]|1[0-2])\.[1-9][0-9]*$"
       - name: Ensure changelog was updated with new version
         run: grep "## \[v${{ github.event.inputs.version }}\]" CHANGELOG.md
       - name: Write version
