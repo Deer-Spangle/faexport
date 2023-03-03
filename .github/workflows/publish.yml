@@ -9,24 +9,24 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Ensure changelog was updated with new version
         run: grep "## \[v${{ github.event.inputs.version }}\]" CHANGELOG.md
       - name: Write version
         run: sed -i 's/^VERSION = "[^"]*"/VERSION = "${{ github.event.inputs.version }}"/g' lib/faexport.rb
       - name: Commit and push git version
-        uses: EndBug/add-and-commit@v7
+        uses: EndBug/add-and-commit@v9
         with:
           add: "lib/faexport.rb"
           message: "Publishing version ${{ github.event.inputs.version }}"
           tag: "v${{ github.event.inputs.version }}"
       - name: Login to DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push Docker images
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v4
         with:
           context: .
           push: true
