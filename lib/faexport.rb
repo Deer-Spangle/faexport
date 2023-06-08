@@ -268,6 +268,48 @@ module FAExport
         )
       end
 
+      def parse_user_cookie
+        # Check header
+        header_value = request.env["HTTP_FA_COOKIE"]
+        if header_value
+          if header_value =~ COOKIE_REGEX
+            return header_value
+          else
+            raise FALoginCookieError.new(
+              "The login cookie provided must be in the format"\
+              '"b=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx; a=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
+            )
+          end
+        end
+
+        # Check basic auth
+        auth =  Rack::Auth::Basic::Request.new(request.env)
+        if auth.provided? and auth.basic? and auth.credentials
+          user, pass = auth.credentials
+          return pass if pass =~ COOKIE_REGEX
+          unless pass.count(";") == 1
+            raise FALoginCookieError.new(
+              "The login cookie provided must be in the format"\
+        '"b=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx; a=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
+            )
+          end
+          cookie_a, cookie_b = pass.split(";")
+          if user.strip.start_with?("b")
+            cookie_a, cookie_b = cookie_b, cookie_a
+          end
+          cookie_str = "a=#{cookie_a};b=#{cookie_b}"
+          unless cookie_str =~ COOKIE_REGEX
+            raise FALoginCookieError.new(
+              "The login cookie provided must be in the format"\
+              '"b=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx; a=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"'
+            )
+          end
+          return cookie_str
+        end
+
+        return nil
+      end
+
       def record_metrics(endpoint, format, &block)
         labels = {endpoint: endpoint, format: format}
         resp = nil
@@ -288,7 +330,7 @@ module FAExport
 
     before do
       env["rack.errors"] = error_log
-      @user_cookie = request.env["HTTP_FA_COOKIE"]
+      @user_cookie = parse_user_cookie
       @fa = Furaffinity.new(@cache)
       if @user_cookie
         if @user_cookie =~ COOKIE_REGEX
