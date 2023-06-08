@@ -1068,7 +1068,7 @@ module FAExport
         when FANoTitleError     then 500
         when FAStyleError       then 400
         when FAGuestAccessError then 403  # Shouldn't reach the user really, as login error should cover it
-        when FALoginCookieError then 400
+        when FALoginCookieError then 401
         when FANotFoundError    then 404
         when FAContentFilterError then 403
         when FANoUserError      then 404
@@ -1080,6 +1080,10 @@ module FAExport
         else 500
         end
       )
+
+      if err.is_a? FALoginCookieError
+        headers['WWW-Authenticate'] = 'Basic realm="Restricted Endpoint"'
+      end
 
       JSON.pretty_generate error: err.message, url: err.url
     end
