@@ -10,7 +10,7 @@ dd {
     margin: 5px 20px;
 }
 
-#boxes input {
+#boxes input, #boxes_auth input {
     width: 300px;
     padding: 10px;
     font-size: 16px;

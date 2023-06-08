@@ -55,30 +55,41 @@
       - %w(json xml).each do |type|
         %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/#{resource}/{id}/comments.#{type}"}
         %br
+  %br
+  %hr
+#boxes_auth
+  %h2 Login cookie-required endpoints
+  Enter FA cookie values:
+  %br
+  a =
+  %input#cookie_a{type: 'text', autocomplete: 'off'}
+  ;b =
+  %input#cookie_b{type: 'text', autocomplete: 'off'}
+%dl#links_auth
   %dt New submission notifications (login cookie required)
   %dd
     - %w(json xml rss).map do |type|
-      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notifications/submissions.#{type}"}
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{cookie_base}/notifications/submissions.#{type}"}
       %br
   %dt Notifications (login cookie required)
   %dd
     - %w(json xml).map do |type|
-      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notifications/others.#{type}"}
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{cookie_base}/notifications/others.#{type}"}
       %br
   - %w(watches submission_comments journal_comments shouts favorites journals).map do |notification_type|
     %dd
-      %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notifications/#{notification_type}.rss"}
+      %a.resource{href: '#', target: '_blank', :'data-format' => "{cookie_base}/notifications/#{notification_type}.rss"}
       %br
   %dt Notes (login cookie required)
   %dd
     - %w(json xml rss).map do |type|
       - %w(inbox unread outbox high medium low archive trash).map do |folder|
         %dd
-          %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/notes/#{folder}.#{type}"}
+          %a.resource{href: '#', target: '_blank', :'data-format' => "{cookie_base}/notes/#{folder}.#{type}"}
           %br
   %dt Note view (login cookie required)
   %dd
     - %w(json xml).map do |type|
       %dd
-        %a.resource{href: '#', target: '_blank', :'data-format' => "{base}/note/{id}.#{type}"}
+        %a.resource{href: '#', target: '_blank', :'data-format' => "{cookie_base}/note/{id}.#{type}"}
         %br
