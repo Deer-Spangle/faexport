@@ -15,10 +15,15 @@ describe "FA export server" do
     expect(COOKIE_DEFAULT).not_to be_empty, "Test cookie needs to be set for testing"
   end
 
-  def fetch_with_retry(path, cookie: nil, check_status: true)
+  def fetch_with_retry(path, cookie: nil, check_status: true, user: nil, password: nil)
     wait_between_tries = 5
     retries = 0
-    url = "#{SERVER_URL}/#{path}"
+    authority = SERVER_URL
+    if user and password
+      scheme, host = SERVER_URL.split("//")
+      authority = "#{scheme}://#{user}:#{password}@#{host}"
+    end
+    url = "#{authority}/#{path}"
 
     begin
       if cookie
@@ -93,7 +98,8 @@ describe "FA export server" do
   context "when checking restricted endpoint" do
     it "returns an error if cookie is not given" do
       resp = fetch_with_retry("/notifications/others.json", check_status: false)
-      expect(resp.status[0]).to eq("400")
+      expect(resp.status[0]).to eq("401")
+      expect(resp.headers["WWW-Authenticate"]).not_to be_falsey
       body = resp.read
       expect(body).not_to be_empty
       data = JSON.parse(body)
@@ -104,6 +110,32 @@ describe "FA export server" do
 
     it "returns data if given a cookie" do
       resp = fetch_with_retry("/notifications/others.json", cookie: COOKIE_DEFAULT)
+      body = resp.read
+      expect(body).not_to be_empty
+      data = JSON.parse(body)
+      expect(data).to have_key("current_user")
+      expect(data["current_user"]).to have_key("name")
+      expect(data["current_user"]["name"]).not_to be_empty
+    end
+
+    it "returns data if given basic auth" do
+      a, b = COOKIE_DEFAULT.split(";")
+      a = a.gsub(/[ab]=/, '')
+      b = b.gsub(/[ab]=/, '')
+      resp = fetch_with_retry("/notifications/others.json", user: "ab", password: "#{a};#{b}")
+      body = resp.read
+      expect(body).not_to be_empty
+      data = JSON.parse(body)
+      expect(data).to have_key("current_user")
+      expect(data["current_user"]).to have_key("name")
+      expect(data["current_user"]["name"]).not_to be_empty
+    end
+
+    it "returns data if given basic auth the other way around" do
+      a, b = COOKIE_DEFAULT.split(";")
+      a = a.gsub(/[ab]=/, '')
+      b = b.gsub(/[ab]=/, '')
+      resp = fetch_with_retry("/notifications/others.json", user: "ba", password: "#{b};#{a}")
       body = resp.read
       expect(body).not_to be_empty
       data = JSON.parse(body)
