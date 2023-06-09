@@ -11,6 +11,12 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2023.06.3] - 2023-06-09
+
+### Fixed
+
+- Fixed metrics endpoint, after basic auth handling broke it
+
 ## [v2023.06.2] - 2023-06-09
 
 ### Fixed

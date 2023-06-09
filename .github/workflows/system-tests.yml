@@ -21,6 +21,7 @@ jobs:
         run: "make deploy_bg PORT=9292"
         env:
           FA_COOKIE: ${{ secrets.TEST_COOKIE }}
+          PROMETHEUS_PASS: "example_prom_pass"
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:

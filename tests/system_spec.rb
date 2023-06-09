@@ -9,6 +9,7 @@ COOKIE_DEFAULT = ENV["test_cookie"]
 TEST_USER_2 = "fafeed-2"
 COOKIE_TEST_USER_2 = ENV["test_cookie_user_2"]
 SERVER_URL = ENV["server_url"]
+PROMETHEUS_PASS = "example_prom_pass"
 
 describe "FA export server" do
   before(:all) do
@@ -154,6 +155,21 @@ describe "FA export server" do
       expect(data1["current_user"]["name"]).not_to be_empty
       expect(data2["current_user"]["name"]).not_to be_empty
       expect(data1["current_user"]["name"]).not_to eq(data2["current_user"]["name"])
+    end
+  end
+
+  context "when checking prometheus metrics endpoint" do
+    it "requires authentication" do
+      resp = fetch_with_retry("/metrics", check_status: false)
+      expect(resp.status[0]).to eq("401")
+      expect(resp.meta["www-authenticate"]).not_to be_falsey
+      expect(resp.read).not_to include("faexport_info")
+    end
+
+    it "works when auth is given" do
+      resp = fetch_with_retry("/metrics", user: "prom", password: PROMETHEUS_PASS)
+      expect(resp.status[0]).to eq("200")
+      expect(resp.read).to include("faexport_info")
     end
   end
 end
