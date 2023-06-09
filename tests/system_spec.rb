@@ -160,7 +160,7 @@ describe "FA export server" do
 
   context "when checking prometheus metrics endpoint" do
     it "requires authentication" do
-      resp = fetch_with_retry("/metrics")
+      resp = fetch_with_retry("/metrics", check_status: false)
       expect(resp.status[0]).to eq("401")
       expect(resp.meta["www-authenticate"]).not_to be_falsey
       expect(resp.read).not_to include("faexport_info")
