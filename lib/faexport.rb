@@ -46,7 +46,7 @@ require "prometheus/client"
 Tilt.register Tilt::RedcarpetTemplate, "markdown", "md"
 
 # Do not update this manually, the github workflow does it.
-VERSION = "2023.06.2"
+VERSION = "2023.06.3"
 prom = Prometheus::Client.registry
 version_info = prom.gauge(
   :faexport_info,
