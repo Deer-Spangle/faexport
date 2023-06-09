@@ -28,10 +28,10 @@ describe "FA export server" do
       if cookie
         URI.parse(url).open(
           { "FA_COOKIE" => cookie.to_s },
-          http_basic_authentication: user_info
+          :http_basic_authentication => user_info
         )
       else
-        URI.parse(url).open(http_basic_authentication: user_info)
+        URI.parse(url).open(:http_basic_authentication => user_info)
       end
     rescue OpenURI::HTTPError => e
       raise if check_status
