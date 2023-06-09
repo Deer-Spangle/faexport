@@ -10,7 +10,8 @@ Please send any questions, comments or ramblings to [deer@spangle.org.uk](mailto
 When accessing routes that view or modify account specific data,
 you will need to provide a login cookie in the header `FA_COOKIE`.  
 The cookie `a` and `b` values can be obtained by checking your browser's storage inspector while on any FA page.  
-The storage inspector can be opened by pressing `Shift+F9` on Firefox, and on Chrome, by opening the developer tools with `F12` and then selecting the "Application" tab, and then "Cookies".  
+The storage inspector can be opened by pressing `Shift+F9` on Firefox, and on Chrome, by opening the developer tools
+with `F12` and then selecting the "Application" tab, and then "Cookies".  
 You may want to do this in a private browsing session as logging out of your account will invalidate
 the cookie and break the scraper.
 
@@ -19,6 +20,16 @@ The resulting FA_COOKIE header string should look something like this:
 ```
 "b=3a485360-d203-4a38-97e8-4ff7cdfa244c; a=b1b985c4-d73e-492a-a830-ad238a3693ef"
 ```
+
+Another option in use-cases where you cannot specify custom headers, such as loading RSS feeds into a feed reader, is to
+use HTTP basic auth. In this case you can specify a username of "ab", and specify the value of your "a" and "b" cookies,
+joined with a semicolon, as the password.
+For example:
+```uri
+https://ab:b1b985c4-d73e-492a-a830-ad238a3693ef;3a485360-d203-4a38-97e8-4ff7cdfa244c@faexport.spangle.org.uk/notifications/others.rss
+```
+In this case, you must ensure not to share the URL with 3rd parties whom you do not trust, as it contains your FA
+authentication cookies, and can be used to gain access to your account.
 
 
 ## Status Codes
