@@ -163,13 +163,13 @@ describe "FA export server" do
       resp = fetch_with_retry("/metrics")
       expect(resp.status[0]).to eq("401")
       expect(resp.meta["www-authenticate"]).not_to be_falsey
-      expect(resp.body).not_to include("faexport_info")
+      expect(resp.read).not_to include("faexport_info")
     end
 
     it "works when auth is given" do
       resp = fetch_with_retry("/metrics", user: "prom", password: PROMETHEUS_PASS)
       expect(resp.status[0]).to eq("200")
-      expect(resp.body).to include("faexport_info")
+      expect(resp.read).to include("faexport_info")
     end
   end
 end
