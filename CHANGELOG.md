@@ -11,7 +11,7 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
-## [v2023.06.1] - 2023-06-09
+## [v2023.06.2] - 2023-06-09
 
 ### Fixed
 
