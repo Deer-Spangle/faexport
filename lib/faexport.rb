@@ -276,6 +276,9 @@ module FAExport
         auth =  Rack::Auth::Basic::Request.new(request.env)
         if auth.provided? and auth.basic? and auth.credentials
           user, pass = auth.credentials
+          unless ["ab", "ba", "a;b", "b;a"].include? user.downcase
+            return nil
+          end
           $auth_method.increment(labels: {auth_type: "basic_auth"})
           return pass if pass =~ COOKIE_REGEX
           unless pass.count(";") == 1
@@ -1073,9 +1076,9 @@ module FAExport
         end
       )
 
-      if err.is_a? FALoginCookieError
-        headers['WWW-Authenticate'] = 'Basic realm="Restricted Endpoint"'
-      end
+      #if err.is_a? FALoginCookieError
+      #  headers['WWW-Authenticate'] = 'Basic realm="Restricted Endpoint"'
+      #end
 
       JSON.pretty_generate error: err.message, url: err.url
     end
