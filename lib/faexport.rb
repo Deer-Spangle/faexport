@@ -1076,9 +1076,9 @@ module FAExport
         end
       )
 
-      #if err.is_a? FALoginCookieError
-      #  headers['WWW-Authenticate'] = 'Basic realm="Restricted Endpoint"'
-      #end
+      if err.is_a? FALoginCookieError
+        headers['WWW-Authenticate'] = 'Basic realm="Restricted Endpoint"'
+      end
 
       JSON.pretty_generate error: err.message, url: err.url
     end
