@@ -140,61 +140,52 @@ $rss_length_histogram = prom.histogram(
   labels: [:endpoint],
   buckets: [0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 )
-HTML_ENDPOINTS.each_value do |endpoint_label|
-  labels = {endpoint: endpoint_label, format: "html"}
+$auth_method = prom.counter(
+  :faexport_auth_method_total,
+  docstring: "How many requests are made with authentication, and which type",
+  labels: [:endpoint, :format, :auth_type]
+)
+def init_endpoint_metrics(endpoint, format)
+  labels = {endpoint: endpoint, format: format}
   $endpoint_histogram.init_label_set(labels)
   $endpoint_cache_misses.init_label_set(labels)
+  error_labels = labels.clone
   ERROR_TYPES.each_value do |error_type|
-    labels[:error_type] = error_type
-    $endpoint_error_count.init_label_set(labels)
+    error_labels[:error_type] = error_type
+    $endpoint_error_count.init_label_set(error_labels)
   end
+  auth_labels = labels.clone
+  auth_methods = %w[none header basic_auth]
+  auth_methods.each do |method|
+    auth_labels[:auth_type] = method
+    $auth_method.init_label_set(auth_labels)
+  end
+end
+HTML_ENDPOINTS.each_value do |endpoint_label|
+  init_endpoint_metrics(endpoint_label, "html")
 end
 API_ENDPOINTS.each_value do |endpoint_label|
   formats = %w[json xml]
   formats.each do |format|
-    labels = {endpoint: endpoint_label, format: format}
-    $endpoint_histogram.init_label_set(labels)
-    $endpoint_cache_misses.init_label_set(labels)
-    ERROR_TYPES.each_value do |error_type|
-      labels[:error_type] = error_type
-      $endpoint_error_count.init_label_set(labels)
-    end
+    init_endpoint_metrics(endpoint_label, format)
   end
 end
 POST_ENDPOINTS.each_value do |endpoint_label|
   formats = %w[json formdata]
   formats.each do |format|
-    labels = {endpoint: endpoint_label, format: format}
-    $endpoint_histogram.init_label_set(labels)
-    $endpoint_cache_misses.init_label_set(labels)
-    ERROR_TYPES.each_value do |error_type|
-      labels[:error_type] = error_type
-      $endpoint_error_count.init_label_set(labels)
-    end
+    init_endpoint_metrics(endpoint_label, format)
   end
 end
 RSS_ENDPOINTS.each_value do |endpoint_label|
   $rss_length_histogram.init_label_set(endpoint: endpoint_label)
   formats= %w[json xml rss]
   formats.each do |format|
-    labels = {endpoint: endpoint_label, format: format}
-    $endpoint_histogram.init_label_set(labels)
-    $endpoint_cache_misses.init_label_set(labels)
-    ERROR_TYPES.each_value do |error_type|
-      labels[:error_type] = error_type
-      $endpoint_error_count.init_label_set(labels)
-    end
+    init_endpoint_metrics(endpoint_label, format)
   end
 end
 RSS_ONLY_ENDPOINTS.each_value do |endpoint_label|
   $rss_length_histogram.init_label_set(endpoint: endpoint_label)
-  labels = {endpoint: endpoint_label, format: "rss"}
-  $endpoint_histogram.init_label_set(labels)
-  $endpoint_cache_misses.init_label_set(labels)
-  ERROR_TYPES.each_value do |error_type|
-    labels[:error_type] = error_type
-    $endpoint_error_count.init_label_set(labels)
-  end
+  init_endpoint_metrics(endpoint_label, "rss")
 end
 
 
