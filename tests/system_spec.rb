@@ -21,7 +21,7 @@ describe "FA export server" do
     authority = SERVER_URL
     if user and password
       scheme, host = SERVER_URL.split("//")
-      authority = "#{scheme}://#{user}:#{password}@#{host}"
+      authority = "#{scheme}//#{user}:#{password}@#{host}"
     end
     url = "#{authority}/#{path}"
 
