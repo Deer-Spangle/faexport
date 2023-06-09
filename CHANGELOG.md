@@ -13,60 +13,66 @@ Format inspired by https://keepachangelog.com/en/1.0.0/
 
 ## [v2023.06.1] - 2023-06-09
 
-## Added
+### Fixed
+
+- Fixed the `faexport_auth_method_total` metric, to actually increment, and removing endpoint labels
+
+## [v2023.06.1] - 2023-06-09
+
+### Added
 
 - Added support for HTTP basic auth on authenticated endpoints, especially for RSS feeds
 - Added metric series `faexport_auth_method_total` to observe how often auth methods are used
 
 ## [v2023.03.1] - 2023-03-03
 
-## Changed
+### Changed
 
 - Stripping null bytes from submissions
 - Quote cookie variable in Makefile to avoid need to escape them
 - Docs comment about browse pages not always returning a full page
 - Update dependencies
 
-## Fixed
+### Fixed
 
 - Test improvements (handling non-full pages, fast fail on missing tokens)
 - Handling new type of deleted comment on FA (Where the comment is non-bold and simply says `[deleted]`)
 
 ## [v2022.10.1] - 2022-10-29
 
-## Fixed
+### Fixed
 
 - Fixed a bug where invalid unicode characters in FA page would cause the API to return a 500 error.
 
 ## [v2022.08.1] - 2022-08-28
 
-## Changed
+### Changed
 
 - Updated Ruby version and dependencies
 - Updated alpine version in the docker image
 
 ## [v2022.06.2] - 2022-06-03
 
-## Changed
+### Changed
 
 - Correctly returns 404 status code and error messages when submissions, journals, and users do not exist.
 - Changed some of the HTTP status codes for errors, to more correct codes for each error.
 
 ## [v2022.06.1] - 2022-06-03
 
-## Fixed
+### Fixed
 
 - Fixed parsing of profile name on user endpoint
 
 ## [v2022.04.2] - 2022-04-22
 
-## Added
+### Added
 
 - Added "guest_access" parameter to user profile endpoint, which says whether a user's page is available to guests without logging in.
 
 ## [v2022.04.1] - 2022-04-04
 
-## Added
+### Added
 
 - Added new search time ranges: `1day`, `3days`, `7days`.
   - Default remains `all`.
