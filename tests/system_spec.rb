@@ -100,7 +100,7 @@ describe "FA export server" do
     it "returns an error if cookie is not given" do
       resp = fetch_with_retry("/notifications/others.json", check_status: false)
       expect(resp.status[0]).to eq("401")
-      expect(resp.headers["WWW-Authenticate"]).not_to be_falsey
+      expect(resp.meta["www-authenticate"]).not_to be_falsey
       body = resp.read
       expect(body).not_to be_empty
       data = JSON.parse(body)
