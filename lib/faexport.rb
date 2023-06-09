@@ -143,7 +143,7 @@ $rss_length_histogram = prom.histogram(
 $auth_method = prom.counter(
   :faexport_auth_method_total,
   docstring: "How many requests are made with authentication, and which type",
-  labels: [:endpoint, :format, :auth_type]
+  labels: [:auth_type]
 )
 def init_endpoint_metrics(endpoint, format)
   labels = {endpoint: endpoint, format: format}
@@ -153,12 +153,6 @@ def init_endpoint_metrics(endpoint, format)
   ERROR_TYPES.each_value do |error_type|
     error_labels[:error_type] = error_type
     $endpoint_error_count.init_label_set(error_labels)
-  end
-  auth_labels = labels.clone
-  auth_methods = %w[none header basic_auth]
-  auth_methods.each do |method|
-    auth_labels[:auth_type] = method
-    $auth_method.init_label_set(auth_labels)
   end
 end
 HTML_ENDPOINTS.each_value do |endpoint_label|
@@ -186,6 +180,10 @@ end
 RSS_ONLY_ENDPOINTS.each_value do |endpoint_label|
   $rss_length_histogram.init_label_set(endpoint: endpoint_label)
   init_endpoint_metrics(endpoint_label, "rss")
+end
+auth_methods = %w[none header basic_auth]
+auth_methods.each do |method|
+  $auth_method.init_label_set({auth_type: method})
 end
 
 
@@ -264,6 +262,7 @@ module FAExport
         header_value = request.env["HTTP_FA_COOKIE"]
         if header_value
           if header_value =~ COOKIE_REGEX
+            $auth_method.increment({auth_type: "header"})
             return header_value
           else
             raise FALoginCookieError.new(
@@ -277,6 +276,7 @@ module FAExport
         auth =  Rack::Auth::Basic::Request.new(request.env)
         if auth.provided? and auth.basic? and auth.credentials
           user, pass = auth.credentials
+          $auth_method.increment({auth_type: "basic_auth"})
           return pass if pass =~ COOKIE_REGEX
           unless pass.count(";") == 1
             raise FALoginCookieError.new(
@@ -298,6 +298,7 @@ module FAExport
           return cookie_str
         end
 
+        $auth_method.increment({auth_type: "none"})
         return nil
       end
 
