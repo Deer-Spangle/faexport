@@ -27,7 +27,15 @@ You may want to do this in a private browsing session as logging out of your acc
 the cookie and break the scraper.
 This cookie must be for an account that is set to view the site in classic mode. Modern style cannot be parsed by this API.
 
-To authenticate with the API, you will need to provide that string in the FA_COOKIE header. (Header. Not a cookie)
+To authenticate with the API, you will need to provide that string in the FA_COOKIE header. (Header. Not a cookie).
+
+Another option, particularly for the authenticated RSS feeds, is to use HTTP basic auth, using the username "ab", and
+the password being the a and b cookie values, concatenated with a semi-colon between them. Like so:
+```uri
+https://ab:b1b985c4-d73e-492a-a830-ad238a3693ef;3a485360-d203-4a38-97e8-4ff7cdfa244c@faexport.spangle.org.uk/notifications/submissions.rss
+```
+You *must not* share such RSS feed links with others though, as your FA cookies are encoded into the URL, and could be
+used to access your account.
 
 
 ## Development Setup
