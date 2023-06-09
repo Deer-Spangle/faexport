@@ -18,18 +18,20 @@ describe "FA export server" do
   def fetch_with_retry(path, cookie: nil, check_status: true, user: nil, password: nil)
     wait_between_tries = 5
     retries = 0
-    authority = SERVER_URL
+    url = "#{SERVER_URL}/#{path}"
+    user_info = nil
     if user and password
-      scheme, host = SERVER_URL.split("//")
-      authority = "#{scheme}//#{user}:#{password}@#{host}"
+      user_info = [user, password]
     end
-    url = "#{authority}/#{path}"
 
     begin
       if cookie
-        URI.parse(url).open({ "FA_COOKIE" => cookie.to_s })
+        URI.parse(url).open(
+          { "FA_COOKIE" => cookie.to_s },
+          http_basic_authentication: user_info
+        )
       else
-        URI.parse(url).open
+        URI.parse(url).open(http_basic_authentication: user_info)
       end
     rescue OpenURI::HTTPError => e
       raise if check_status
