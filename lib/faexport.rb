@@ -262,7 +262,7 @@ module FAExport
         header_value = request.env["HTTP_FA_COOKIE"]
         if header_value
           if header_value =~ COOKIE_REGEX
-            $auth_method.increment({auth_type: "header"})
+            $auth_method.increment(labels: {auth_type: "header"})
             return header_value
           else
             raise FALoginCookieError.new(
@@ -276,7 +276,7 @@ module FAExport
         auth =  Rack::Auth::Basic::Request.new(request.env)
         if auth.provided? and auth.basic? and auth.credentials
           user, pass = auth.credentials
-          $auth_method.increment({auth_type: "basic_auth"})
+          $auth_method.increment(labels: {auth_type: "basic_auth"})
           return pass if pass =~ COOKIE_REGEX
           unless pass.count(";") == 1
             raise FALoginCookieError.new(
@@ -298,7 +298,7 @@ module FAExport
           return cookie_str
         end
 
-        $auth_method.increment({auth_type: "none"})
+        $auth_method.increment(labels: {auth_type: "none"})
         return nil
       end
 
