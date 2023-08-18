@@ -450,7 +450,7 @@ describe "FA parser" do
         expect(favs1).to be_instance_of Array
         expect(favs1.length).to be 72
         favs_overlap.each do |fav|
-          expect(fav[:fav_id]).to be > overlap_fav_id
+          expect(fav[:fav_id].to_i).to be > overlap_fav_id.to_i
         end
       end
     end
