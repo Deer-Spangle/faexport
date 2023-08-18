@@ -1154,10 +1154,16 @@ class Furaffinity
         end
       rescue OpenURI::HTTPError => e
         $http_errors.increment(labels: {page_type: page_type})
-        if e.io.status[0] == "503"
-          $cloudflare_errors.increment(labels: {page_type: page_type})
-          raise FACloudflareError.new(url)
+        # Detect and handle cloudflare errors
+        if e.io.status[0] == "403"
+          raw = e.io.string
+          html = Nokogiri::HTML(raw.encode("UTF-8", invalid: :replace, undef: :replace).delete("\000"))
+          if html.at_css("#challenge-error-title")
+            $cloudflare_errors.increment(labels: {page_type: page_type})
+            raise FACloudflareError.new(url)
+          end
         end
+        # Raise other HTTP errors as normal
         raise
       ensure
         request_time = Time.now - start
