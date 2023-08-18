@@ -434,7 +434,7 @@ describe "FA parser" do
         expect(favs_next.length).to be > (72 - 58)
         expect(favs_next[0][:fav_id]).to eql(fav_id_next)
         favs_next.each do |fav|
-          expect(fav[:fav_id]).to be < fav_id
+          expect(fav[:fav_id].to_i).to be < fav_id.to_i
         end
       end
 
