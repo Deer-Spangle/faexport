@@ -1084,7 +1084,7 @@ module FAExport
         headers['WWW-Authenticate'] = 'Basic realm="Restricted Endpoint"'
       end
 
-      JSON.pretty_generate error: err.message, url: err.url
+      JSON.pretty_generate error_type: err.error_type, error: err.message, url: err.url
     end
 
     error do
