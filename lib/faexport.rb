@@ -1089,7 +1089,7 @@ module FAExport
 
     error do
       status 500
-      "FAExport encounter an internal error"
+      JSON.pretty_generate error_type: "unknown", error: "FAExport encountered an internal error"
     end
   end
 end
