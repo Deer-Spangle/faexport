@@ -124,12 +124,20 @@ class FAError < StandardError
     super("Error accessing FA")
     @url = url
   end
+
+  def error_type
+    "fa_unknown"
+  end
 end
 
 class FAFormError < FAError
   def initialize(url, field = nil)
     super(url)
     @field = field
+  end
+
+  def error_type
+    "fa_form"
   end
 
   def to_s
@@ -147,6 +155,10 @@ class FAOffsetError < FAError
     @message = message
   end
 
+  def error_type
+    "fa_offset"
+  end
+
   def to_s
     @message
   end
@@ -157,6 +169,10 @@ class FASearchError < FAError
     super(url)
     @key = key
     @value = value
+  end
+
+  def error_type
+    "fa_search"
   end
 
   def to_s
@@ -173,24 +189,40 @@ class FAStatusError < FAError
     @status = status
   end
 
+  def error_type
+    "fa_status"
+  end
+
   def to_s
     "FA returned a status of '#{@status}' while trying to access #{@url}."
   end
 end
 
 class FASystemError < FAError
+  def error_type
+    "fa_system"
+  end
+
   def to_s
     "FA returned an unknown system error page when trying to access #{@url}."
   end
 end
 
 class FANoTitleError < FASystemError
+  def error_type
+    "fa_no_title"
+  end
+
   def to_s(*args)
     "FA returned a page without a title when trying to access #{@url}. This should not happen"
   end
 end
 
 class FAStyleError < FAError
+  def error_type
+    "fa_style"
+  end
+
   def to_s
     "FA is not currently set to classic theme. Unfortunately this API currently only works if the authenticated
 account is using classic theme. Please change your style to classic and try again."
@@ -198,12 +230,20 @@ account is using classic theme. Please change your style to classic and try agai
 end
 
 class FALoginError < FAError
+  def error_type
+    "fa_login"
+  end
+
   def to_s
     "Unable to log into FA to access #{@url}."
   end
 end
 
 class FAGuestAccessError < FALoginError
+  def error_type
+    "fa_guest_access"
+  end
+
   def to_s(*args)
     "This page is not available to guests"
   end
@@ -215,36 +255,60 @@ class FALoginCookieError < FAError
     @message = message
   end
 
+  def error_type
+    "fa_login_cookie"
+  end
+
   def to_s
     @message
   end
 end
 
 class FANotFoundError < FAError
+  def error_type
+    "fa_not_found"
+  end
+
   def to_s
     "Submission or journal could not be found on #{@url}."
   end
 end
 
 class FAContentFilterError < FAError
+  def error_type
+    "fa_content_filter"
+  end
+
   def to_s
     "Submission cannot be accessed due to content filter settings"
   end
 end
 
 class FANoUserError < FAError
+  class error_type
+    "fa_no_user"
+  end
+
   def to_s
     "User could not be found on #{@url}"
   end
 end
 
 class FAAccountDisabledError < FAError
+  def error_type
+    "fa_account_disabled"
+  end
+
   def to_s
     "User has disabled their account on #{url}"
   end
 end
 
 class FACloudflareError < FAError
+  def error_type
+    "fa_cloudflare"
+  end
+
   def to_s
     "Cannot access FA, #{@url} as cloudflare protection is up"
   end

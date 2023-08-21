@@ -101,24 +101,24 @@ RSS_ONLY_ENDPOINTS = {
   notifs_favs: "api_notifications_favorites",
   notifs_journals: "api_notifications_journals",
 }
-ERROR_TYPES = {
-  FAFormError => "fa_form",
-  FAOffsetError => "fa_offset",
-  FASearchError => "fa_search",
-  FAStatusError => "fa_status",
-  FANoTitleError => "fa_no_title",
-  FAStyleError => "fa_style",
-  FALoginError => "fa_login_cookie",
-  FANotFoundError => "fa_not_found",
-  FAContentFilterError => "fa_content_filter",
-  FANoUserError => "fa_no_user",
-  FAAccountDisabledError => "fa_account_disabled",
-  FACloudflareError => "fa_cloudflare",
-  FALoginError => "fa_login",
-  FASystemError => "fa_system",
-  FAError => "fa_unknown",
-  unknown: "unknown",
-}
+ERROR_TYPES = [
+  FAFormError,
+  FAOffsetError,
+  FASearchError,
+  FAStatusError,
+  FANoTitleError,
+  FAStyleError,
+  FALoginError,
+  FAGuestAccessError,
+  FALoginCookieError,
+  FANotFoundError,
+  FAContentFilterError,
+  FANoUserError,
+  FAAccountDisabledError,
+  FACloudflareError,
+  FASystemError,
+  FAError,
+]
 $endpoint_histogram = prom.histogram(
   :faexport_endpoint_request_time_seconds,
   docstring: "How long each request to the given endpoint took, in seconds",
@@ -150,10 +150,12 @@ def init_endpoint_metrics(endpoint, format)
   $endpoint_histogram.init_label_set(labels)
   $endpoint_cache_misses.init_label_set(labels)
   error_labels = labels.clone
-  ERROR_TYPES.each_value do |error_type|
+  ERROR_TYPES.each do |error_class|
+    error_type = error_class.error_type
     error_labels[:error_type] = error_type
     $endpoint_error_count.init_label_set(error_labels)
   end
+  $endpoint_error_count.init_label_set({error_type: "unknown"})
 end
 HTML_ENDPOINTS.each_value do |endpoint_label|
   init_endpoint_metrics(endpoint_label, "html")
@@ -311,9 +313,11 @@ module FAExport
         start = Time.now
         begin
           resp = block.call(labels)
+        rescue FAError => e
+          $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: e.error_type})
+          raise e
         rescue => e
-          error_type = ERROR_TYPES.fetch(e.class, ERROR_TYPES[:unknown])
-          $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: error_type})
+          $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: "unknown"})
           raise e
         ensure
           time = Time.now - start
