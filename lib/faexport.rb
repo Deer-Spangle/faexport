@@ -1089,7 +1089,7 @@ module FAExport
 
     error OpenURI::HTTPError do
       status 500
-      JSON.pretty_generate error_type: "unknown_http", error: "FAExport encountered an unknown error while fetching data from FurAffinity"
+      JSON.pretty_generate error_type: "unknown_http", error: "FAExport received an unexpected status code when fetching data from FurAffinity"
     end
 
     error do
