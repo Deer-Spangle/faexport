@@ -34,3 +34,26 @@ jobs:
           server_url: "http://localhost:9292"
           test_cookie: ${{ secrets.TEST_COOKIE}}
           test_cookie_user_2: ${{ secrets.COOKIE_FAFEED_2 }}
+
+  static-scrape-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Build docker image"
+        run: make docker_build
+      - name: "Run docker compose"
+        run: "make deploy_bg PORT=9292 CF_BYPASS=http://localhost:3000"
+        env:
+          FA_COOKIE: ${{ secrets.TEST_COOKIE }}
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.2
+      - name: Install dependencies
+        run: bundle install
+      - name: "Run system tests with mock responses"
+        run: bundle exec "rspec spec tests/mock_system_spec.rb"
+        env:
+          server_url: "http://localhost:9292"
+          test_cookie: ${{ secrets.TEST_COOKIE}}
+          test_cookie_user_2: ${{ secrets.COOKIE_FAFEED_2 }}
