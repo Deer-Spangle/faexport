@@ -128,6 +128,10 @@ class FAError < StandardError
   def error_type
     "fa_unknown"
   end
+
+  def status_code
+    500
+  end
 end
 
 class FAFormError < FAError
@@ -138,6 +142,10 @@ class FAFormError < FAError
 
   def error_type
     "fa_form"
+  end
+
+  def status_code
+    400
   end
 
   def to_s
@@ -159,6 +167,10 @@ class FAOffsetError < FAError
     "fa_offset"
   end
 
+  def status_code
+    400
+  end
+
   def to_s
     @message
   end
@@ -173,6 +185,10 @@ class FASearchError < FAError
 
   def error_type
     "fa_search"
+  end
+
+  def status_code
+    400
   end
 
   def to_s
@@ -193,6 +209,10 @@ class FAStatusError < FAError
     "fa_status"
   end
 
+  def status_code
+    502
+  end
+
   def to_s
     "FA returned a status of '#{@status}' while trying to access #{@url}."
   end
@@ -201,6 +221,10 @@ end
 class FASystemError < FAError
   def error_type
     "fa_system"
+  end
+
+  def status_code
+    500
   end
 
   def to_s
@@ -213,6 +237,10 @@ class FANoTitleError < FASystemError
     "fa_no_title"
   end
 
+  def status_code
+    500
+  end
+
   def to_s(*args)
     "FA returned a page without a title when trying to access #{@url}. This should not happen"
   end
@@ -221,6 +249,10 @@ end
 class FAStyleError < FAError
   def error_type
     "fa_style"
+  end
+
+  def status_code
+    400
   end
 
   def to_s
@@ -234,6 +266,10 @@ class FALoginError < FAError
     "fa_login"
   end
 
+  def status_code
+    401
+  end
+
   def to_s
     "Unable to log into FA to access #{@url}."
   end
@@ -242,6 +278,10 @@ end
 class FAGuestAccessError < FALoginError
   def error_type
     "fa_guest_access"
+  end
+
+  def status_code
+    403
   end
 
   def to_s(*args)
@@ -259,6 +299,10 @@ class FALoginCookieError < FAError
     "fa_login_cookie"
   end
 
+  def status_code
+    401
+  end
+
   def to_s
     @message
   end
@@ -267,6 +311,10 @@ end
 class FANotFoundError < FAError
   def error_type
     "fa_not_found"
+  end
+
+  def status_code
+    404
   end
 
   def to_s
@@ -279,6 +327,10 @@ class FAContentFilterError < FAError
     "fa_content_filter"
   end
 
+  def status_code
+    403
+  end
+
   def to_s
     "Submission cannot be accessed due to content filter settings"
   end
@@ -287,6 +339,10 @@ end
 class FANoUserError < FAError
   class error_type
     "fa_no_user"
+  end
+
+  def status_code
+    404
   end
 
   def to_s
@@ -299,6 +355,10 @@ class FAAccountDisabledError < FAError
     "fa_account_disabled"
   end
 
+  def status_code
+    404
+  end
+
   def to_s
     "User has disabled their account on #{url}"
   end
@@ -307,6 +367,10 @@ end
 class FACloudflareError < FAError
   def error_type
     "fa_cloudflare"
+  end
+
+  def status_code
+    503
   end
 
   def to_s
@@ -318,6 +382,14 @@ class CacheError < FAError
   def initialize(message)
     super(nil)
     @message = message
+  end
+
+  def error_type
+    "cache_error"
+  end
+
+  def status_code
+    500
   end
 
   def to_s

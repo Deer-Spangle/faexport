@@ -1058,27 +1058,7 @@ module FAExport
 
     error FAError do
       err = env["sinatra.error"]
-      status(
-        case err
-        when FAFormError        then 400
-        when FAOffsetError      then 400
-        when FASearchError      then 400
-        when FAStatusError      then 502
-        when FANoTitleError     then 500
-        when FAStyleError       then 400
-        when FAGuestAccessError then 403  # Shouldn't reach the user really, as login error should cover it
-        when FALoginCookieError then 401
-        when FANotFoundError    then 404
-        when FAContentFilterError then 403
-        when FANoUserError      then 404
-        when FAAccountDisabledError then 404
-        when FACloudflareError  then 503
-        when CacheError         then 500
-        when FALoginError       then @user_cookie ? 401 : 403  # Superclass of FAGuestAccessError
-        when FASystemError      then 500  # Superclass of FANoTitleError
-        else 500
-        end
-      )
+      status(err.status_code)
 
       if err.is_a? FALoginCookieError
         headers['WWW-Authenticate'] = 'Basic realm="Restricted Endpoint"'
