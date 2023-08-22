@@ -155,7 +155,10 @@ def init_endpoint_metrics(endpoint, format)
     error_labels[:error_type] = error_type
     $endpoint_error_count.init_label_set(error_labels)
   end
-  $endpoint_error_count.init_label_set({error_type: "unknown"})
+  error_labels[:error_type] = "unknown"
+  $endpoint_error_count.init_label_set(error_labels)
+  error_labels[:error_type] = "unknown_http"
+  $endpoint_error_count.init_label_set(error_labels)
 end
 HTML_ENDPOINTS.each_value do |endpoint_label|
   init_endpoint_metrics(endpoint_label, "html")
