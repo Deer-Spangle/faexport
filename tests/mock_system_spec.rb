@@ -15,14 +15,14 @@ describe "FA export server" do
     expect(COOKIE_DEFAULT).not_to be_empty, "Test cookie needs to be set for testing"
   end
 
-  def spawn_static_page_server(path, status_code)
-    pid = spawn("while true; do echo -ne \"HTTP/1.0 #{status_code}\n\n\"; cat  < #{path}; } | nc -q0 -vlp 3000; done")
+  def spawn_static_page_server(path)
+    pid = spawn("while true; do cat #{path} | nc -vlp 3000; done")
     return pid
   end
 
   context "when getting a slowdown page response" do
     before do
-      @pid = spawn_static_page_server("resources/slowdown_page.html", "503 Service Unavailable")
+      @pid = spawn_static_page_server("resources/slowdown_page.txt")
     end
 
     it "returns an FA slowdown error" do
@@ -47,7 +47,7 @@ describe "FA export server" do
 
   context "when getting a cloudflare challenge response" do
     before do
-      @pid = spawn_static_page_server("resources/cf_challenge.html", "403 Forbidden")
+      @pid = spawn_static_page_server("resources/cf_challenge.txt")
     end
 
     it "returns an FA slowdown error" do
