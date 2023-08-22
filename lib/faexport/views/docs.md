@@ -88,6 +88,13 @@ Error types:
 - `fa_no_user` The user you have tried to access does not exist on FurAffinity, or the entry you have tried to access belongs to a user which does not exist.
 - `fa_account_disabled` The user you have tried to access has disabled their account on FurAffinity
 
+### 429 Too Many Requests
+
+This error is returned by certain pages on FurAffinity which have rate limits, when the FAExport instance is requesting responses too fast for them to handle.
+
+Error types:
+- `fa_slowdown` FurAffinity has responded with an error page asking to slow down requests
+
 ### 500 Internal Server Error
 
 Generic error returned when FAExport encounters some sort of internal error.
