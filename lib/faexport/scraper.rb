@@ -125,7 +125,7 @@ class FAError < StandardError
     @url = url
   end
 
-  def error_type
+  def self.error_type
     "fa_unknown"
   end
 
@@ -140,7 +140,7 @@ class FAFormError < FAError
     @field = field
   end
 
-  def error_type
+  def self.error_type
     "fa_form"
   end
 
@@ -163,7 +163,7 @@ class FAOffsetError < FAError
     @message = message
   end
 
-  def error_type
+  def self.error_type
     "fa_offset"
   end
 
@@ -183,7 +183,7 @@ class FASearchError < FAError
     @value = value
   end
 
-  def error_type
+  def self.error_type
     "fa_search"
   end
 
@@ -205,7 +205,7 @@ class FAStatusError < FAError
     @status = status
   end
 
-  def error_type
+  def self.error_type
     "fa_status"
   end
 
@@ -219,7 +219,7 @@ class FAStatusError < FAError
 end
 
 class FASystemError < FAError
-  def error_type
+  def self.error_type
     "fa_system"
   end
 
@@ -233,7 +233,7 @@ class FASystemError < FAError
 end
 
 class FANoTitleError < FASystemError
-  def error_type
+  def self.error_type
     "fa_no_title"
   end
 
@@ -247,7 +247,7 @@ class FANoTitleError < FASystemError
 end
 
 class FAStyleError < FAError
-  def error_type
+  def self.error_type
     "fa_style"
   end
 
@@ -262,7 +262,7 @@ account is using classic theme. Please change your style to classic and try agai
 end
 
 class FALoginError < FAError
-  def error_type
+  def self.error_type
     "fa_login"
   end
 
@@ -276,7 +276,7 @@ class FALoginError < FAError
 end
 
 class FAGuestAccessError < FALoginError
-  def error_type
+  def self.error_type
     "fa_guest_access"
   end
 
@@ -295,7 +295,7 @@ class FALoginCookieError < FAError
     @message = message
   end
 
-  def error_type
+  def self.error_type
     "fa_login_cookie"
   end
 
@@ -309,7 +309,7 @@ class FALoginCookieError < FAError
 end
 
 class FANotFoundError < FAError
-  def error_type
+  def self.error_type
     "fa_not_found"
   end
 
@@ -323,7 +323,7 @@ class FANotFoundError < FAError
 end
 
 class FAContentFilterError < FAError
-  def error_type
+  def self.error_type
     "fa_content_filter"
   end
 
@@ -337,7 +337,7 @@ class FAContentFilterError < FAError
 end
 
 class FANoUserError < FAError
-  def error_type
+  def self.error_type
     "fa_no_user"
   end
 
@@ -351,7 +351,7 @@ class FANoUserError < FAError
 end
 
 class FAAccountDisabledError < FAError
-  def error_type
+  def self.error_type
     "fa_account_disabled"
   end
 
@@ -365,7 +365,7 @@ class FAAccountDisabledError < FAError
 end
 
 class FACloudflareError < FAError
-  def error_type
+  def self.error_type
     "fa_cloudflare"
   end
 
@@ -381,7 +381,7 @@ end
 
 class FASlowdownError < FACloudflareError
 
-  def error_type
+  def self.error_type
     "fa_slowdown"
   end
 
@@ -401,7 +401,7 @@ class CacheError < FAError
     @message = message
   end
 
-  def error_type
+  def self.error_type
     "cache_error"
   end
 
