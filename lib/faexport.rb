@@ -116,6 +116,7 @@ ERROR_TYPES = [
   FANoUserError,
   FAAccountDisabledError,
   FACloudflareError,
+  FASlowdownError,
   FASystemError,
   FAError,
 ]

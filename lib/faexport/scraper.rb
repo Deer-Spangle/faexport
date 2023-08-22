@@ -102,11 +102,17 @@ $cloudflare_errors = prom.counter(
   docstring: "Total number of cloudflare errors returned by FA",
   labels: [:page_type]
 )
+$slowdown_errors = prom.counter(
+  :faexport_scraper_slowdown_error_total,
+  docstring: "Total number of slowdown errors returned by FA",
+  labels: [:page_type]
+)
 (PAGE_TYPES.values + [PAGE_OTHER]).each do |page_type|
   $page_fetch_calls.init_label_set(page_type: page_type)
   $page_request_time.init_label_set(page_type: page_type)
   $http_errors.init_label_set(page_type: page_type)
   $cloudflare_errors.init_label_set(page_type: page_type)
+  $slowdown_errors.init_label_set(page_type: page_type)
 end
 $fa_users_online = prom.gauge(
   :faexport_fa_users_online_total,
