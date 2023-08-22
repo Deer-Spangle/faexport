@@ -337,7 +337,7 @@ class FAContentFilterError < FAError
 end
 
 class FANoUserError < FAError
-  class error_type
+  def error_type
     "fa_no_user"
   end
 
