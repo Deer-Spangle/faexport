@@ -1325,8 +1325,8 @@ class Furaffinity
           end
 
           # Handle FA slowdown errors
-          title = html.xpath("//head//title").first
-          if e.io.status[0] == "503" and title.include?("Error 503") and raw.include?("you are requesting web pages too fast and are being rate limited")
+          title = html.xpath("//head//title").first.content
+          if e.io.status[0] == "503" and title.include?("Error 503 --") and raw.include?("you are requesting web pages too fast and are being rate limited")
             $slowdown_errors.increment(labels: {page_type: page_type})
             raise FASlowdownError.new(url)
           end
