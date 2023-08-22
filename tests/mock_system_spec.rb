@@ -30,11 +30,36 @@ describe "FA export server" do
         URI.parse("#{SERVER_URL}/view/123.json")
       rescue OpenURI::HTTPError => e
         e_resp = e.io
-        expect(e_resp.status[0]).to eq("401")
+        expect(e_resp.status[0]).to eq("429")
         body = e_resp.read
         expect(body).not_to be_empty
         data = JSON.parse(body)
         expect(data).to have_key("error_type")
+        expect(data["error_type"]).to eq("fa_slowdown")
+      end
+    end
+
+    after do
+      Process.kill("QUIT", @pid)
+    end
+  end
+
+  context "when getting a cloudflare challenge response" do
+    before do
+      @pid = spawn_static_page_server("resources/cf_challenge.html", "403 Forbidden")
+    end
+
+    it "returns an FA slowdown error" do
+      begin
+        URI.parse("#{SERVER_URL}/view/123.json")
+      rescue OpenURI::HTTPError => e
+        e_resp = e.io
+        expect(e_resp.status[0]).to eq("503")
+        body = e_resp.read
+        expect(body).not_to be_empty
+        data = JSON.parse(body)
+        expect(data).to have_key("error_type")
+        expect(data["error_type"]).to eq("fa_cloudflare")
       end
     end
 
