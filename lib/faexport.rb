@@ -317,7 +317,7 @@ module FAExport
         begin
           resp = block.call(labels)
         rescue FAError => e
-          $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: e.error_type})
+          $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: e.class.error_type})
           raise e
         rescue => e
           $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: "unknown"})
@@ -1067,7 +1067,8 @@ module FAExport
         headers['WWW-Authenticate'] = 'Basic realm="Restricted Endpoint"'
       end
 
-      JSON.pretty_generate error_type: err.error_type, error: err.message, url: err.url
+      set_content_type("json")
+      JSON.pretty_generate(error_type: err.class.error_type, error: err.message, url: err.url)
     end
 
     error OpenURI::HTTPError do
