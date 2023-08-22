@@ -21,11 +21,13 @@ describe "FA export server" do
   end
 
   context "when getting a slowdown page response" do
-    pid = spawn_static_page_server("resources/slowdown_page.html", "503 Service Unavailable")
+    before do
+      @pid = spawn_static_page_server("resources/slowdown_page.html", "503 Service Unavailable")
+    end
 
     it "returns an FA slowdown error" do
       begin
-        resp = URI.parse("#{SERVER_URL}/view/123.json")
+        URI.parse("#{SERVER_URL}/view/123.json")
       rescue OpenURI::HTTPError => e
         e_resp = e.io
         expect(e_resp.status[0]).to eq("401")
@@ -36,6 +38,8 @@ describe "FA export server" do
       end
     end
 
-    Process.kill("QUIT", pid)
+    after do
+      Process.kill("QUIT", @pid)
+    end
   end
 end
