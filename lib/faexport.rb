@@ -993,6 +993,7 @@ module FAExport
     get %r{/notes/#{NOTE_FOLDER_REGEX}\.(json|xml|rss)} do |folder, type|
       record_metrics(RSS_ENDPOINTS[:notes], type) do |metric_labels|
         ensure_login!
+        set_content_type(type)
         cache("notes/#{folder}:#{@user_cookie}.#{type}") do
           $endpoint_cache_misses.increment(labels: metric_labels)
           case type
@@ -1028,6 +1029,7 @@ module FAExport
     get %r{/note/#{ID_REGEX}\.(json|xml)} do |id, type|
       record_metrics(API_ENDPOINTS[:note], type) do |metric_labels|
         ensure_login!
+        set_content_type(type)
         cache("note/#{id}:#{@user_cookie}.#{type}") do
           $endpoint_cache_misses.increment(labels: metric_labels)
           case type
@@ -1073,12 +1075,14 @@ module FAExport
 
     error OpenURI::HTTPError do
       status 500
-      JSON.pretty_generate error_type: "unknown_http", error: "FAExport received an unexpected status code when fetching data from FurAffinity"
+      set_content_type("json")
+      JSON.pretty_generate(error_type: "unknown_http", error: "FAExport received an unexpected status code when fetching data from FurAffinity")
     end
 
     error do
       status 500
-      JSON.pretty_generate error_type: "unknown", error: "FAExport encountered an internal error"
+      set_content_type("json")
+      JSON.pretty_generate(error_type: "unknown", error: "FAExport encountered an internal error")
     end
   end
 end
