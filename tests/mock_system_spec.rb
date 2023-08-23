@@ -23,7 +23,7 @@ describe "FA export server" do
 
   context "when getting a slowdown page response" do
     before do
-      @pid = spawn_static_page_server("resources/slowdown_page.txt")
+      @pid = spawn_static_page_server("tests/resources/slowdown_page.txt")
     end
 
     it "returns an FA slowdown error" do
@@ -48,7 +48,7 @@ describe "FA export server" do
 
   context "when getting a cloudflare challenge response" do
     before do
-      @pid = spawn_static_page_server("resources/cf_challenge.txt")
+      @pid = spawn_static_page_server("tests/resources/cf_challenge.txt")
     end
 
     it "returns an FA slowdown error" do
