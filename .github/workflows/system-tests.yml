@@ -42,7 +42,7 @@ jobs:
       - name: "Build docker image"
         run: make docker_build
       - name: "Set docker compose to host network"
-        run: "sed '/${PORT/d' docker_compose.yml | sed 's/ports:/network_mode: \"host\"' > docker_compose.yml"
+        run: "sed '/${PORT/d' docker_compose.yml | sed 's/ports:/network_mode: \"host\"/' > docker_compose.yml"
       - name: "Run docker compose"
         run: "make deploy_bg PORT=9293 CF_BYPASS=http://localhost:3000"
         env:
