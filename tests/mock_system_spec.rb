@@ -28,7 +28,7 @@ describe "FA export server" do
 
     it "returns an FA slowdown error" do
       begin
-        URI.parse("#{SERVER_URL}/view/123.json")
+        URI.parse("#{SERVER_URL}/submission/123.json").open
         raise "This should return an error code"
       rescue OpenURI::HTTPError => e
         e_resp = e.io
@@ -53,7 +53,7 @@ describe "FA export server" do
 
     it "returns an FA slowdown error" do
       begin
-        URI.parse("#{SERVER_URL}/view/123.json")
+        URI.parse("#{SERVER_URL}/submission/123.json").open
         raise "This should return an error code"
       rescue OpenURI::HTTPError => e
         e_resp = e.io
