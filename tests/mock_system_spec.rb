@@ -13,6 +13,7 @@ SERVER_URL = ENV["server_url"]
 describe "FA export server" do
   before(:all) do
     expect(COOKIE_DEFAULT).not_to be_empty, "Test cookie needs to be set for testing"
+    expect(SERVER_URL).not_to be_empty, "Test server URL needs to be set for testing"
   end
 
   def spawn_static_page_server(path)
