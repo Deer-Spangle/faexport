@@ -47,6 +47,7 @@ jobs:
         run: "make deploy_bg PORT=9293 CF_BYPASS=http://localhost:3000"
         env:
           FA_COOKIE: ${{ secrets.TEST_COOKIE }}
+          APP_ENV: "production"
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
