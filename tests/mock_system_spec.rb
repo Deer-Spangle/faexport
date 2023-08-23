@@ -51,7 +51,7 @@ describe "FA export server" do
       @pid = spawn_static_page_server("tests/resources/cf_challenge.txt")
     end
 
-    it "returns an FA slowdown error" do
+    it "returns an FA cloudflare error" do
       begin
         URI.parse("#{SERVER_URL}/submission/123.json").open
         raise "This should return an error code"
