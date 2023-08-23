@@ -57,6 +57,4 @@ jobs:
       - name: "Run system tests with mock responses"
         run: bundle exec "rspec spec tests/mock_system_spec.rb"
         env:
-          server_url: "http://localhost:9293"
-          test_cookie: ${{ secrets.TEST_COOKIE}}
-          test_cookie_user_2: ${{ secrets.COOKIE_FAFEED_2 }}
+          server_url: "http://localhost:9292"
