@@ -48,7 +48,7 @@ jobs:
           sed -i 's/redis_container:6379/localhost:6379/' docker-compose.yml;
           sed -i '10i \ \ \ \ \ \ - CF_BYPASS=http://localhost:3000' docker-compose.yml;
       - name: "Run docker compose"
-        run: "make deploy_bg"
+        run: "make deploy_bg PORT=9292"
         env:
           FA_COOKIE: ${{ secrets.TEST_COOKIE }}
           APP_ENV: "production"
