@@ -17,8 +17,20 @@ describe "FA export server" do
   end
 
   def spawn_static_page_server(path)
-    pid = spawn("while true; do cat #{path} | nc -vlp 3000; done")
+    pid = spawn("while true; do cat #{path} | nc -cvlp 3000; done")
+    sleep(0.5)  # Wait for it to come online
     return pid
+  end
+
+  def kill_static_page_server(pid)
+    Process.kill("KILL", pid)
+    sleep(1) # Wait for loop to die
+    # Make one request, to clear the last running netcat
+    begin
+      URI.open("http://localhost:3000").open
+    rescue
+      # Ignored
+    end
   end
 
   context "when getting a slowdown page response" do
@@ -42,7 +54,7 @@ describe "FA export server" do
     end
 
     after do
-      Process.kill("QUIT", @pid)
+      kill_static_page_server(@pid)
     end
   end
 
@@ -67,7 +79,7 @@ describe "FA export server" do
     end
 
     after do
-      Process.kill("QUIT", @pid)
+      kill_static_page_server(@pid)
     end
   end
 end
