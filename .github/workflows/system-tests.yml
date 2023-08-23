@@ -44,9 +44,10 @@ jobs:
       - name: "Set docker compose to host network"
         run: >
           sed -i '/${PORT/d' docker-compose.yml;
-          sed -i 's/ports:/network_mode: \"host\"/' docker-compose.yml;
+          sed -i 's/ports:/network_mode: "host"/' docker-compose.yml;
           sed -i 's/redis_container:6379/localhost:6379/' docker-compose.yml;
           sed -i '10i \ \ \ \ \ \ - CF_BYPASS=http://localhost:3000' docker-compose.yml;
+          sed -i '17i \ \ \ \ network_mode: "host" docker-compose.yml;
       - name: "Run docker compose"
         run: "make deploy_bg PORT=9292"
         env:
