@@ -42,9 +42,13 @@ jobs:
       - name: "Build docker image"
         run: make docker_build
       - name: "Set docker compose to host network"
-        run: "sed '/${PORT/d' docker_compose.yml | sed 's/ports:/network_mode: \"host\"/' > docker_compose.yml"
+        run: >
+          sed -i '/${PORT/d' docker-compose.yml;
+          sed -i 's/ports:/network_mode: \"host\"/' docker-compose.yml;
+          sed -i 's/redis_container:6379/localhost:6379/' docker-compose.yml;
+          sed -i '10i \ \ \ \ \ \ - CF_BYPASS=http://localhost:3000' docker-compose.yml;
       - name: "Run docker compose"
-        run: "make deploy_bg PORT=9293 CF_BYPASS=http://localhost:3000"
+        run: "make deploy_bg"
         env:
           FA_COOKIE: ${{ secrets.TEST_COOKIE }}
           APP_ENV: "production"
