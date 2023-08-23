@@ -41,6 +41,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: "Build docker image"
         run: make docker_build
+      - name: "Set docker compose to host network"
+        run: "sed -i '5i \ \ \ \ network_mode: \"host\"' docker-compose.yml"
       - name: "Run docker compose"
         run: "make deploy_bg PORT=9293 CF_BYPASS=http://localhost:3000"
         env:
