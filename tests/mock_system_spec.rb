@@ -40,9 +40,8 @@ describe "FA export server" do
         raise "This should return an error code"
       rescue OpenURI::HTTPError => e
         e_resp = e.io
-        body = e_resp.read
-        p body
         expect(e_resp.status[0]).to eq("429")
+        body = e_resp.read
         expect(body).not_to be_empty
         data = JSON.parse(body)
         expect(data).to have_key("error_type")
