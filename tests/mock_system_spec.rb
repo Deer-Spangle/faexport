@@ -17,7 +17,7 @@ describe "FA export server" do
   end
 
   def spawn_static_page_server(path)
-    pid = spawn("while true; do cat #{path} | nc -cvlp 3000; done")
+    pid = spawn("while true; do cat #{path} | nc -q0 -vlp 3000; done")
     sleep(0.5)  # Wait for it to come online
     return pid
   end
