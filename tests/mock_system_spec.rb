@@ -5,14 +5,10 @@ require "open-uri"
 require "sinatra/json"
 require "nokogiri"
 
-COOKIE_DEFAULT = ENV["test_cookie"]
-TEST_USER_2 = "fafeed-2"
-COOKIE_TEST_USER_2 = ENV["test_cookie_user_2"]
 SERVER_URL = ENV["server_url"]
 
 describe "FA export server" do
   before(:all) do
-    expect(COOKIE_DEFAULT).not_to be_empty, "Test cookie needs to be set for testing"
     expect(SERVER_URL).not_to be_empty, "Test server URL needs to be set for testing"
   end
 
