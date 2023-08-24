@@ -11,6 +11,13 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2023.08.1] - 2023-08-24
+
+### Added
+
+- Now detecting cloudflare challenge pages and correctly detecting FA slowdown requests (previously handled as challenge pages)
+- Added "error_type" key to all error responses, for better fine-grained error handling
+
 ## [v2023.06.3] - 2023-06-09
 
 ### Fixed
