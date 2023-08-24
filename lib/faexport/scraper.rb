@@ -102,11 +102,17 @@ $cloudflare_errors = prom.counter(
   docstring: "Total number of cloudflare errors returned by FA",
   labels: [:page_type]
 )
+$slowdown_errors = prom.counter(
+  :faexport_scraper_slowdown_error_total,
+  docstring: "Total number of slowdown errors returned by FA",
+  labels: [:page_type]
+)
 (PAGE_TYPES.values + [PAGE_OTHER]).each do |page_type|
   $page_fetch_calls.init_label_set(page_type: page_type)
   $page_request_time.init_label_set(page_type: page_type)
   $http_errors.init_label_set(page_type: page_type)
   $cloudflare_errors.init_label_set(page_type: page_type)
+  $slowdown_errors.init_label_set(page_type: page_type)
 end
 $fa_users_online = prom.gauge(
   :faexport_fa_users_online_total,
@@ -124,12 +130,28 @@ class FAError < StandardError
     super("Error accessing FA")
     @url = url
   end
+
+  def self.error_type
+    "fa_unknown"
+  end
+
+  def status_code
+    500
+  end
 end
 
 class FAFormError < FAError
   def initialize(url, field = nil)
     super(url)
     @field = field
+  end
+
+  def self.error_type
+    "fa_form"
+  end
+
+  def status_code
+    400
   end
 
   def to_s
@@ -147,6 +169,14 @@ class FAOffsetError < FAError
     @message = message
   end
 
+  def self.error_type
+    "fa_offset"
+  end
+
+  def status_code
+    400
+  end
+
   def to_s
     @message
   end
@@ -157,6 +187,14 @@ class FASearchError < FAError
     super(url)
     @key = key
     @value = value
+  end
+
+  def self.error_type
+    "fa_search"
+  end
+
+  def status_code
+    400
   end
 
   def to_s
@@ -173,24 +211,56 @@ class FAStatusError < FAError
     @status = status
   end
 
+  def self.error_type
+    "fa_status"
+  end
+
+  def status_code
+    502
+  end
+
   def to_s
     "FA returned a status of '#{@status}' while trying to access #{@url}."
   end
 end
 
 class FASystemError < FAError
+  def self.error_type
+    "fa_system"
+  end
+
+  def status_code
+    500
+  end
+
   def to_s
     "FA returned an unknown system error page when trying to access #{@url}."
   end
 end
 
 class FANoTitleError < FASystemError
+  def self.error_type
+    "fa_no_title"
+  end
+
+  def status_code
+    500
+  end
+
   def to_s(*args)
     "FA returned a page without a title when trying to access #{@url}. This should not happen"
   end
 end
 
 class FAStyleError < FAError
+  def self.error_type
+    "fa_style"
+  end
+
+  def status_code
+    400
+  end
+
   def to_s
     "FA is not currently set to classic theme. Unfortunately this API currently only works if the authenticated
 account is using classic theme. Please change your style to classic and try again."
@@ -198,12 +268,28 @@ account is using classic theme. Please change your style to classic and try agai
 end
 
 class FALoginError < FAError
+  def self.error_type
+    "fa_login"
+  end
+
+  def status_code
+    401
+  end
+
   def to_s
     "Unable to log into FA to access #{@url}."
   end
 end
 
 class FAGuestAccessError < FALoginError
+  def self.error_type
+    "fa_guest_access"
+  end
+
+  def status_code
+    403
+  end
+
   def to_s(*args)
     "This page is not available to guests"
   end
@@ -215,38 +301,100 @@ class FALoginCookieError < FAError
     @message = message
   end
 
+  def self.error_type
+    "fa_login_cookie"
+  end
+
+  def status_code
+    401
+  end
+
   def to_s
     @message
   end
 end
 
 class FANotFoundError < FAError
+  def self.error_type
+    "fa_not_found"
+  end
+
+  def status_code
+    404
+  end
+
   def to_s
     "Submission or journal could not be found on #{@url}."
   end
 end
 
 class FAContentFilterError < FAError
+  def self.error_type
+    "fa_content_filter"
+  end
+
+  def status_code
+    403
+  end
+
   def to_s
     "Submission cannot be accessed due to content filter settings"
   end
 end
 
 class FANoUserError < FAError
+  def self.error_type
+    "fa_no_user"
+  end
+
+  def status_code
+    404
+  end
+
   def to_s
     "User could not be found on #{@url}"
   end
 end
 
 class FAAccountDisabledError < FAError
+  def self.error_type
+    "fa_account_disabled"
+  end
+
+  def status_code
+    404
+  end
+
   def to_s
     "User has disabled their account on #{url}"
   end
 end
 
 class FACloudflareError < FAError
+  def self.error_type
+    "fa_cloudflare"
+  end
+
+  def status_code
+    503
+  end
+
   def to_s
     "Cannot access FA, #{@url} as cloudflare protection is up"
+  end
+end
+
+class FASlowdownError < FACloudflareError
+  def self.error_type
+    "fa_slowdown"
+  end
+
+  def status_code
+    429
+  end
+
+  def to_s
+    "FurAffinity has returned an error page asking to slow down the request rate from this FAExport instance."
   end
 end
 
@@ -254,6 +402,14 @@ class CacheError < FAError
   def initialize(message)
     super(nil)
     @message = message
+  end
+
+  def self.error_type
+    "cache_error"
+  end
+
+  def status_code
+    500
   end
 
   def to_s
@@ -1153,15 +1309,30 @@ class Furaffinity
           response.read
         end
       rescue OpenURI::HTTPError => e
-        $http_errors.increment(labels: {page_type: page_type})
-        if e.io.status[0] == "503"
-          $cloudflare_errors.increment(labels: {page_type: page_type})
-          raise FACloudflareError.new(url)
+        $http_errors.increment(labels: { page_type: page_type })
+        # Detect and handle known errors
+        if e.io.status[0] == "403" || e.io.status[0] == "503"
+          raw = e.io.string
+          html = Nokogiri::HTML(raw.encode("UTF-8", invalid: :replace, undef: :replace).delete("\000"))
+
+          # Handle cloudflare errors
+          if e.io.status[0] == "403" && html.at_css("#challenge-error-title")
+            $cloudflare_errors.increment(labels: { page_type: page_type })
+            raise FACloudflareError.new(url)
+          end
+
+          # Handle FA slowdown errors
+          title = html.xpath("//head//title").first.content
+          if e.io.status[0] == "503" && title.include?("Error 503 --") && raw.include?("you are requesting web pages too fast and are being rate limited")
+            $slowdown_errors.increment(labels: { page_type: page_type })
+            raise FASlowdownError.new(url)
+          end
         end
+        # Raise other HTTP errors as normal
         raise
       ensure
         request_time = Time.now - start
-        $page_request_time.observe(request_time, labels: {page_type: page_type})
+        $page_request_time.observe(request_time, labels: { page_type: page_type })
       end
     end
 

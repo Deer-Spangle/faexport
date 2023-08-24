@@ -14,6 +14,7 @@ PROMETHEUS_PASS = "example_prom_pass"
 describe "FA export server" do
   before(:all) do
     expect(COOKIE_DEFAULT).not_to be_empty, "Test cookie needs to be set for testing"
+    expect(SERVER_URL).not_to be_empty, "Test server URL needs to be set for testing"
   end
 
   def fetch_with_retry(path, cookie: nil, check_status: true, user: nil, password: nil)

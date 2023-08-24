@@ -11,6 +11,6 @@ services:
       - LOG_DIR=/logs/
       - PROMETHEUS_PASS=${PROMETHEUS_PASS}
     volumes:
-    - ./logs/:/logs/
+      - ./logs/:/logs/
   redis_container:
     image: "redis"

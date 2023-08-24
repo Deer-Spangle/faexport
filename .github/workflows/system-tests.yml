@@ -34,3 +34,32 @@ jobs:
           server_url: "http://localhost:9292"
           test_cookie: ${{ secrets.TEST_COOKIE}}
           test_cookie_user_2: ${{ secrets.COOKIE_FAFEED_2 }}
+
+  static-scrape-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Build docker image"
+        run: make docker_build
+      - name: "Set docker compose to host network"
+        run: >
+          sed -i '/${PORT/d' docker-compose.yml;
+          sed -i 's/ports:/network_mode: \"host\"/' docker-compose.yml;
+          sed -i 's/redis_container:6379/localhost:6379/' docker-compose.yml;
+          sed -i '10i \ \ \ \ \ \ - CF_BYPASS=http://localhost:3000' docker-compose.yml;
+          sed -i '16i \ \ \ \ network_mode: \"host\"' docker-compose.yml;
+      - name: "Run docker compose"
+        run: "make deploy_bg PORT=9292"
+        env:
+          FA_COOKIE: ${{ secrets.TEST_COOKIE }}
+          APP_ENV: "production"
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1.2
+      - name: Install dependencies
+        run: bundle install
+      - name: "Run system tests with mock responses"
+        run: bundle exec "rspec spec tests/mock_system_spec.rb"
+        env:
+          server_url: "http://localhost:9292"

@@ -101,24 +101,25 @@ RSS_ONLY_ENDPOINTS = {
   notifs_favs: "api_notifications_favorites",
   notifs_journals: "api_notifications_journals",
 }
-ERROR_TYPES = {
-  FAFormError => "fa_form",
-  FAOffsetError => "fa_offset",
-  FASearchError => "fa_search",
-  FAStatusError => "fa_status",
-  FANoTitleError => "fa_no_title",
-  FAStyleError => "fa_style",
-  FALoginError => "fa_login_cookie",
-  FANotFoundError => "fa_not_found",
-  FAContentFilterError => "fa_content_filter",
-  FANoUserError => "fa_no_user",
-  FAAccountDisabledError => "fa_account_disabled",
-  FACloudflareError => "fa_cloudflare",
-  FALoginError => "fa_login",
-  FASystemError => "fa_system",
-  FAError => "fa_unknown",
-  unknown: "unknown",
-}
+ERROR_TYPES = [
+  FAFormError,
+  FAOffsetError,
+  FASearchError,
+  FAStatusError,
+  FANoTitleError,
+  FAStyleError,
+  FALoginError,
+  FAGuestAccessError,
+  FALoginCookieError,
+  FANotFoundError,
+  FAContentFilterError,
+  FANoUserError,
+  FAAccountDisabledError,
+  FACloudflareError,
+  FASlowdownError,
+  FASystemError,
+  FAError,
+]
 $endpoint_histogram = prom.histogram(
   :faexport_endpoint_request_time_seconds,
   docstring: "How long each request to the given endpoint took, in seconds",
@@ -150,10 +151,15 @@ def init_endpoint_metrics(endpoint, format)
   $endpoint_histogram.init_label_set(labels)
   $endpoint_cache_misses.init_label_set(labels)
   error_labels = labels.clone
-  ERROR_TYPES.each_value do |error_type|
+  ERROR_TYPES.each do |error_class|
+    error_type = error_class.error_type
     error_labels[:error_type] = error_type
     $endpoint_error_count.init_label_set(error_labels)
   end
+  error_labels[:error_type] = "unknown"
+  $endpoint_error_count.init_label_set(error_labels)
+  error_labels[:error_type] = "unknown_http"
+  $endpoint_error_count.init_label_set(error_labels)
 end
 HTML_ENDPOINTS.each_value do |endpoint_label|
   init_endpoint_metrics(endpoint_label, "html")
@@ -311,9 +317,11 @@ module FAExport
         start = Time.now
         begin
           resp = block.call(labels)
+        rescue FAError => e
+          $endpoint_error_count.increment(labels: { endpoint: endpoint, format: format, error_type: e.class.error_type })
+          raise e
         rescue => e
-          error_type = ERROR_TYPES.fetch(e.class, ERROR_TYPES[:unknown])
-          $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: error_type})
+          $endpoint_error_count.increment(labels: { endpoint: endpoint, format: format, error_type: "unknown" })
           raise e
         ensure
           time = Time.now - start
@@ -986,6 +994,7 @@ module FAExport
     get %r{/notes/#{NOTE_FOLDER_REGEX}\.(json|xml|rss)} do |folder, type|
       record_metrics(RSS_ENDPOINTS[:notes], type) do |metric_labels|
         ensure_login!
+        set_content_type(type)
         cache("notes/#{folder}:#{@user_cookie}.#{type}") do
           $endpoint_cache_misses.increment(labels: metric_labels)
           case type
@@ -1021,6 +1030,7 @@ module FAExport
     get %r{/note/#{ID_REGEX}\.(json|xml)} do |id, type|
       record_metrics(API_ENDPOINTS[:note], type) do |metric_labels|
         ensure_login!
+        set_content_type(type)
         cache("note/#{id}:#{@user_cookie}.#{type}") do
           $endpoint_cache_misses.increment(labels: metric_labels)
           case type
@@ -1054,38 +1064,26 @@ module FAExport
 
     error FAError do
       err = env["sinatra.error"]
-      status(
-        case err
-        when FAFormError        then 400
-        when FAOffsetError      then 400
-        when FASearchError      then 400
-        when FAStatusError      then 502
-        when FANoTitleError     then 500
-        when FAStyleError       then 400
-        when FAGuestAccessError then 403  # Shouldn't reach the user really, as login error should cover it
-        when FALoginCookieError then 401
-        when FANotFoundError    then 404
-        when FAContentFilterError then 403
-        when FANoUserError      then 404
-        when FAAccountDisabledError then 404
-        when FACloudflareError  then 503
-        when CacheError         then 500
-        when FALoginError       then @user_cookie ? 401 : 403  # Superclass of FAGuestAccessError
-        when FASystemError      then 500  # Superclass of FANoTitleError
-        else 500
-        end
-      )
+      status(err.status_code)
 
       if err.is_a? FALoginCookieError
         headers['WWW-Authenticate'] = 'Basic realm="Restricted Endpoint"'
       end
 
-      JSON.pretty_generate error: err.message, url: err.url
+      set_content_type("json")
+      JSON.pretty_generate(error_type: err.class.error_type, error: err.message, url: err.url)
+    end
+
+    error OpenURI::HTTPError do
+      status 500
+      set_content_type("json")
+      JSON.pretty_generate(error_type: "unknown_http", error: "FAExport received an unexpected status code when fetching data from FurAffinity")
     end
 
     error do
       status 500
-      "FAExport encounter an internal error"
+      set_content_type("json")
+      JSON.pretty_generate(error_type: "unknown", error: "FAExport encountered an internal error")
     end
   end
 end
