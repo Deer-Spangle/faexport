@@ -15,7 +15,7 @@ describe "FA export server" do
   def spawn_static_page_server(path)
     pid = spawn("while true; do cat #{path} | nc -q0 -vlp 3000; done")
     sleep(0.5)  # Wait for it to come online
-    return pid
+    pid
   end
 
   def kill_static_page_server(pid)
@@ -24,7 +24,7 @@ describe "FA export server" do
     # Make one request, to clear the last running netcat
     begin
       URI.open("http://localhost:3000").open
-    rescue
+    rescue OpenURI::HTTPError
       # Ignored
     end
   end
@@ -35,18 +35,16 @@ describe "FA export server" do
     end
 
     it "returns an FA slowdown error" do
-      begin
-        URI.parse("#{SERVER_URL}/submission/123.json").open
-        raise "This should return an error code"
-      rescue OpenURI::HTTPError => e
-        e_resp = e.io
-        expect(e_resp.status[0]).to eq("429")
-        body = e_resp.read
-        expect(body).not_to be_empty
-        data = JSON.parse(body)
-        expect(data).to have_key("error_type")
-        expect(data["error_type"]).to eq("fa_slowdown")
-      end
+      URI.parse("#{SERVER_URL}/submission/123.json").open
+      raise "This should return an error code"
+    rescue OpenURI::HTTPError => e
+      e_resp = e.io
+      expect(e_resp.status[0]).to eq("429")
+      body = e_resp.read
+      expect(body).not_to be_empty
+      data = JSON.parse(body)
+      expect(data).to have_key("error_type")
+      expect(data["error_type"]).to eq("fa_slowdown")
     end
 
     after do
@@ -60,18 +58,16 @@ describe "FA export server" do
     end
 
     it "returns an FA cloudflare error" do
-      begin
-        URI.parse("#{SERVER_URL}/submission/123.json").open
-        raise "This should return an error code"
-      rescue OpenURI::HTTPError => e
-        e_resp = e.io
-        expect(e_resp.status[0]).to eq("503")
-        body = e_resp.read
-        expect(body).not_to be_empty
-        data = JSON.parse(body)
-        expect(data).to have_key("error_type")
-        expect(data["error_type"]).to eq("fa_cloudflare")
-      end
+      URI.parse("#{SERVER_URL}/submission/123.json").open
+      raise "This should return an error code"
+    rescue OpenURI::HTTPError => e
+      e_resp = e.io
+      expect(e_resp.status[0]).to eq("503")
+      body = e_resp.read
+      expect(body).not_to be_empty
+      data = JSON.parse(body)
+      expect(data).to have_key("error_type")
+      expect(data["error_type"]).to eq("fa_cloudflare")
     end
 
     after do

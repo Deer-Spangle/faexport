@@ -384,9 +384,7 @@ class FACloudflareError < FAError
   end
 end
 
-
 class FASlowdownError < FACloudflareError
-
   def self.error_type
     "fa_slowdown"
   end
@@ -399,7 +397,6 @@ class FASlowdownError < FACloudflareError
     "FurAffinity has returned an error page asking to slow down the request rate from this FAExport instance."
   end
 end
-
 
 class CacheError < FAError
   def initialize(message)
@@ -1312,22 +1309,22 @@ class Furaffinity
           response.read
         end
       rescue OpenURI::HTTPError => e
-        $http_errors.increment(labels: {page_type: page_type})
+        $http_errors.increment(labels: { page_type: page_type })
         # Detect and handle known errors
         if e.io.status[0] == "403" || e.io.status[0] == "503"
           raw = e.io.string
           html = Nokogiri::HTML(raw.encode("UTF-8", invalid: :replace, undef: :replace).delete("\000"))
 
           # Handle cloudflare errors
-          if e.io.status[0] == "403" and html.at_css("#challenge-error-title")
-            $cloudflare_errors.increment(labels: {page_type: page_type})
+          if e.io.status[0] == "403" && html.at_css("#challenge-error-title")
+            $cloudflare_errors.increment(labels: { page_type: page_type })
             raise FACloudflareError.new(url)
           end
 
           # Handle FA slowdown errors
           title = html.xpath("//head//title").first.content
-          if e.io.status[0] == "503" and title.include?("Error 503 --") and raw.include?("you are requesting web pages too fast and are being rate limited")
-            $slowdown_errors.increment(labels: {page_type: page_type})
+          if e.io.status[0] == "503" && title.include?("Error 503 --") && raw.include?("you are requesting web pages too fast and are being rate limited")
+            $slowdown_errors.increment(labels: { page_type: page_type })
             raise FASlowdownError.new(url)
           end
         end
@@ -1335,7 +1332,7 @@ class Furaffinity
         raise
       ensure
         request_time = Time.now - start
-        $page_request_time.observe(request_time, labels: {page_type: page_type})
+        $page_request_time.observe(request_time, labels: { page_type: page_type })
       end
     end
 

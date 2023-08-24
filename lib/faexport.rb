@@ -318,10 +318,10 @@ module FAExport
         begin
           resp = block.call(labels)
         rescue FAError => e
-          $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: e.class.error_type})
+          $endpoint_error_count.increment(labels: { endpoint: endpoint, format: format, error_type: e.class.error_type })
           raise e
         rescue => e
-          $endpoint_error_count.increment(labels: {endpoint: endpoint, format: format, error_type: "unknown"})
+          $endpoint_error_count.increment(labels: { endpoint: endpoint, format: format, error_type: "unknown" })
           raise e
         ensure
           time = Time.now - start
