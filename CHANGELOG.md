@@ -11,6 +11,12 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2023.09.1] - 2023-09-08
+
+### Changed
+
+- Changed the histogram buckets for the `faexport_rss_feed_item_count` prometheus metric 
+
 ## [v2023.08.1] - 2023-08-24
 
 ### Added
