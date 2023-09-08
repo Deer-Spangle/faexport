@@ -139,7 +139,7 @@ $rss_length_histogram = prom.histogram(
   :faexport_rss_feed_item_count,
   docstring: "How many items are in each generated rss feed.",
   labels: [:endpoint],
-  buckets: [0, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+  buckets: [0, 2, 5, 9, 10, 100]
 )
 $auth_method = prom.counter(
   :faexport_auth_method_total,
