@@ -1575,6 +1575,7 @@ class Furaffinity
                 else
                   og_thumb["content"].sub "http:", "https:"
                 end
+    gallery = html.at_css(".minigallery-title a")["href"].split("/")[1]
 
     submission = {
       title: submission_title.at_css("h2").content,
@@ -1590,6 +1591,7 @@ class Furaffinity
       download: download_url,
       full: img ? "https:#{img["data-fullview-src"]}" : nil,
       thumbnail: thumb_img,
+      gallery: gallery,
       category: field(info, "Category"),
       theme: field(info, "Theme"),
       species: field(info, "Species"),
