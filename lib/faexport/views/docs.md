@@ -592,6 +592,7 @@ If you supply a login cookie, you will get two additional keys in the results: `
   "download": "http://d.furaffinity.net/art/fender/1284661300/1284661300.fender_fender.png",
   "full": "http://d.furaffinity.net/art/fender/1284661300/1284661300.fender_fender.png",
   "thumbnail": "http://t.furaffinity.net/4483888@400-1284661300.jpg",
+  "gallery": "gallery",
   "category": "Artwork (Digital)",
   "theme": "Doodle",
   "species": "Unspecified / Any",
