@@ -11,6 +11,12 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2024.03.1] - 2024-03-02
+
+### Added
+
+- Added "gallery" key to submission endpoint, saying whether a submission is in gallery or scraps
+
 ## [v2023.09.1] - 2023-09-08
 
 ### Changed
