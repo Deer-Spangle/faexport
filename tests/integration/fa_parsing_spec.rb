@@ -468,6 +468,7 @@ describe "FA parser" do
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(%r{https://d.furaffinity.net/art/[^/]+/[0-9]+/[0-9]+\..+\.png})
+      expect(sub[:gallery]).to eql("gallery")
       # For an image submission, full == download
       expect(sub[:full]).to eql(sub[:download])
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
@@ -516,6 +517,7 @@ describe "FA parser" do
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(%r{https://d.furaffinity.net/download/art/[^/]+/stories/[0-9]+/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)})
+      expect(sub[:gallery]).to eql("gallery")
       # For a story submission, full != download
       expect(sub[:full]).not_to be_blank
       expect(sub[:full]).not_to eql(sub[:download])
@@ -548,6 +550,7 @@ describe "FA parser" do
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(%r{https://d.furaffinity.net/download/art/[^/]+/music/[0-9]+/[0-9]+\..+\.(mp3|mid|wav|mpeg)})
+      expect(sub[:gallery]).to eql("gallery")
       # For a music submission, full != download
       expect(sub[:full]).not_to be_blank
       expect(sub[:full]).not_to eql(sub[:download])
@@ -580,6 +583,7 @@ describe "FA parser" do
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(%r{https://d.furaffinity.net/download/art/[^/]+/[0-9]+/[0-9]+\..+\.swf})
+      expect(sub[:gallery]).to eql("gallery")
       # For a flash submission, full is nil
       expect(sub[:full]).to be_nil
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
@@ -611,6 +615,7 @@ describe "FA parser" do
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(%r{https://d.furaffinity.net/download/art/[^/]+/poetry/[0-9]+/[0-9]+\..+\.(rtf|doc|txt|docx|pdf)})
+      expect(sub[:gallery]).to eql("gallery")
       # For a poetry submission, full is nil
       expect(sub[:full]).not_to be_nil
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
@@ -644,6 +649,7 @@ describe "FA parser" do
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(%r{https://d.furaffinity.net/art/[^/]+/[0-9]+/[0-9]+\..+\.png})
+      expect(sub[:gallery]).to eql("gallery")
       # For an image submission, full == download
       expect(sub[:full]).to eql(sub[:download])
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
@@ -662,6 +668,15 @@ describe "FA parser" do
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
       expect(sub[:keywords]).to be_empty
+    end
+
+    it "detects when a submission is in scraps" do
+      sub = @fa.submission("32006460")
+      expect(sub[:title]).not_to be_blank
+      expect(sub[:description]).not_to be_blank
+      expect(sub[:description_body]).to eql(sub[:description])
+      expect(sub).to have_valid_profile_link
+      expect(sub[:gallery]).to eql("scraps")
     end
 
     it "hides nsfw submission if sfw is set" do
@@ -734,6 +749,7 @@ describe "FA parser" do
       expect(sub[:link]).to be_valid_link_for_sub_id(sub_id)
       expect(sub[:posted]).to be_valid_date_and_match_iso(sub[:posted_at])
       expect(sub[:download]).to match(%r{https://d.furaffinity.net/art/[^/]+/[0-9]+/[0-9]+\..+\.png})
+      expect(sub[:gallery]).to eql("gallery")
       # For an image submission, full is equal to download
       expect(sub[:full]).to eql(sub[:download])
       expect(sub[:thumbnail]).to be_valid_thumbnail_link_for_sub_id(sub_id)
