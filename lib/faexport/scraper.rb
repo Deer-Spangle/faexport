@@ -1391,8 +1391,8 @@ class Furaffinity
     end
 
     # Handle "system message" type errors
-    maintable_head = p html.at_css("table.maintable td.cat")
-    if !maintable_head.nil? && (p maintable_head.content.strip) == "System Message"
+    maintable_head = html.at_css("table.maintable td.cat")
+    if !maintable_head.nil? && maintable_head.content.strip == "System Message"
       maintable_content = html.at_css("table.maintable td.alt1").content
       # Handle disabled accounts
       if maintable_content.include?("has voluntarily disabled access to their account and all of its contents.")
