@@ -1391,8 +1391,8 @@ class Furaffinity
     end
 
     # Handle "system message" type errors
-    maintable_head = html.at_css("table.maintable td.cat b")
-    if !maintable_head.nil? && maintable_head.content == "System Message"
+    maintable_head = p html.at_css("table.maintable td.cat")
+    if !maintable_head.nil? && (p maintable_head.content.strip) == "System Message"
       maintable_content = html.at_css("table.maintable td.alt1").content
       # Handle disabled accounts
       if maintable_content.include?("has voluntarily disabled access to their account and all of its contents.")
@@ -1409,6 +1409,11 @@ class Furaffinity
       # Handle content filter errors, accessing a nsfw submission with a sfw profile
       if maintable_content.include?("You are not allowed to view this image due to the content filter settings.")
         raise FAContentFilterError.new(url)
+      end
+
+      # Handle page is pending deletion
+      if maintable_content.include?("The page you are trying to reach is currently pending deletion")
+        raise FANotFoundError.new(url)
       end
     end
   end
