@@ -11,6 +11,12 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2024.03.2] - 2024-03-12
+
+### Added
+
+- Handling "pending deletion" error page, as submission not found error, `fa_not_found`
+
 ## [v2024.03.1] - 2024-03-02
 
 ### Added
