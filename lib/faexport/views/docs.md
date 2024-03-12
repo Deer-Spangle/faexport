@@ -35,8 +35,8 @@ authentication cookies, and can be used to gain access to your account.
 ## Errors and status codes
 
 In the case of an error, the response will be returned as json with an `error_type` field giving an error type you can
-match against in your code, an `error` field giving details of what happened and a `url` field that includes any FA url
-that the error originated from.
+match against in your code, an `error` field giving details of what happened and, optionally, a `url` field that
+includes any FA url that the error originated from.
 
 ~~~json
 {
