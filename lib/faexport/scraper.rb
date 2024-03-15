@@ -1302,6 +1302,8 @@ class Furaffinity
     cookie_str = full_cookie(extra_cookie: extra_cookie, as_guest: as_guest)
     raw = @cache.add("url:#{url}:#{cookie_str}") do
       start = Time.now
+      retry_attempts = 0
+      retry_sleep_time = 0
       begin
         URI.parse(url).open({ "User-Agent" => USER_AGENT, "Cookie" => "#{cookie_str}" }) do |response|
           raise FAStatusError.new(url, response.status.join(" ")) if response.status[0] != "200"
@@ -1328,8 +1330,29 @@ class Furaffinity
             raise FASlowdownError.new(url)
           end
         end
+        # Retry some types of error
+        if e.io.status[0] == "502" || e.io.status[0] == "520"
+          retry_attempts += 1
+          if retry_attempts < 5
+            sleep(retry_sleep_time)
+            retry_sleep_time += 0.5
+            retry
+          else
+            raise
+          end
+        end
         # Raise other HTTP errors as normal
         raise
+      rescue Errno::ECONNRESET => e
+        # Retry connection reset errors
+        retry_attempts += 1
+        if retry_attempts < 5
+          sleep(retry_sleep_time)
+          retry_sleep_time += 0.5
+          retry
+        else
+          raise
+        end
       ensure
         request_time = Time.now - start
         $page_request_time.observe(request_time, labels: { page_type: page_type })
