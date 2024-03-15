@@ -11,6 +11,12 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2024.03.3] - 2024-03-15
+
+### Changed
+
+- Attempt to fetch data from FurAffinity multiple times in case of intermittent network issues
+
 ## [v2024.03.2] - 2024-03-12
 
 ### Added
