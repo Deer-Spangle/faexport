@@ -1314,7 +1314,7 @@ class Furaffinity
         $http_errors.increment(labels: { page_type: page_type })
         # Detect and handle known errors
         if e.io.status[0] == "403" || e.io.status[0] == "503"
-          raw = e.io.string
+          raw = e.io.read
           html = Nokogiri::HTML(raw.encode("UTF-8", invalid: :replace, undef: :replace).delete("\000"))
 
           # Handle cloudflare errors
@@ -1344,9 +1344,11 @@ class Furaffinity
         # Raise other HTTP errors as normal
         raise
       rescue Errno::ECONNRESET => e
+        p "conn reset"
         # Retry connection reset errors
         retry_attempts += 1
         if retry_attempts < 5
+          p "Gonna sleep #{retry_sleep_time} seconds and retry. Attempt #{retry_attempts}"
           sleep(retry_sleep_time)
           retry_sleep_time += 0.5
           retry
