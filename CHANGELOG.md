@@ -11,6 +11,12 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2024.03.4] - 2024-03-19
+
+### Fixed
+
+- Fixed reading error responses from FA, including cloudflare responses. Hence fixing detection of error types
+
 ## [v2024.03.3] - 2024-03-15
 
 ### Changed
