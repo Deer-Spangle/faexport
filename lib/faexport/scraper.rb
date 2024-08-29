@@ -1416,7 +1416,7 @@ class Furaffinity
     end
 
     # Handle "system message" type errors
-    maintable_head = html.at_css("table.maintable td.cat")
+    maintable_head = html.at_css("table.maintable:not(#admin_notice_do_not_adblock) td.cat")
     if !maintable_head.nil? && maintable_head.content.strip == "System Message"
       maintable_content = html.at_css("table.maintable td.alt1").content
       # Handle disabled accounts
