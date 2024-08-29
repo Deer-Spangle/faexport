@@ -66,16 +66,16 @@ publish: VERSION clean
 	docker push $(DOCKER_HUB_NAME):latest
 
 deploy: FA_COOKIE
-	FA_COOKIE="$(FA_COOKIE)" PORT=${PORT} VERSION=${CONTAINER_TAG} APP_ENV=production docker-compose up
+	FA_COOKIE="$(FA_COOKIE)" PORT=${PORT} VERSION=${CONTAINER_TAG} APP_ENV=production docker compose up
 
 deploy_bg: FA_COOKIE
-	FA_COOKIE="$(FA_COOKIE)" PORT=${PORT} VERSION=${CONTAINER_TAG} APP_ENV=production docker-compose up -d
+	FA_COOKIE="$(FA_COOKIE)" PORT=${PORT} VERSION=${CONTAINER_TAG} APP_ENV=production docker compose up -d
 
 deploy_bypass: FA_COOKIE
-	FA_COOKIE="$(FA_COOKIE)" PORT=${PORT} VERSION=${CONTAINER_TAG} APP_ENV=production docker-compose -f docker-compose.yml -f docker-compose-cfbypass.yml up
+	FA_COOKIE="$(FA_COOKIE)" PORT=${PORT} VERSION=${CONTAINER_TAG} APP_ENV=production docker compose -f docker-compose.yml -f docker-compose-cfbypass.yml up
 
 clean_docker:
-	docker-compose down -v --rmi all --remove-orphans || true
+	docker compose down -v --rmi all --remove-orphans || true
 	docker kill -s 9 $(PROJECT) || true
 	docker rm $(PROJECT) || true
 	docker rmi -f $(PROJECT) || true
