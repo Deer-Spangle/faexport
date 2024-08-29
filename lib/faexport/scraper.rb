@@ -1598,7 +1598,8 @@ class Furaffinity
     img = html.at_css("img#submissionImg")
     actions_bar = html.css("#page-submission td.alt1 div.actions a")
     download_url = "https:#{actions_bar.select { |a| a.content == "Download" }.first["href"]}"
-    profile_url = html.at_css("td.cat a")["href"][1..-1]
+    profile_link = html.at_css(".classic-submission-title.information a")
+    profile_url = profile_link["href"][1..-1]
     og_thumb = html.at_css('meta[property="og:image"]')
     thumb_img = if og_thumb.nil? || og_thumb["content"].include?("/banners/fa_logo")
                   img ? "https:#{img["data-preview-src"]}" : nil
@@ -1611,7 +1612,7 @@ class Furaffinity
       title: submission_title.at_css("h2").content,
       description: submission.css("td.alt1")[2].children.to_s.strip,
       description_body: submission.css("td.alt1")[2].children.to_s.strip,
-      name: html.css("td.cat a")[1].content,
+      name: profile_link.content,
       profile: fa_url(profile_url),
       profile_name: last_path(profile_url),
       avatar: "https:#{submission_title.at_css("img.avatar")["src"]}",
