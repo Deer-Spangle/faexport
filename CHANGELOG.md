@@ -11,6 +11,15 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2024.08.1] - 2024-08-30
+
+### Fixed
+
+- Fixed submission page to correctly fetch author information after gofundme panel was added
+- Fixed FAAccountDisabledError detection, which had also broken due to the gofundme panel
+- Fixed note message parsing, which had broken due to a warning notice added into notes
+- Updated Makefile to use `docker compose` instead of `docker-compose`
+
 ## [v2024.03.4] - 2024-03-19
 
 ### Fixed
