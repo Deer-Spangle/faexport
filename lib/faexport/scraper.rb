@@ -566,7 +566,7 @@ class Furaffinity
     url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
     html = fetch(url)
 
-    html.css(".artist_name").map(&:content)
+    html.css(".c-usernameBlockSimple__displayName").map(&:content)
   end
 
   def submission(id, is_login = false)
