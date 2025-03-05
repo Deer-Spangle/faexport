@@ -534,7 +534,7 @@ class Furaffinity
 
     {
       id: nil,
-      name: html.at_css(".addpad.lead b").content.strip[1..-1],
+      name: html.at_css(".addpad.lead .c-usernameBlock__displayName").content.strip,
       profile: fa_url(profile),
       account_type: html.at_css(".addpad.lead").content[/\((.+?)\)/, 1].strip,
       avatar: "https:#{html.at_css("td.addpad img")["src"]}",
@@ -566,7 +566,7 @@ class Furaffinity
     url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
     html = fetch(url)
 
-    html.css(".artist_name").map(&:content)
+    html.at_css("td.alt1").css(".c-usernameBlockSimple__displayName").map(&:content)
   end
 
   def submission(id, is_login = false)
@@ -1136,7 +1136,11 @@ class Furaffinity
     profile = is_inbound ? note_from : note_to
     date = pick_date(note_table.at_css("span.popup_date"))
     description = note_table.at_css("td.text")
-    description.at_css(".noteWarningMessage").unlink # Remove the warning message from the description block
+    # Remove the warning message from the description block if it exists
+    note_warning = description.at_css(".noteWarningMessage")
+    unless note_warning.nil?
+      note_warning.unlink
+    end
     desc_split = description.inner_html.split("—————————")
     name = profile&.content
     if profile.nil?
@@ -1273,7 +1277,7 @@ class Furaffinity
     users = elem.css("##{selector} a").map do |user|
       link = fa_url(user["href"][1..-1])
       {
-        name: user.at_css(".artist_name").content.strip,
+        name: user.at_css(".c-usernameBlockSimple__displayName").content.strip,
         profile_name: last_path(link),
         link: link
       }
@@ -1518,7 +1522,7 @@ class Furaffinity
         profile_url = comment.at_css("ul ul li a")["href"][1..-1]
         {
           id: id,
-          name: comment.at_css(".replyto-name").content.strip,
+          name: comment.at_css(".c-usernameBlock__displayName").content.strip,
           profile: fa_url(profile_url),
           profile_name: last_path(profile_url),
           avatar: "https:#{comment.at_css(".icon img")["src"]}",

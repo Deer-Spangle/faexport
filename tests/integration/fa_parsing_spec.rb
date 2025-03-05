@@ -568,8 +568,8 @@ describe "FA parser" do
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
       expect(sub[:keywords]).not_to be_empty
-      expect(sub[:keywords]).to include("BLEEP")
-      expect(sub[:keywords]).to include("BLORP")
+      expect(sub[:keywords]).to include("bleep")
+      expect(sub[:keywords]).to include("blorp")
     end
 
     it "handles flash files correctly" do
@@ -601,7 +601,7 @@ describe "FA parser" do
       expect(sub[:keywords]).to be_instance_of Array
       expect(sub[:keywords]).not_to be_empty
       expect(sub[:keywords]).to include("dog")
-      expect(sub[:keywords]).to include("DDR")
+      expect(sub[:keywords]).to include("ddr")
     end
 
     it "handles poetry submissions correctly" do
@@ -632,7 +632,7 @@ describe "FA parser" do
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
       expect(sub[:keywords]).not_to be_empty
-      expect(sub[:keywords]).to include("Love")
+      expect(sub[:keywords]).to include("love")
       expect(sub[:keywords]).to include("mind")
     end
 

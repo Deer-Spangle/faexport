@@ -11,6 +11,14 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2025.03.1] - 2025-03-05
+
+### Fixed
+
+- Fixed parsing of display names in comments, profile pages, and watcher lists
+- Updated tests to accommodate post tags all being lowercase now
+- Fixed note endpoint, by only removing the warning if it exists
+
 ## [v2024.08.1] - 2024-08-30
 
 ### Fixed
