@@ -1518,7 +1518,7 @@ class Furaffinity
         profile_url = comment.at_css("ul ul li a")["href"][1..-1]
         {
           id: id,
-          name: comment.at_css(".replyto-name").content.strip,
+          name: comment.at_css(".c-usernameBlock__displayName").content.strip,
           profile: fa_url(profile_url),
           profile_name: last_path(profile_url),
           avatar: "https:#{comment.at_css(".icon img")["src"]}",
