@@ -1136,7 +1136,11 @@ class Furaffinity
     profile = is_inbound ? note_from : note_to
     date = pick_date(note_table.at_css("span.popup_date"))
     description = note_table.at_css("td.text")
-    description.at_css(".noteWarningMessage").unlink # Remove the warning message from the description block
+    # Remove the warning message from the description block if it exists
+    note_warning = description.at_css(".noteWarningMessage")
+    unless note_warning.nil?
+      note_warning.unlink
+    end
     desc_split = description.inner_html.split("—————————")
     name = profile&.content
     if profile.nil?
