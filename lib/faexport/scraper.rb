@@ -563,6 +563,7 @@ class Furaffinity
 
   def budlist(name, page, is_watchers)
     mode = is_watchers ? "to" : "by"
+    page = page - 1 # FA changed watchers list pages from being 1-indexed, to 0-indexed. So we have to convert to ensure backward compatibility.
     url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
     html = fetch(url)
 

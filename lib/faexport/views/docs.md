@@ -354,6 +354,9 @@ Accounts that are watching or watched by the specified user.
 By default, the first 200 users are returned.
 You can pass a parameter `?page=2` to load more.
 
+**Note:** The first page, and the default page, is page 1. Furaffinity has changed their site to zero-index pages, but
+for backwards compatibility, FAExport continues to 1-index them.
+
 *Formats:* `json`, `xml`
 
 ~~~json
