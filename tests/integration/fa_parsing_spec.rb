@@ -861,6 +861,7 @@ describe "FA parser" do
     end
 
     it "handles non existent journal header" do
+      skip "Skipped: Current [2025-12-11] FA bug prevents footer from showing if header is unset"
       journal_id = "9185944"
       journal = @fa.journal(journal_id)
       expect(journal[:title]).to eql("Testing journals")
