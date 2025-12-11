@@ -497,7 +497,7 @@ describe "FA parser" do
       sub_id = "16437648"
       sub = @fa.submission(sub_id)
       expect(sub[:keywords]).to be_instance_of Array
-      expect(sub[:keywords]).to eql(%w[keyword1 keyword2 keyword3])
+      expect(sub[:keywords]).to eql(%w[keyword1 keyword2 keyword3 male])
     end
 
     it "has identical description and description_body" do
