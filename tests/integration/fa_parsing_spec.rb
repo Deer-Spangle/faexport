@@ -476,7 +476,7 @@ describe "FA parser" do
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
       expect(sub[:species]).not_to be_blank
-      expect(sub[:gender]).not_to be_blank
+      expect(sub[:gender]).to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
       expect(sub[:favorites].to_i).to be_positive
       expect(sub[:comments]).to match(/[0-9]+/)
@@ -657,7 +657,7 @@ describe "FA parser" do
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
       expect(sub[:species]).not_to be_blank
-      expect(sub[:gender]).not_to be_blank
+      expect(sub[:gender]).to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
       expect(sub[:favorites].to_i).to be >= 0
       expect(sub[:comments]).to match(/[0-9]+/)
@@ -757,7 +757,7 @@ describe "FA parser" do
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
       expect(sub[:species]).not_to be_blank
-      expect(sub[:gender]).not_to be_blank
+      expect(sub[:gender]).to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
       expect(sub[:favorites].to_i).to be_positive
       expect(sub[:comments]).to match(/[0-9]+/)
