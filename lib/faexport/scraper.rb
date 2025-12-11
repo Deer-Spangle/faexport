@@ -1428,6 +1428,9 @@ class Furaffinity
       if maintable_content.include?("has voluntarily disabled access to their account and all of its contents.")
         raise FAAccountDisabledError.new(url)
       end
+      if maintable_content.include?("Access has been disabled to the account and contents of user")
+        raise FAAccountDisabledError.new(url)
+      end
 
       # Handle user not existing (this version of the error is raised by watchers lists and galleries)
       if maintable_content.include?("Provided username not found in the database.") ||
