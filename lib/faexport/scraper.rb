@@ -1318,7 +1318,7 @@ class Furaffinity
       rescue OpenURI::HTTPError => e
         $http_errors.increment(labels: { page_type: page_type })
         # Detect and handle known errors
-        if e.io.status[0] == "403" || e.io.status[0] == "503"
+        if e.io.status[0] == "403" || e.io.status[0] == "503" || e.io.status[0] == "400"
           raw = e.io.read
           html = Nokogiri::HTML(raw.encode("UTF-8", invalid: :replace, undef: :replace).delete("\000"))
 
@@ -1333,6 +1333,18 @@ class Furaffinity
           if e.io.status[0] == "503" && title.include?("Error 503 --") && raw.include?("you are requesting web pages too fast and are being rate limited")
             $slowdown_errors.increment(labels: { page_type: page_type })
             raise FASlowdownError.new(url)
+          end
+
+          # Handle user not found errors
+          if e.io.status[0] == "400"
+            head = html.xpath("//head//title").first
+            if head.content == "System Error"
+              error_msg = html.at_css("table.maintable td.alt1 font").content
+              # Handle user profile not found, and user not found on journal listing
+              if error_msg.include?("This user cannot be found") || error_msg.include?("User not found!")
+                raise FANoUserError.new(url)
+              end
+            end
           end
         end
         # Retry some types of error
