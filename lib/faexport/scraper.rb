@@ -757,15 +757,11 @@ class Furaffinity
       end
     end
 
+    # Construct the search URL with GET params
+    search_get_params = URI.encode_www_form(params)
+    search_url = "/search/?#{search_get_params}"
     # Get search response
-    raw = @cache.add("url:search:#{params}") do
-      response = post("/search/", params)
-      raise FAStatusError.new(fa_url("search/"), response.message) unless response.is_a?(Net::HTTPSuccess)
-
-      response.body
-    end
-    # Parse search results
-    html = Nokogiri::HTML(raw)
+    html = fetch(search_url)
     # Get search results. Even a search with no matches gives this div.
     results = html.at_css("#search-results")
     # If form fails to submit, this div will not be there.
