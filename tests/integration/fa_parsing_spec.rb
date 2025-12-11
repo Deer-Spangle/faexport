@@ -486,7 +486,7 @@ describe "FA parser" do
       expect(sub[:resolution]).not_to be_blank
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
-      expect(sub[:keywords]).to eql(%w[keyword1 keyword2 keyword3])
+      expect(sub[:keywords]).to eql(%w[keyword1 keyword2 keyword3 male])
     end
 
     it "fails when given non-existent submissions" do
