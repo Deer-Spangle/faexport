@@ -563,7 +563,11 @@ class Furaffinity
 
   def budlist(name, page, is_watchers)
     mode = is_watchers ? "to" : "by"
-    url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
+    if page == 1
+      url = "watchlist/#{mode}/#{escape(name)}/"
+    else
+      url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
+    end
     html = fetch(url)
 
     html.at_css("td.alt1").css(".c-usernameBlockSimple__displayName").map(&:content)
