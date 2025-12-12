@@ -30,7 +30,7 @@ describe "FA parser search endpoint" do
 
     begin
       @fa.search(args)
-    rescue [FAStatusError, FASlowdownError] => e
+    rescue FAStatusError, FASlowdownError => e
       raise unless (retries += 1) <= 5
 
       puts "FA error on Search: #{e}, retry #{retries} in #{wait_between_tries} second(s)..."
