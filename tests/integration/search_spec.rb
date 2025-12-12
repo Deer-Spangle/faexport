@@ -69,10 +69,12 @@ describe "FA parser search endpoint" do
       results1 = search_with_retry({ "q" => "YCH" })
       expect(results1).to be_instance_of Array
       expect(results1).not_to be_empty
+      expect(results1.length).to be >= 20
       # Get page 2
       results2 = search_with_retry({ "q" => "YCH", "page" => "2" })
       expect(results2).to be_instance_of Array
       expect(results2).not_to be_empty
+      expect(results2.length).to be >= 20
       # Check they're different enough
       expect(results1).to be_different_results_to(results2)
     end
@@ -121,12 +123,14 @@ describe "FA parser search endpoint" do
     end
 
     it "defaults to ordering by date desc" do
-      results = search_with_retry({ "q" => "YCH", "perpage" => "72" })
+      results = search_with_retry({ "q" => "YCH", "perpage" => "24" })
       expect(results).to be_instance_of Array
       expect(results).not_to be_empty
-      results_date = search_with_retry({ "q" => "YCH", "perpage" => "72", "order_by" => "date" })
-      expect(results).to be_instance_of Array
-      expect(results).not_to be_empty
+      expect(results.length).to be >= 20
+      results_date = search_with_retry({ "q" => "YCH", "perpage" => "24", "order_by" => "date" })
+      expect(results_date).to be_instance_of Array
+      expect(results_date).not_to be_empty
+      expect(results_date.length).to be >= 20
 
       # Check they're similar enough
       expect(results).to be_similar_results_to(results_date)
@@ -141,8 +145,11 @@ describe "FA parser search endpoint" do
 
     it "can search by relevancy and popularity, which give a different order to date" do
       results_date = search_with_retry({ "q" => "YCH", "perpage" => "24", "order_by" => "date" })
+      expect(results_date.length).to be >= 20
       results_rele = search_with_retry({ "q" => "YCH", "perpage" => "24", "order_by" => "relevancy" })
+      expect(results_rele.length).to be >= 20
       results_popu = search_with_retry({ "q" => "YCH", "perpage" => "24", "order_by" => "popularity" })
+      expect(results_popu.length).to be >= 20
       expect(results_date).to be_different_results_to(results_rele)
       expect(results_rele).to be_different_results_to(results_popu)
       expect(results_popu).to be_different_results_to(results_date)
@@ -150,7 +157,9 @@ describe "FA parser search endpoint" do
 
     it "can specify order direction as ascending" do
       results_asc = search_with_retry({ "q" => "YCH", "perpage" => "24", "order_direction" => "asc" })
+      expect(results_asc.length).to be >= 20
       results_desc = search_with_retry({ "q" => "YCH", "perpage" => "24", "order_direction" => "desc" })
+      expect(results_desc.length).to be >= 20
       expect(results_asc).to be_different_results_to(results_desc)
     end
 
@@ -177,10 +186,14 @@ describe "FA parser search endpoint" do
     end
 
     it "can specify search mode for the terms in the query" do
-      extended_or_results = search_with_retry({ "q" => "deer | lion", "perpage" => 72 })
-      extended_and_results = search_with_retry({ "q" => "deer & lion", "perpage" => 72 })
-      or_results = search_with_retry({ "q" => "deer lion", "perpage" => 72, "mode" => "any" })
-      and_results = search_with_retry({ "q" => "deer lion", "perpage" => 72, "mode" => "all" })
+      extended_or_results = search_with_retry({ "q" => "deer | lion", "perpage" => 24 })
+      expect(extended_or_results.length).to be >= 20
+      extended_and_results = search_with_retry({ "q" => "deer & lion", "perpage" => 24 })
+      expect(extended_and_results.length).to be >= 20
+      or_results = search_with_retry({ "q" => "deer lion", "perpage" => 24, "mode" => "any" })
+      expect(or_results.length).to be >= 20
+      and_results = search_with_retry({ "q" => "deer lion", "perpage" => 24, "mode" => "all" })
+      expect(and_results.length).to be >= 20
 
       expect(extended_and_results).to be_different_results_to(extended_or_results)
       expect(and_results).to be_different_results_to(or_results)
@@ -191,7 +204,9 @@ describe "FA parser search endpoint" do
 
     it "can specify ratings to display, and honours that selection" do
       only_adult = search_with_retry({ "q" => "ych", "perpage" => 24, "rating" => "adult" })
+      expect(only_adult.length).to be >= 20
       only_sfw_or_mature = search_with_retry({ "q" => "ych", "perpage" => 24, "rating" => "mature,general" })
+      expect(only_sfw_or_mature.length).to be >= 20
 
       expect(only_adult).to be_different_results_to(only_sfw_or_mature)
 
@@ -229,14 +244,20 @@ describe "FA parser search endpoint" do
     end
 
     it "can specify a content type for results, only returns that content type" do
-      results_poem = search_with_retry({ "q" => "deer", "perpage" => 72, "type" => "poetry" })
-      results_photo = search_with_retry({ "q" => "deer", "perpage" => 72, "type" => "photo" })
+      results_poem = search_with_retry({ "q" => "deer", "perpage" => 24, "type" => "poetry" })
+      expect(results_poem.length).to be >= 20
+      results_photo = search_with_retry({ "q" => "deer", "perpage" => 24, "type" => "photo" })
+      expect(results_photo.length).to be >= 20
+
       expect(results_photo).to be_different_results_to(results_poem)
     end
 
     it "can specify multiple content types for results, and only displays those types" do
-      results_image = search_with_retry({ "q" => "deer", "perpage" => 72, "type" => "photo,art" })
-      results_swf_music = search_with_retry({ "q" => "deer", "perpage" => 72, "type" => "flash,music" })
+      results_image = search_with_retry({ "q" => "deer", "perpage" => 24, "type" => "photo,art" })
+      expect(results_image.length).to be >= 20
+      results_swf_music = search_with_retry({ "q" => "deer", "perpage" => 24, "type" => "flash,music" })
+      expect(results_swf_music.length).to be >= 20
+
       expect(results_image).to be_different_results_to(results_swf_music)
     end
 
