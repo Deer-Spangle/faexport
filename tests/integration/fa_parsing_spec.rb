@@ -476,7 +476,7 @@ describe "FA parser" do
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
       expect(sub[:species]).not_to be_blank
-      expect(sub[:gender]).not_to be_blank
+      expect(sub[:gender]).to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
       expect(sub[:favorites].to_i).to be_positive
       expect(sub[:comments]).to match(/[0-9]+/)
@@ -486,7 +486,7 @@ describe "FA parser" do
       expect(sub[:resolution]).not_to be_blank
       expect(sub[:rating]).not_to be_blank
       expect(sub[:keywords]).to be_instance_of Array
-      expect(sub[:keywords]).to eql(%w[keyword1 keyword2 keyword3])
+      expect(sub[:keywords]).to eql(%w[keyword1 keyword2 keyword3 male])
     end
 
     it "fails when given non-existent submissions" do
@@ -497,7 +497,7 @@ describe "FA parser" do
       sub_id = "16437648"
       sub = @fa.submission(sub_id)
       expect(sub[:keywords]).to be_instance_of Array
-      expect(sub[:keywords]).to eql(%w[keyword1 keyword2 keyword3])
+      expect(sub[:keywords]).to eql(%w[keyword1 keyword2 keyword3 male])
     end
 
     it "has identical description and description_body" do
@@ -657,7 +657,7 @@ describe "FA parser" do
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
       expect(sub[:species]).not_to be_blank
-      expect(sub[:gender]).not_to be_blank
+      expect(sub[:gender]).to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
       expect(sub[:favorites].to_i).to be >= 0
       expect(sub[:comments]).to match(/[0-9]+/)
@@ -757,7 +757,7 @@ describe "FA parser" do
       expect(sub[:category]).not_to be_blank
       expect(sub[:theme]).not_to be_blank
       expect(sub[:species]).not_to be_blank
-      expect(sub[:gender]).not_to be_blank
+      expect(sub[:gender]).to be_blank
       expect(sub[:favorites]).to match(/[0-9]+/)
       expect(sub[:favorites].to_i).to be_positive
       expect(sub[:comments]).to match(/[0-9]+/)
@@ -861,6 +861,7 @@ describe "FA parser" do
     end
 
     it "handles non existent journal header" do
+      skip "Skipped: Current [2025-12-11] FA bug prevents footer from showing if header is unset"
       journal_id = "9185944"
       journal = @fa.journal(journal_id)
       expect(journal[:title]).to eql("Testing journals")

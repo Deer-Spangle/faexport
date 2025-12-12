@@ -563,7 +563,11 @@ class Furaffinity
 
   def budlist(name, page, is_watchers)
     mode = is_watchers ? "to" : "by"
-    url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
+    if page == 1
+      url = "watchlist/#{mode}/#{escape(name)}/"
+    else
+      url = "watchlist/#{mode}/#{escape(name)}/#{page}/"
+    end
     html = fetch(url)
 
     html.at_css("td.alt1").css(".c-usernameBlockSimple__displayName").map(&:content)
@@ -717,14 +721,12 @@ class Furaffinity
     # Handle page specification
     page = options["page"]
     if page !~ /[0-9]+/ || page.to_i <= 1
-      options["page"] = 1
-      params["do_search"] = "Search"
+      params["page"] = 1
     else
-      options["page"] = options["page"].to_i - 1
-      params["next_page"] = ">>> #{options["perpage"]} more >>>"
+      params["page"] = page.to_i
     end
 
-    # Construct params, to send in POST request
+    # Construct params, to include as GET params
     options.each do |key, value|
       name = key.gsub("_", "-")
       # If this is the range, remap old values to new ones
@@ -753,15 +755,11 @@ class Furaffinity
       end
     end
 
+    # Construct the search URL with GET params
+    search_get_params = URI.encode_www_form(params)
+    search_url = "/search/?#{search_get_params}"
     # Get search response
-    raw = @cache.add("url:search:#{params}") do
-      response = post("/search/", params)
-      raise FAStatusError.new(fa_url("search/"), response.message) unless response.is_a?(Net::HTTPSuccess)
-
-      response.body
-    end
-    # Parse search results
-    html = Nokogiri::HTML(raw)
+    html = fetch(search_url)
     # Get search results. Even a search with no matches gives this div.
     results = html.at_css("#search-results")
     # If form fails to submit, this div will not be there.
@@ -1318,7 +1316,7 @@ class Furaffinity
       rescue OpenURI::HTTPError => e
         $http_errors.increment(labels: { page_type: page_type })
         # Detect and handle known errors
-        if e.io.status[0] == "403" || e.io.status[0] == "503"
+        if e.io.status[0] == "403" || e.io.status[0] == "503" || e.io.status[0] == "400"
           raw = e.io.read
           html = Nokogiri::HTML(raw.encode("UTF-8", invalid: :replace, undef: :replace).delete("\000"))
 
@@ -1333,6 +1331,18 @@ class Furaffinity
           if e.io.status[0] == "503" && title.include?("Error 503 --") && raw.include?("you are requesting web pages too fast and are being rate limited")
             $slowdown_errors.increment(labels: { page_type: page_type })
             raise FASlowdownError.new(url)
+          end
+
+          # Handle user not found errors
+          if e.io.status[0] == "400"
+            head = html.xpath("//head//title").first
+            if head.content == "System Error"
+              error_msg = html.at_css("table.maintable td.alt1 font").content
+              # Handle user profile not found, and user not found on journal listing
+              if error_msg.include?("This user cannot be found") || error_msg.include?("User not found!")
+                raise FANoUserError.new(url)
+              end
+            end
           end
         end
         # Retry some types of error
@@ -1426,6 +1436,9 @@ class Furaffinity
       maintable_content = html.at_css("table.maintable td.alt1").content
       # Handle disabled accounts
       if maintable_content.include?("has voluntarily disabled access to their account and all of its contents.")
+        raise FAAccountDisabledError.new(url)
+      end
+      if maintable_content.include?("Access has been disabled to the account and contents of user")
         raise FAAccountDisabledError.new(url)
       end
 
