@@ -11,6 +11,20 @@ Changelog for FAExport API, should include entries for these types of changes:
 
 Format inspired by https://keepachangelog.com/en/1.0.0/
 
+## [v2025.12.1] - 2025-12-12
+
+### Added
+
+- Added dark mode to the web UI (Thanks @s0ph0s-dog)
+
+### Fixed
+
+- Handle new account disabled message from FA
+- Handle "user not found" pages correctly now that FA returns 400 status rather than 200
+- Work around the bug where the first page of watchers/watchees returns a database error when page is actually set to 1 rather than left blank
+- Handle FA search now using GET params rather than POST data, and removes a couple of the weird unused but required parameters
+- Handle the fact that page numbers on FA search are no longer zero indexed, but 1 indexed
+
 ## [v2025.03.1] - 2025-03-05
 
 ### Fixed
