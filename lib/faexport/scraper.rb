@@ -721,14 +721,12 @@ class Furaffinity
     # Handle page specification
     page = options["page"]
     if page !~ /[0-9]+/ || page.to_i <= 1
-      options["page"] = 1
-      params["do_search"] = "Search"
+      params["page"] = 1
     else
-      options["page"] = options["page"].to_i - 1
-      params["next_page"] = ">>> #{options["perpage"]} more >>>"
+      params["page"] = page.to_i
     end
 
-    # Construct params, to send in POST request
+    # Construct params, to include as GET params
     options.each do |key, value|
       name = key.gsub("_", "-")
       # If this is the range, remap old values to new ones
